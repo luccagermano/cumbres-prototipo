@@ -41,7 +41,7 @@ export default function InternoDashboard() {
 
   const { data: tickets } = useQuery({
     queryKey: ["interno-tickets-summary"],
-    enabled: !!user,
+    enabled: !!user && canSeeTickets,
     queryFn: async () => {
       const { data } = await supabase
         .from("tickets")
