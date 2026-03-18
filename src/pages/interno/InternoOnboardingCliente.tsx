@@ -69,13 +69,17 @@ const emptyState: WizardState = {
 };
 
 export default function InternoOnboardingCliente() {
-  const { user } = useAuth();
+  const { user, isPlatformAdmin, memberships } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [step, setStep] = useState(0);
   const [mode, setMode] = useState<"select" | "create">("select");
   const [ws, setWs] = useState<WizardState>(emptyState);
   const [saving, setSaving] = useState(false);
+
+  const canWrite =
+    isPlatformAdmin ||
+    memberships.some((m) => m.role === "org_admin" && m.active);
 
   const update = (partial: Partial<WizardState>) => setWs((p) => ({ ...p, ...partial }));
 
@@ -137,6 +141,29 @@ export default function InternoOnboardingCliente() {
   });
 
   const orgName = orgs.find((o) => o.id === ws.org_id)?.name ?? "";
+
+  // Read-only users see a clear message
+  if (!canWrite) {
+    return (
+      <div>
+        <PageHeader
+          title="Onboarding de Cliente"
+          description="Assistente guiado para configurar o acesso completo de um cliente ao portal."
+          breadcrumb={["Interno", "Cadastros", "Onboarding"]}
+          actions={
+            <Button variant="outline" size="sm" onClick={() => navigate("/interno/cadastros")}>
+              Voltar ao Hub
+            </Button>
+          }
+        />
+        <EmptyState
+          icon={Users}
+          title="Acesso restrito"
+          description="Apenas administradores de organização podem executar o onboarding de clientes."
+        />
+      </div>
+    );
+  }
 
   // ── Step validation ──
   const canAdvance = (): boolean => {
