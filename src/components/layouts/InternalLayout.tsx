@@ -3,12 +3,13 @@ import { GlobalAreaSwitcher } from "@/components/GlobalAreaSwitcher";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import {
-  Home, Ticket, Shield, Calendar, FileText, DollarSign, LogOut, Menu,
+  Home, Ticket, Shield, Calendar, FileText, DollarSign, LogOut, Menu, Database,
 } from "lucide-react";
 import { useState } from "react";
 
 const sidebarItems = [
   { label: "Painel", path: "/interno", icon: Home },
+  { label: "Cadastros", path: "/interno/cadastros", icon: Database },
   { label: "Chamados", path: "/interno/chamados", icon: Ticket },
   { label: "Garantia", path: "/interno/garantia", icon: Shield },
   { label: "Agenda", path: "/interno/agenda", icon: Calendar },
