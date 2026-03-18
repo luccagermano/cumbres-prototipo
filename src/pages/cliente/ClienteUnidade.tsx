@@ -80,7 +80,7 @@ export default function ClienteUnidade() {
               </p>
             )}
           </div>
-          {unit.commercial_status && <StatusChip status={unit.commercial_status} />}
+          {unit.commercial_status && <StatusBadge label={unit.commercial_status} />}
         </div>
 
         {specs.length > 0 && (
