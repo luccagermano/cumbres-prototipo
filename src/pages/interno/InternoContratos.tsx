@@ -556,7 +556,6 @@ export default function InternoContratos() {
         open={drawerOpen}
         onClose={closeDrawer}
         title={editing ? "Editar Contrato" : "Novo Contrato"}
-        description={editing ? `Editando contrato ${editing.contract_number}` : "Preencha os dados do contrato de venda."}
       >
         <div className="space-y-4 p-1">
           {/* Organization */}
