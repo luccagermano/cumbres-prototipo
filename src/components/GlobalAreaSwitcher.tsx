@@ -3,22 +3,36 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Globe, Layers, Users, Wrench, BarChart3, BookOpen, Building2, LogOut, User,
+  Globe, Layers, Users, Wrench, BarChart3, BookOpen, Building2, LogOut,
 } from "lucide-react";
-
-const areas = [
-  { label: "Site", path: "/site", icon: Globe },
-  { label: "Empreendimentos", path: "/empreendimentos", icon: Layers },
-  { label: "Portal do Cliente", path: "/cliente", icon: Users },
-  { label: "Painel Interno", path: "/interno", icon: Wrench },
-  { label: "Executivo", path: "/executivo", icon: BarChart3 },
-  { label: "Documentação", path: "/documentacao", icon: BookOpen },
-];
+import { useMemo } from "react";
 
 export function GlobalAreaSwitcher() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { session, profile } = useAuth();
+  const { session, profile, isStaff, isExecutive, hasRole } = useAuth();
+
+  const areas = useMemo(() => {
+    const base = [
+      { label: "Site", path: "/site", icon: Globe },
+      { label: "Empreendimentos", path: "/empreendimentos", icon: Layers },
+    ];
+
+    if (session) {
+      base.push({ label: "Portal do Cliente", path: "/cliente", icon: Users });
+
+      if (isStaff || hasRole("org_admin")) {
+        base.push({ label: "Painel Interno", path: "/interno", icon: Wrench });
+      }
+
+      if (isExecutive || hasRole("org_admin")) {
+        base.push({ label: "Executivo", path: "/executivo", icon: BarChart3 });
+      }
+    }
+
+    base.push({ label: "Documentação", path: "/documentacao", icon: BookOpen });
+    return base;
+  }, [session, isStaff, isExecutive, hasRole]);
 
   const getActive = () => {
     for (const area of areas) {
