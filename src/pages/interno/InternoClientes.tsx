@@ -614,7 +614,19 @@ export default function InternoClientes() {
       </DrawerShell>
 
       {/* Profile Edit Drawer */}
-      <DrawerShell open={profileDrawerOpen} onClose={closeProfileDrawer} title="Editar Perfil do Cliente">
+      <DrawerShell
+        open={profileDrawerOpen}
+        onClose={closeProfileDrawer}
+        title="Editar Perfil do Cliente"
+        footer={
+          <>
+            <Button variant="outline" size="sm" onClick={closeProfileDrawer}>Cancelar</Button>
+            <Button size="sm" onClick={handleProfileSubmit} disabled={profileMutation.isPending}>
+              {profileMutation.isPending ? "Salvando..." : "Salvar Alterações"}
+            </Button>
+          </>
+        }
+      >
         <div className="space-y-4">
           <div>
             <Label className="text-xs font-medium">Nome completo *</Label>
@@ -634,12 +646,6 @@ export default function InternoClientes() {
             <Label className="text-xs font-medium">CPF (últimos 4 dígitos)</Label>
             <Input className="mt-1" value={profileForm.cpf_last4} onChange={(e) => updateProfileField("cpf_last4", e.target.value)} placeholder="1234" maxLength={4} />
             {profileErrors.cpf_last4 && <p className="text-[11px] text-destructive mt-1">{profileErrors.cpf_last4}</p>}
-          </div>
-          <div className="pt-4 border-t border-border flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={closeProfileDrawer}>Cancelar</Button>
-            <Button size="sm" onClick={handleProfileSubmit} disabled={profileMutation.isPending}>
-              {profileMutation.isPending ? "Salvando..." : "Salvar Alterações"}
-            </Button>
           </div>
         </div>
       </DrawerShell>

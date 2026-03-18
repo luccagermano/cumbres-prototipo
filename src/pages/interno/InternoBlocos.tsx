@@ -367,7 +367,19 @@ export default function InternoBlocos() {
       )}
 
       {/* Drawer */}
-      <DrawerShell open={drawerOpen} onClose={closeDrawer} title={editing ? "Editar Bloco" : "Novo Bloco"}>
+      <DrawerShell
+        open={drawerOpen}
+        onClose={closeDrawer}
+        title={editing ? "Editar Bloco" : "Novo Bloco"}
+        footer={
+          <>
+            <Button variant="outline" size="sm" onClick={closeDrawer}>Cancelar</Button>
+            <Button size="sm" onClick={handleSubmit} disabled={saveMutation.isPending}>
+              {saveMutation.isPending ? "Salvando..." : editing ? "Salvar Alterações" : "Criar Bloco"}
+            </Button>
+          </>
+        }
+      >
         <div className="space-y-4">
           <div>
             <Label className="text-xs font-medium">Empreendimento *</Label>
@@ -395,13 +407,6 @@ export default function InternoBlocos() {
             <Label className="text-xs font-medium">Ordem de exibição</Label>
             <Input className="mt-1" type="number" min="0" value={form.sort_order} onChange={(e) => updateField("sort_order", e.target.value)} placeholder="0" />
             {formErrors.sort_order && <p className="text-[11px] text-destructive mt-1">{formErrors.sort_order}</p>}
-          </div>
-
-          <div className="pt-4 border-t border-border flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={closeDrawer}>Cancelar</Button>
-            <Button size="sm" onClick={handleSubmit} disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? "Salvando..." : editing ? "Salvar Alterações" : "Criar Bloco"}
-            </Button>
           </div>
         </div>
       </DrawerShell>
