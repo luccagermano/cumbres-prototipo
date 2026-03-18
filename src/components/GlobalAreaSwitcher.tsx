@@ -11,8 +11,41 @@ import { useQuery } from "@tanstack/react-query";
 export function GlobalAreaSwitcher() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { session, profile, isStaff, isExecutive, hasRole, isPlatformAdmin } = useAuth();
+  const { session, profile, isStaff, isExecutive, hasRole, isPlatformAdmin, memberships } = useAuth();
 
+  // Resolve current org
+  const orgIds = [...new Set(memberships.filter(m => m.active).map(m => m.organization_id))];
+  const currentOrgId = orgIds[0] ?? null;
+
+  const { data: currentOrg } = useQuery({
+    queryKey: ["global-header-org", currentOrgId],
+    enabled: !!session && !!currentOrgId,
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("organizations")
+        .select("id, name, slug, logo_path")
+        .eq("id", currentOrgId!)
+        .single();
+      return data;
+    },
+  });
+
+  const { data: orgLogoUrl } = useQuery({
+    queryKey: ["global-header-logo", currentOrg?.logo_path],
+    enabled: !!currentOrg?.logo_path,
+    staleTime: 30 * 60 * 1000,
+    queryFn: async () => {
+      const { data } = await supabase.storage
+        .from("organization-assets-private")
+        .createSignedUrl(currentOrg!.logo_path!, 3600);
+      return data?.signedUrl ?? null;
+    },
+  });
+
+  const orgInitials = currentOrg?.name
+    ? currentOrg.name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase()
+    : null;
   const areas = useMemo(() => {
     const base = [
       { label: "Site", path: "/site", icon: Globe },
