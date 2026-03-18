@@ -117,7 +117,7 @@ export default function InternoCadastros() {
           count: units?.length ?? null,
           loading: loadUnits,
           emptyWarning: "Nenhuma unidade cadastrada",
-          href: "/empreendimentos",
+          href: "/interno/cadastros/unidades",
         },
       ],
     },
