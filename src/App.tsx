@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OrgProvider } from "@/contexts/OrgContext";
 import ProtectedRoute from "@/components/guards/ProtectedRoute";
+import InternalRouteGuard from "@/components/guards/InternalRouteGuard";
 
 // Layouts
 import PublicLayout from "@/components/layouts/PublicLayout";
@@ -116,30 +117,39 @@ const App = () => (
               </Route>
             </Route>
 
-            {/* Internal (staff roles) */}
-            <Route element={<ProtectedRoute allowedRoles={["org_admin", "finance_agent", "support_agent", "inspection_agent", "document_agent"]} />}>
+            {/* Internal (staff roles + executive_viewer) */}
+            <Route element={<ProtectedRoute allowedRoles={["org_admin", "finance_agent", "support_agent", "inspection_agent", "document_agent", "executive_viewer"]} />}>
               <Route element={<InternalLayout />}>
+                {/* Dashboard – always accessible to anyone who enters /interno */}
                 <Route path="/interno" element={<InternoDashboard />} />
-                <Route path="/interno/cadastros" element={<InternoCadastros />} />
-                <Route path="/interno/cadastros/organizacoes" element={<InternoOrganizacoes />} />
-                <Route path="/interno/cadastros/empreendimentos" element={<InternoEmpreendimentos />} />
-                <Route path="/interno/cadastros/blocos" element={<InternoBlocos />} />
-                <Route path="/interno/cadastros/unidades" element={<InternoUnidades />} />
-                <Route path="/interno/cadastros/clientes" element={<InternoClientes />} />
-                <Route path="/interno/cadastros/contratos" element={<InternoContratos />} />
-                <Route path="/interno/cadastros/equipe" element={<InternoEquipe />} />
-                <Route path="/interno/cadastros/onboarding-cliente" element={<InternoOnboardingCliente />} />
-                <Route path="/interno/cadastros/categorias-chamados" element={<InternoCategoriasChamados />} />
-                <Route path="/interno/cadastros/tipos-vistoria" element={<InternoTiposVistoria />} />
-                <Route path="/interno/cadastros/regras-garantia" element={<InternoRegrasGarantia />} />
-                <Route path="/interno/cadastros/categorias-documentos" element={<InternoCategoriasDocumentos />} />
-                <Route path="/interno/cadastros/catalogo-servicos" element={<InternoCatalogoServicos />} />
-                <Route path="/interno/chamados" element={<InternoChamados />} />
-                <Route path="/interno/chamados/:id" element={<InternoChamadoDetail />} />
-                <Route path="/interno/garantia" element={<InternoGarantia />} />
-                <Route path="/interno/agenda" element={<InternoAgenda />} />
-                <Route path="/interno/documentos" element={<InternoDocumentos />} />
-                <Route path="/interno/financeiro" element={<InternoFinanceiro />} />
+
+                {/* Cadastros – guarded by role matrix */}
+                <Route element={<InternalRouteGuard />}>
+                  <Route path="/interno/cadastros" element={<InternoCadastros />} />
+                  <Route path="/interno/cadastros/organizacoes" element={<InternoOrganizacoes />} />
+                  <Route path="/interno/cadastros/empreendimentos" element={<InternoEmpreendimentos />} />
+                  <Route path="/interno/cadastros/blocos" element={<InternoBlocos />} />
+                  <Route path="/interno/cadastros/unidades" element={<InternoUnidades />} />
+                  <Route path="/interno/cadastros/clientes" element={<InternoClientes />} />
+                  <Route path="/interno/cadastros/contratos" element={<InternoContratos />} />
+                  <Route path="/interno/cadastros/equipe" element={<InternoEquipe />} />
+                  <Route path="/interno/cadastros/onboarding-cliente" element={<InternoOnboardingCliente />} />
+                  <Route path="/interno/cadastros/categorias-chamados" element={<InternoCategoriasChamados />} />
+                  <Route path="/interno/cadastros/tipos-vistoria" element={<InternoTiposVistoria />} />
+                  <Route path="/interno/cadastros/regras-garantia" element={<InternoRegrasGarantia />} />
+                  <Route path="/interno/cadastros/categorias-documentos" element={<InternoCategoriasDocumentos />} />
+                  <Route path="/interno/cadastros/catalogo-servicos" element={<InternoCatalogoServicos />} />
+                </Route>
+
+                {/* Module routes – guarded by role matrix */}
+                <Route element={<InternalRouteGuard />}>
+                  <Route path="/interno/chamados" element={<InternoChamados />} />
+                  <Route path="/interno/chamados/:id" element={<InternoChamadoDetail />} />
+                  <Route path="/interno/garantia" element={<InternoGarantia />} />
+                  <Route path="/interno/agenda" element={<InternoAgenda />} />
+                  <Route path="/interno/documentos" element={<InternoDocumentos />} />
+                  <Route path="/interno/financeiro" element={<InternoFinanceiro />} />
+                </Route>
               </Route>
             </Route>
 

@@ -2,13 +2,15 @@ import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { GlobalAreaSwitcher } from "@/components/GlobalAreaSwitcher";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import { filterSidebarItems } from "@/lib/internal-permissions";
 import {
   Home, Ticket, Shield, Calendar, FileText, DollarSign, LogOut, Menu, Database,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
-const sidebarItems = [
+const allSidebarItems = [
   { label: "Painel", path: "/interno", icon: Home },
   { label: "Cadastros", path: "/interno/cadastros", icon: Database },
   { label: "Chamados", path: "/interno/chamados", icon: Ticket },
@@ -22,7 +24,13 @@ export default function InternalLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { org, logoUrl, orgInitials } = useOrg();
+  const { memberships, isPlatformAdmin } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
+
+  const sidebarItems = useMemo(
+    () => filterSidebarItems(allSidebarItems, memberships, isPlatformAdmin),
+    [memberships, isPlatformAdmin]
+  );
 
   const isActive = (path: string) => {
     if (path === "/interno") return location.pathname === "/interno";
