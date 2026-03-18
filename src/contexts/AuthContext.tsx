@@ -78,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setProfile(null);
           setMemberships([]);
+          setIsPlatformAdmin(false);
         }
         setLoading(false);
       }
