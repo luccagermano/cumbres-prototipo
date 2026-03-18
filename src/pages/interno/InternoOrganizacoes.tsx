@@ -451,19 +451,21 @@ export default function InternoOrganizacoes() {
               : "Cadastre a primeira organização para começar a configuração do sistema."
           }
           action={
-            canWrite && !search
-              ? { label: "Criar Organização", onClick: openCreate }
-              : undefined
+            canWrite && !search ? (
+              <Button onClick={openCreate} className="gap-1.5">
+                <Plus className="h-4 w-4" /> Criar Organização
+              </Button>
+            ) : undefined
           }
         />
       ) : (
-        <DataTable columns={columns} data={filtered} />
+        <DataTable columns={columns} data={filtered} keyExtractor={(o) => o.id} />
       )}
 
       {/* Drawer */}
       <DrawerShell
         open={drawerOpen}
-        onOpenChange={setDrawerOpen}
+        onClose={closeDrawer}
         title={editing ? "Editar Organização" : "Nova Organização"}
         footer={drawerFooter}
       >
