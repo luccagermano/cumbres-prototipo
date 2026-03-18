@@ -46,6 +46,7 @@ import InternoAgenda from "@/pages/interno/InternoAgenda";
 import InternoDocumentos from "@/pages/interno/InternoDocumentos";
 import InternoFinanceiro from "@/pages/interno/InternoFinanceiro";
 import InternoCadastros from "@/pages/interno/InternoCadastros";
+import InternoEmpreendimentos from "@/pages/interno/InternoEmpreendimentos";
 
 // Executive pages
 import ExecutivoDashboard from "@/pages/executivo/ExecutivoDashboard";
@@ -106,6 +107,7 @@ const App = () => (
               <Route element={<InternalLayout />}>
                 <Route path="/interno" element={<InternoDashboard />} />
                 <Route path="/interno/cadastros" element={<InternoCadastros />} />
+                <Route path="/interno/cadastros/empreendimentos" element={<InternoEmpreendimentos />} />
                 <Route path="/interno/chamados" element={<InternoChamados />} />
                 <Route path="/interno/chamados/:id" element={<InternoChamadoDetail />} />
                 <Route path="/interno/garantia" element={<InternoGarantia />} />
