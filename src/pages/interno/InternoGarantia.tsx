@@ -97,7 +97,7 @@ export default function InternoGarantia() {
         title="Garantia"
         description="Regras e prazos de garantia por categoria."
         breadcrumb={["Painel Interno", "Garantia"]}
-        actions={
+        actions={canWrite ? (
           <Dialog open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) resetForm(); }}>
             <DialogTrigger asChild>
               <Button className="gap-2"><Plus className="h-4 w-4" /> Nova Regra</Button>
@@ -132,7 +132,9 @@ export default function InternoGarantia() {
               </div>
             </DialogContent>
           </Dialog>
-        }
+        ) : isReadOnly ? (
+          <StatusChip label="Somente consulta" variant="neutral" />
+        ) : undefined}
       />
 
       <div className="mb-6">
