@@ -52,8 +52,9 @@ type Subcategory = {
 };
 
 export default function InternoCategoriasChamados() {
-  const { user, isPlatformAdmin } = useAuth();
+  const { user, isPlatformAdmin, memberships } = useAuth();
   const qc = useQueryClient();
+  const canWrite = isPlatformAdmin || memberships.some(m => m.active && ["org_admin", "support_agent"].includes(m.role));
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>(["all"]);
