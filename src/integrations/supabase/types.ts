@@ -105,6 +105,210 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          bucket: string
+          category: string
+          contract_id: string | null
+          created_at: string
+          development_id: string | null
+          file_name: string
+          file_path: string
+          id: string
+          inspection_booking_id: string | null
+          mime_type: string | null
+          organization_id: string
+          receivable_id: string | null
+          service_request_id: string | null
+          size_bytes: number | null
+          ticket_id: string | null
+          title: string
+          unit_id: string | null
+          uploaded_by: string | null
+          version_no: number
+          visible_to_customer: boolean
+        }
+        Insert: {
+          bucket: string
+          category: string
+          contract_id?: string | null
+          created_at?: string
+          development_id?: string | null
+          file_name: string
+          file_path: string
+          id?: string
+          inspection_booking_id?: string | null
+          mime_type?: string | null
+          organization_id: string
+          receivable_id?: string | null
+          service_request_id?: string | null
+          size_bytes?: number | null
+          ticket_id?: string | null
+          title: string
+          unit_id?: string | null
+          uploaded_by?: string | null
+          version_no?: number
+          visible_to_customer?: boolean
+        }
+        Update: {
+          bucket?: string
+          category?: string
+          contract_id?: string | null
+          created_at?: string
+          development_id?: string | null
+          file_name?: string
+          file_path?: string
+          id?: string
+          inspection_booking_id?: string | null
+          mime_type?: string | null
+          organization_id?: string
+          receivable_id?: string | null
+          service_request_id?: string | null
+          size_bytes?: number | null
+          ticket_id?: string | null
+          title?: string
+          unit_id?: string | null
+          uploaded_by?: string | null
+          version_no?: number
+          visible_to_customer?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "sales_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_development_id_fkey"
+            columns: ["development_id"]
+            isOneToOne: false
+            referencedRelation: "developments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_receivable_id_fkey"
+            columns: ["receivable_id"]
+            isOneToOne: false
+            referencedRelation: "receivables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      faq_articles: {
+        Row: {
+          active: boolean
+          audience: string
+          body_md: string
+          created_at: string
+          faq_category_id: string | null
+          id: string
+          organization_id: string
+          slug: string
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          audience: string
+          body_md: string
+          created_at?: string
+          faq_category_id?: string | null
+          id?: string
+          organization_id: string
+          slug: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          audience?: string
+          body_md?: string
+          created_at?: string
+          faq_category_id?: string | null
+          id?: string
+          organization_id?: string
+          slug?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "faq_articles_faq_category_id_fkey"
+            columns: ["faq_category_id"]
+            isOneToOne: false
+            referencedRelation: "faq_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "faq_articles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      faq_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "faq_categories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       journey_events: {
         Row: {
           contract_id: string | null
@@ -155,6 +359,130 @@ export type Database = {
             columns: ["unit_id"]
             isOneToOne: false
             referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          campaign_slug: string | null
+          created_at: string
+          development_id: string | null
+          email: string | null
+          full_name: string
+          id: string
+          interest_subject: string | null
+          message: string | null
+          organization_id: string
+          phone: string | null
+          source_type: string
+          status: string
+        }
+        Insert: {
+          campaign_slug?: string | null
+          created_at?: string
+          development_id?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          interest_subject?: string | null
+          message?: string | null
+          organization_id: string
+          phone?: string | null
+          source_type: string
+          status?: string
+        }
+        Update: {
+          campaign_slug?: string | null
+          created_at?: string
+          development_id?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          interest_subject?: string | null
+          message?: string | null
+          organization_id?: string
+          phone?: string | null
+          source_type?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_development_id_fkey"
+            columns: ["development_id"]
+            isOneToOne: false
+            referencedRelation: "developments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          action_url: string | null
+          body: string
+          created_at: string
+          id: string
+          is_read: boolean
+          organization_id: string
+          read_at: string | null
+          title: string
+          type: string
+          unit_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          organization_id: string
+          read_at?: string | null
+          title: string
+          type: string
+          unit_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          organization_id?: string
+          read_at?: string | null
+          title?: string
+          type?: string
+          unit_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -555,6 +883,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_org_ids: { Args: { _user_id: string }; Returns: string[] }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
