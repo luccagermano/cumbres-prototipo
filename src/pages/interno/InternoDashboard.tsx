@@ -62,7 +62,7 @@ export default function InternoDashboard() {
 
   const { data: todayInspections } = useQuery({
     queryKey: ["interno-today-inspections"],
-    enabled: !!user,
+    enabled: !!user && canSeeAgenda,
     queryFn: async () => {
       const today = new Date().toISOString().split("T")[0];
       const { data } = await supabase
