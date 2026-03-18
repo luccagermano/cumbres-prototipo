@@ -24,7 +24,13 @@ export default function InternalLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { org, logoUrl, orgInitials } = useOrg();
+  const { memberships, isPlatformAdmin } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
+
+  const sidebarItems = useMemo(
+    () => filterSidebarItems(allSidebarItems, memberships, isPlatformAdmin),
+    [memberships, isPlatformAdmin]
+  );
 
   const isActive = (path: string) => {
     if (path === "/interno") return location.pathname === "/interno";
