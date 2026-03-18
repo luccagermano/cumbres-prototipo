@@ -235,9 +235,8 @@ export default function InternoCatalogoServicos() {
                   {editId ? "Salvar Alterações" : "Criar Serviço"}
                 </Button>
               </div>
-            </DialogContent>
           </Dialog>
-        }
+        ) : undefined}
       />
 
       {/* KPIs */}
