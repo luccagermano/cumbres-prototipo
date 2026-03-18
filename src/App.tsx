@@ -74,6 +74,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <OrgProvider>
           <Routes>
             <Route path="/" element={<Navigate to="/site" replace />} />
 
