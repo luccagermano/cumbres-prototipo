@@ -222,7 +222,7 @@ export default function InternoFinanceiro() {
         title="Financeiro"
         description="Gestão de parcelas e pagamentos."
         breadcrumb={["Painel Interno", "Financeiro"]}
-        actions={
+        actions={canWrite ? (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => markOverdueMutation.mutate()}>
               <AlertTriangle className="h-4 w-4 mr-1" /> Marcar Vencidas
@@ -231,7 +231,9 @@ export default function InternoFinanceiro() {
               <Plus className="h-4 w-4 mr-1" /> Nova Parcela
             </Button>
           </div>
-        }
+        ) : isReadOnly ? (
+          <StatusChip label="Somente consulta" variant="neutral" />
+        ) : undefined}
       />
 
       {/* KPI Row */}
