@@ -48,6 +48,12 @@ export const useAuth = () => useContext(AuthContext);
 
 const STAFF_ROLES = ["org_admin", "finance_agent", "support_agent", "inspection_agent", "document_agent"];
 
+function devLog(label: string, data: unknown) {
+  if (import.meta.env.DEV) {
+    console.log(`[Auth] ${label}:`, data);
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -57,14 +63,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchUserData = async (userId: string) => {
-    const [profileRes, membershipsRes, platformAdminRes] = await Promise.all([
+    const [profileRes, membershipsRes, adminRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", userId).single(),
       supabase.from("organization_memberships").select("id, organization_id, role, active").eq("user_id", userId).eq("active", true),
-      supabase.from("platform_admins").select("user_id").eq("user_id", userId).eq("active", true).maybeSingle(),
+      supabase.rpc("get_my_platform_admin_status"),
     ]);
     if (profileRes.data) setProfile(profileRes.data as Profile);
     if (membershipsRes.data) setMemberships(membershipsRes.data as OrgMembership[]);
-    setIsPlatformAdmin(!!platformAdminRes.data);
+    const adminStatus = adminRes.data === true;
+    setIsPlatformAdmin(adminStatus);
+
+    devLog("user_id", userId);
+    devLog("isPlatformAdmin", adminStatus);
+    devLog("memberships_count", membershipsRes.data?.length ?? 0);
+    devLog("memberships", membershipsRes.data);
   };
 
   useEffect(() => {
@@ -73,7 +85,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          // Defer data fetch to avoid Supabase deadlock
           setTimeout(() => fetchUserData(session.user.id), 0);
         } else {
           setProfile(null);

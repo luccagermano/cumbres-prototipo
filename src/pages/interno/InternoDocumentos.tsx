@@ -21,7 +21,7 @@ import { motion } from "framer-motion";
 const CATEGORIES = ["contrato", "boleto", "nota_fiscal", "manual", "vistoria", "correspondencia", "outro"];
 
 export default function InternoDocumentos() {
-  const { user, memberships } = useAuth();
+  const { user, memberships, isPlatformAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState<string[]>(["Todos"]);
@@ -37,8 +37,8 @@ export default function InternoDocumentos() {
   const orgId = memberships[0]?.organization_id;
 
   const { data: documents, isLoading } = useQuery({
-    queryKey: ["interno-documents", orgId],
-    enabled: !!orgId,
+    queryKey: ["interno-documents", isPlatformAdmin ? "all" : orgId],
+    enabled: isPlatformAdmin || !!orgId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("documents")

@@ -1620,6 +1620,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_my_platform_admin_status: { Args: never; Returns: boolean }
       get_user_org_ids: { Args: { _user_id: string }; Returns: string[] }
       has_role: {
         Args: {

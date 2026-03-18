@@ -57,7 +57,7 @@ const filterOptions = [
 ];
 
 export default function InternoFinanceiro() {
-  const { memberships } = useAuth();
+  const { memberships, isPlatformAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<string[]>(["all"]);
   const [showReceivableModal, setShowReceivableModal] = useState(false);
@@ -68,15 +68,18 @@ export default function InternoFinanceiro() {
 
   const orgIds = memberships.map((m) => m.organization_id);
 
-  // Fetch contracts
+  // Fetch contracts — platform admins fetch all (RLS handles access)
   const { data: contracts } = useQuery({
-    queryKey: ["interno-contracts", orgIds],
-    enabled: orgIds.length > 0,
+    queryKey: ["interno-contracts", isPlatformAdmin ? "all" : orgIds],
+    enabled: isPlatformAdmin || orgIds.length > 0,
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("sales_contracts")
-        .select("id, contract_number, unit_id, contract_status, total_contract_value, organization_id")
-        .in("organization_id", orgIds);
+        .select("id, contract_number, unit_id, contract_status, total_contract_value, organization_id");
+      if (!isPlatformAdmin && orgIds.length > 0) {
+        query = query.in("organization_id", orgIds);
+      }
+      const { data, error } = await query;
       if (error) throw error;
       return (data ?? []) as ContractRow[];
     },
@@ -84,8 +87,8 @@ export default function InternoFinanceiro() {
 
   // Fetch receivables
   const { data: receivables, isLoading } = useQuery({
-    queryKey: ["interno-receivables", orgIds],
-    enabled: orgIds.length > 0,
+    queryKey: ["interno-receivables", isPlatformAdmin ? "all" : orgIds],
+    enabled: isPlatformAdmin || orgIds.length > 0,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("receivables")
