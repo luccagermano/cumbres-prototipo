@@ -474,7 +474,7 @@ export default function InternoContratos() {
     {
       key: "actions",
       header: "",
-      className: "w-[180px]",
+      className: "w-[240px]",
       render: (row) => (
         <div className="flex items-center gap-1">
           {canWrite && (

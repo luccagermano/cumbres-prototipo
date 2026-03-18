@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
-  Layers, Plus, Pencil, Home, Building2, Hash,
+  Layers, Plus, Pencil, Home, Building2, Hash, AlertCircle,
 } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
