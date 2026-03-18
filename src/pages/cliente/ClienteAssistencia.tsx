@@ -4,6 +4,7 @@ import { SearchBar } from "@/components/ui/search-bar";
 import { ChipFilter } from "@/components/ui/chip-filter";
 import { TicketRow } from "@/components/ui/ticket-row";
 import { GlassCard } from "@/components/ui/glass-card";
+import { StatusChip } from "@/components/ui/status-chip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
