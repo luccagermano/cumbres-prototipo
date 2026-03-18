@@ -48,6 +48,7 @@ import InternoFinanceiro from "@/pages/interno/InternoFinanceiro";
 import InternoCadastros from "@/pages/interno/InternoCadastros";
 import InternoEmpreendimentos from "@/pages/interno/InternoEmpreendimentos";
 import InternoBlocos from "@/pages/interno/InternoBlocos";
+import InternoUnidades from "@/pages/interno/InternoUnidades";
 
 // Executive pages
 import ExecutivoDashboard from "@/pages/executivo/ExecutivoDashboard";
