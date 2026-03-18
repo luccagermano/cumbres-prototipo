@@ -194,6 +194,17 @@ export default function InternoClientes() {
     });
   }, [memberships, unitMap, blockMap, devMap]);
 
+  // ── Group by user ──
+  const membershipsByUser = useMemo(() => {
+    const m = new Map<string, MembershipEnriched[]>();
+    enrichedMemberships.forEach((em) => {
+      const list = m.get(em.user_id) ?? [];
+      list.push(em);
+      m.set(em.user_id, list);
+    });
+    return m;
+  }, [enrichedMemberships]);
+
   // ── Customer rows — show ALL profiles, not just those with memberships ──
   const customerRows: CustomerRow[] = useMemo(() => {
     return profiles.map((p) => {
