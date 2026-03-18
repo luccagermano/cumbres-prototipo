@@ -6,6 +6,7 @@ import {
   Globe, Layers, Users, Wrench, BarChart3, BookOpen, Building2, LogOut, Shield,
 } from "lucide-react";
 import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export function GlobalAreaSwitcher() {
   const location = useLocation();
