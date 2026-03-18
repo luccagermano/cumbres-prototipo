@@ -1,14 +1,19 @@
+import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/EmptyState";
 import { Newspaper } from "lucide-react";
 
 export default function EmpreendimentoMural() {
   return (
-    <div className="container py-16">
-      <h1 className="font-display text-3xl font-bold text-foreground mb-8">Mural</h1>
+    <div className="container py-12">
+      <PageHeader
+        title="Mural de Novidades"
+        description="Acompanhe as atualizações dos empreendimentos."
+        breadcrumb={["Empreendimentos", "Mural"]}
+      />
       <EmptyState
         icon={Newspaper}
         title="Nenhuma publicação"
-        description="As novidades dos empreendimentos aparecerão aqui."
+        description="As novidades e atualizações dos empreendimentos aparecerão aqui."
       />
     </div>
   );
