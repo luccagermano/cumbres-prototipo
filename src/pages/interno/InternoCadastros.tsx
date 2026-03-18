@@ -39,7 +39,9 @@ type DiagnosticItem = {
 };
 
 export default function InternoCadastros() {
-  const { user, isPlatformAdmin } = useAuth();
+  const { user, isPlatformAdmin, memberships } = useAuth();
+
+  const isAdmin = isPlatformAdmin || memberships.some((m) => m.role === "org_admin" && m.active);
 
   // ── Queries ──────────────────────────────────────────────
   const { data: developments, isLoading: loadDev } = useQuery({
