@@ -46,8 +46,15 @@ export function GlobalAreaSwitcher() {
   const active = getActive();
 
   const handleLogout = async () => {
+    try { sessionStorage.removeItem("app_active_org_id"); sessionStorage.removeItem("app_last_area"); } catch {}
     await supabase.auth.signOut();
     navigate("/login");
+  };
+
+  const handleAreaClick = (path: string) => {
+    if (["/cliente", "/interno", "/executivo"].includes(path)) {
+      setLastArea(path);
+    }
   };
 
   return (
