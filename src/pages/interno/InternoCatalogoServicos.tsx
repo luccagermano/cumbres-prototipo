@@ -186,7 +186,7 @@ export default function InternoCatalogoServicos() {
         title="Catálogo de Serviços"
         description="Serviços disponíveis para solicitação pelo cliente ou pela equipe interna."
         breadcrumb={["Interno", "Cadastros", "Catálogo de Serviços"]}
-        actions={
+        actions={canWrite ? (
           <Dialog open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) resetForm(); }}>
             <DialogTrigger asChild>
               <Button className="gap-2"><Plus className="h-4 w-4" /> Novo Serviço</Button>
