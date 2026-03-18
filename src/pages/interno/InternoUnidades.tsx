@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { PageHeader } from "@/components/ui/page-header";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { DataTable, DataColumn } from "@/components/ui/data-table";
@@ -37,6 +37,8 @@ import {
   ShoppingCart,
   Tag,
   Ruler,
+  AlertCircle,
+  Link2,
 } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
@@ -96,6 +98,7 @@ const emptyForm: FormData = {
 
 export default function InternoUnidades() {
   const { user, isPlatformAdmin, memberships } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const prefilledBlockId = searchParams.get("block") ?? "";
@@ -535,20 +538,36 @@ export default function InternoUnidades() {
       key: "relations",
       header: "Vínculos",
       render: (row) => (
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1" title="Clientes vinculados">
-            <Users className="h-3 w-3" /> {row.customer_count}
-          </span>
-          <span className="flex items-center gap-1" title="Contratos">
-            <FileSignature className="h-3 w-3" /> {row.contract_count}
-          </span>
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1" title="Clientes vinculados">
+              <Users className="h-3 w-3" /> {row.customer_count}
+            </span>
+            <span className="flex items-center gap-1" title="Contratos">
+              <FileSignature className="h-3 w-3" /> {row.contract_count}
+            </span>
+          </div>
+          {(row.commercial_status === "sold" || row.commercial_status === "handed_over") && (
+            <div className="flex flex-col gap-0.5 mt-0.5">
+              {row.customer_count === 0 && (
+                <span className="text-[10px] text-amber-600 flex items-center gap-0.5">
+                  <AlertCircle className="h-2.5 w-2.5" /> Sem cliente
+                </span>
+              )}
+              {row.contract_count === 0 && (
+                <span className="text-[10px] text-amber-600 flex items-center gap-0.5">
+                  <AlertCircle className="h-2.5 w-2.5" /> Sem contrato
+                </span>
+              )}
+            </div>
+          )}
         </div>
       ),
     },
     {
       key: "actions",
       header: "",
-      className: "w-[100px]",
+      className: "w-[200px]",
       render: (row) => (
         <div className="flex items-center gap-1.5 justify-end">
           {canWrite && (
@@ -564,6 +583,28 @@ export default function InternoUnidades() {
               <Pencil className="h-3 w-3" /> Editar
             </Button>
           )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs gap-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/interno/cadastros/clientes`);
+            }}
+          >
+            <Users className="h-3 w-3" /> Clientes
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs gap-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/interno/cadastros/contratos?dev=${row.dev_id}`);
+            }}
+          >
+            <FileSignature className="h-3 w-3" /> Contratos
+          </Button>
         </div>
       ),
     },

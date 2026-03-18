@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
-  Layers, Plus, Pencil, Home, Building2, Hash,
+  Layers, Plus, Pencil, Home, Building2, Hash, AlertCircle,
 } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
@@ -242,9 +242,16 @@ export default function InternoBlocos() {
       key: "unit_count",
       header: "Unidades",
       render: (row) => (
-        <span className={`text-sm font-medium ${row.unit_count === 0 ? "text-amber-600" : "text-foreground"}`}>
-          {row.unit_count}
-        </span>
+        <div>
+          <span className={`text-sm font-medium ${row.unit_count === 0 ? "text-amber-600" : "text-foreground"}`}>
+            {row.unit_count}
+          </span>
+          {row.unit_count === 0 && (
+            <p className="text-[10px] text-amber-600 flex items-center gap-0.5">
+              <AlertCircle className="h-2.5 w-2.5" /> Pendente
+            </p>
+          )}
+        </div>
       ),
     },
     {
@@ -260,7 +267,7 @@ export default function InternoBlocos() {
     {
       key: "actions",
       header: "",
-      className: "w-[200px]",
+      className: "w-[260px]",
       render: (row) => (
         <div className="flex items-center gap-1.5 justify-end">
           {canWrite && (
@@ -273,6 +280,13 @@ export default function InternoBlocos() {
               <Home className="h-3 w-3" /> Unidades
             </Button>
           </Link>
+          {canWrite && (
+            <Link to={`/interno/cadastros/unidades?block=${row.id}`} onClick={(e) => e.stopPropagation()}>
+              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
+                <Plus className="h-3 w-3" /> Criar Unidade
+              </Button>
+            </Link>
+          )}
         </div>
       ),
     },

@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -418,6 +419,11 @@ export default function InternoClientes() {
               ({row.memberships.filter((m) => m.is_primary)[0]?.unit_code ?? row.memberships[0]?.unit_code})
             </span>
           )}
+          {row.unit_count === 0 && (
+            <span className="text-[10px] text-amber-600 flex items-center gap-0.5">
+              <AlertCircle className="h-2.5 w-2.5" /> Sem unidade
+            </span>
+          )}
         </div>
       ),
     },
@@ -428,7 +434,12 @@ export default function InternoClientes() {
         const primary = row.memberships.find((m) => m.is_primary) ?? row.memberships[0];
         if (!primary) return <span className="text-xs text-muted-foreground">—</span>;
         const typeLabel: Record<string, string> = { owner: "Proprietário", tenant: "Inquilino", resident: "Morador" };
-        return <span className="text-xs text-foreground">{typeLabel[primary.membership_type] ?? primary.membership_type}</span>;
+        return (
+          <div>
+            <span className="text-xs text-foreground">{typeLabel[primary.membership_type] ?? primary.membership_type}</span>
+            <p className="text-[10px] text-muted-foreground">{primary.dev_name} › {primary.block_name} › {primary.unit_code}</p>
+          </div>
+        );
       },
     },
     {
@@ -442,7 +453,7 @@ export default function InternoClientes() {
     {
       key: "actions",
       header: "",
-      className: "w-[200px]",
+      className: "w-[240px]",
       render: (row) => (
         <div className="flex items-center gap-1.5 justify-end">
           {canWrite && (
@@ -454,6 +465,13 @@ export default function InternoClientes() {
                 <Link2 className="h-3 w-3" /> Vincular
               </Button>
             </>
+          )}
+          {row.unit_count > 0 && (
+            <Link to="/interno/cadastros/unidades" onClick={(e) => e.stopPropagation()}>
+              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
+                <Home className="h-3 w-3" /> Unidade
+              </Button>
+            </Link>
           )}
         </div>
       ),

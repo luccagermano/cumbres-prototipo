@@ -36,6 +36,7 @@ import {
   Users,
   DollarSign,
   ExternalLink,
+  AlertCircle,
 } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
@@ -428,7 +429,14 @@ export default function InternoContratos() {
       key: "customer_name",
       header: "Cliente",
       render: (row) => (
-        <span className="text-sm">{row.customer_name ?? <span className="text-muted-foreground italic">Sem vínculo</span>}</span>
+        <div>
+          <span className="text-sm">{row.customer_name ?? <span className="text-muted-foreground italic">Sem vínculo</span>}</span>
+          {!row.customer_name && (
+            <p className="text-[10px] text-amber-600 flex items-center gap-0.5 mt-0.5">
+              <AlertCircle className="h-2.5 w-2.5" /> Vincular cliente
+            </p>
+          )}
+        </div>
       ),
     },
     {
@@ -466,7 +474,7 @@ export default function InternoContratos() {
     {
       key: "actions",
       header: "",
-      className: "w-[180px]",
+      className: "w-[240px]",
       render: (row) => (
         <div className="flex items-center gap-1">
           {canWrite && (
@@ -476,6 +484,9 @@ export default function InternoContratos() {
           )}
           <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={(e) => { e.stopPropagation(); navigate(`/interno/cadastros/unidades?dev=${row.dev_id}`); }}>
             <Home className="h-3 w-3" /> Unidade
+          </Button>
+          <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={(e) => { e.stopPropagation(); navigate("/interno/cadastros/clientes"); }}>
+            <Users className="h-3 w-3" /> Clientes
           </Button>
           <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={(e) => { e.stopPropagation(); navigate("/interno/financeiro"); }}>
             <DollarSign className="h-3 w-3" /> Financeiro

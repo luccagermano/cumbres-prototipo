@@ -20,7 +20,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   Building2, Plus, Pencil, Layers, Home, MapPin, Calendar,
-  Rocket, HardHat, CheckCircle2,
+  Rocket, HardHat, CheckCircle2, AlertCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Tables } from "@/integrations/supabase/types";
@@ -112,6 +112,36 @@ export default function InternoEmpreendimentos() {
     queryFn: async () => {
       const { data } = await supabase.from("organizations").select("*").order("name");
       return (data ?? []) as Organization[];
+    },
+  });
+
+  const { data: blockCounts = {} } = useQuery({
+    queryKey: ["interno-dev-block-counts"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("blocks").select("development_id");
+      const counts: Record<string, number> = {};
+      (data ?? []).forEach((b) => {
+        counts[b.development_id] = (counts[b.development_id] || 0) + 1;
+      });
+      return counts;
+    },
+  });
+
+  const { data: unitCountsByDev = {} } = useQuery({
+    queryKey: ["interno-dev-unit-counts"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data: blocksData } = await supabase.from("blocks").select("id, development_id");
+      const { data: unitsData } = await supabase.from("units").select("block_id");
+      const blockDevMap: Record<string, string> = {};
+      (blocksData ?? []).forEach(b => { blockDevMap[b.id] = b.development_id; });
+      const counts: Record<string, number> = {};
+      (unitsData ?? []).forEach(u => {
+        const devId = blockDevMap[u.block_id];
+        if (devId) counts[devId] = (counts[devId] || 0) + 1;
+      });
+      return counts;
     },
   });
 
@@ -311,9 +341,32 @@ export default function InternoEmpreendimentos() {
     {
       key: "total_units",
       header: "Unidades",
-      render: (row) => (
-        <span className="text-sm font-medium text-foreground">{row.total_units ?? "—"}</span>
-      ),
+      render: (row) => {
+        const bc = blockCounts[row.id] ?? 0;
+        const uc = unitCountsByDev[row.id] ?? 0;
+        return (
+          <div className="text-sm">
+            <span className="font-medium text-foreground">{uc}</span>
+            <span className="text-muted-foreground text-[11px] ml-1">({bc} blocos)</span>
+            {bc === 0 && (
+              <p className="text-[10px] text-amber-600 flex items-center gap-0.5 mt-0.5">
+                <AlertCircle className="h-2.5 w-2.5" /> Sem blocos
+              </p>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      key: "readiness",
+      header: "Status Config.",
+      render: (row) => {
+        const bc = blockCounts[row.id] ?? 0;
+        const uc = unitCountsByDev[row.id] ?? 0;
+        if (bc > 0 && uc > 0) return <StatusChip variant="success" label="Pronto" />;
+        if (bc > 0) return <StatusChip variant="warning" label="Sem unidades" />;
+        return <StatusChip variant="neutral" label="Pendente" />;
+      },
     },
     {
       key: "delivery_forecast_at",
@@ -331,7 +384,7 @@ export default function InternoEmpreendimentos() {
     {
       key: "actions",
       header: "",
-      className: "w-[180px]",
+      className: "w-[240px]",
       render: (row) => (
         <div className="flex items-center gap-1.5 justify-end">
           {canWrite && (
@@ -342,6 +395,11 @@ export default function InternoEmpreendimentos() {
           <Link to={`/interno/cadastros/blocos?dev=${row.id}`} onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
               <Layers className="h-3 w-3" /> Blocos
+            </Button>
+          </Link>
+          <Link to={`/interno/cadastros/unidades?dev=${row.id}`} onClick={(e) => e.stopPropagation()}>
+            <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
+              <Home className="h-3 w-3" /> Unidades
             </Button>
           </Link>
         </div>
