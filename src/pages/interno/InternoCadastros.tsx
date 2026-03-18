@@ -98,7 +98,16 @@ export default function InternoCadastros() {
     },
   });
 
-  const anyLoading = loadDev || loadBlocks || loadUnits || loadClients || loadContracts || loadTeam;
+  const { data: orgs, isLoading: loadOrgs } = useQuery({
+    queryKey: ["cadastros-organizations"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("organizations").select("id, active");
+      return data ?? [];
+    },
+  });
+
+  const anyLoading = loadDev || loadBlocks || loadUnits || loadClients || loadContracts || loadTeam || loadOrgs;
 
   // ── Derived Counts ──
   const devCount = developments?.length ?? 0;
