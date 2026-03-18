@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/guards/ProtectedRoute";
 
 // Layouts
 import PublicLayout from "@/components/layouts/PublicLayout";
@@ -19,6 +21,7 @@ import EmpreendimentoMural from "@/pages/empreendimentos/EmpreendimentoMural";
 import EmpreendimentoDetail from "@/pages/empreendimentos/EmpreendimentoDetail";
 import CampanhaDetail from "@/pages/campanha/CampanhaDetail";
 import LoginPage from "@/pages/auth/LoginPage";
+import RegisterPage from "@/pages/auth/RegisterPage";
 
 // Customer pages
 import ClienteDashboard from "@/pages/cliente/ClienteDashboard";
@@ -60,61 +63,70 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/site" replace />} />
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Navigate to="/site" replace />} />
 
-          {/* Public */}
-          <Route element={<PublicLayout />}>
-            <Route path="/site" element={<SiteHome />} />
-            <Route path="/site/sobre" element={<SiteAbout />} />
-            <Route path="/site/contato" element={<SiteContact />} />
-            <Route path="/empreendimentos" element={<EmpreendimentosList />} />
-            <Route path="/empreendimentos/mural" element={<EmpreendimentoMural />} />
-            <Route path="/empreendimentos/:slug" element={<EmpreendimentoDetail />} />
-            <Route path="/campanha/:slug" element={<CampanhaDetail />} />
-          </Route>
+            {/* Public */}
+            <Route element={<PublicLayout />}>
+              <Route path="/site" element={<SiteHome />} />
+              <Route path="/site/sobre" element={<SiteAbout />} />
+              <Route path="/site/contato" element={<SiteContact />} />
+              <Route path="/empreendimentos" element={<EmpreendimentosList />} />
+              <Route path="/empreendimentos/mural" element={<EmpreendimentoMural />} />
+              <Route path="/empreendimentos/:slug" element={<EmpreendimentoDetail />} />
+              <Route path="/campanha/:slug" element={<CampanhaDetail />} />
+            </Route>
 
-          {/* Login */}
-          <Route path="/login" element={<LoginPage />} />
+            {/* Auth */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-          {/* Customer */}
-          <Route element={<CustomerLayout />}>
-            <Route path="/cliente" element={<ClienteDashboard />} />
-            <Route path="/cliente/unidade" element={<ClienteUnidade />} />
-            <Route path="/cliente/financeiro" element={<ClienteFinanceiro />} />
-            <Route path="/cliente/documentos" element={<ClienteDocumentos />} />
-            <Route path="/cliente/documentos/:id" element={<ClienteDocumentoDetail />} />
-            <Route path="/cliente/vistoria" element={<ClienteVistoria />} />
-            <Route path="/cliente/assistencia" element={<ClienteAssistencia />} />
-            <Route path="/cliente/assistencia/:id" element={<ClienteAssistenciaDetail />} />
-            <Route path="/cliente/ajuda" element={<ClienteAjuda />} />
-            <Route path="/cliente/notificacoes" element={<ClienteNotificacoes />} />
-            <Route path="/cliente/calendario" element={<ClienteCalendario />} />
-            <Route path="/cliente/assistente" element={<ClienteAssistente />} />
-          </Route>
+            {/* Customer (any authenticated user) */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<CustomerLayout />}>
+                <Route path="/cliente" element={<ClienteDashboard />} />
+                <Route path="/cliente/unidade" element={<ClienteUnidade />} />
+                <Route path="/cliente/financeiro" element={<ClienteFinanceiro />} />
+                <Route path="/cliente/documentos" element={<ClienteDocumentos />} />
+                <Route path="/cliente/documentos/:id" element={<ClienteDocumentoDetail />} />
+                <Route path="/cliente/vistoria" element={<ClienteVistoria />} />
+                <Route path="/cliente/assistencia" element={<ClienteAssistencia />} />
+                <Route path="/cliente/assistencia/:id" element={<ClienteAssistenciaDetail />} />
+                <Route path="/cliente/ajuda" element={<ClienteAjuda />} />
+                <Route path="/cliente/notificacoes" element={<ClienteNotificacoes />} />
+                <Route path="/cliente/calendario" element={<ClienteCalendario />} />
+                <Route path="/cliente/assistente" element={<ClienteAssistente />} />
+              </Route>
+            </Route>
 
-          {/* Internal */}
-          <Route element={<InternalLayout />}>
-            <Route path="/interno" element={<InternoDashboard />} />
-            <Route path="/interno/chamados" element={<InternoChamados />} />
-            <Route path="/interno/chamados/:id" element={<InternoChamadoDetail />} />
-            <Route path="/interno/garantia" element={<InternoGarantia />} />
-            <Route path="/interno/agenda" element={<InternoAgenda />} />
-            <Route path="/interno/documentos" element={<InternoDocumentos />} />
-            <Route path="/interno/financeiro" element={<InternoFinanceiro />} />
-          </Route>
+            {/* Internal (staff roles) */}
+            <Route element={<ProtectedRoute allowedRoles={["org_admin", "finance_agent", "support_agent", "inspection_agent", "document_agent"]} />}>
+              <Route element={<InternalLayout />}>
+                <Route path="/interno" element={<InternoDashboard />} />
+                <Route path="/interno/chamados" element={<InternoChamados />} />
+                <Route path="/interno/chamados/:id" element={<InternoChamadoDetail />} />
+                <Route path="/interno/garantia" element={<InternoGarantia />} />
+                <Route path="/interno/agenda" element={<InternoAgenda />} />
+                <Route path="/interno/documentos" element={<InternoDocumentos />} />
+                <Route path="/interno/financeiro" element={<InternoFinanceiro />} />
+              </Route>
+            </Route>
 
-          {/* Executive */}
-          <Route element={<ExecutiveLayout />}>
-            <Route path="/executivo" element={<ExecutivoDashboard />} />
-            <Route path="/executivo/automacao" element={<ExecutivoAutomacao />} />
-          </Route>
+            {/* Executive */}
+            <Route element={<ProtectedRoute allowedRoles={["org_admin", "executive_viewer"]} />}>
+              <Route element={<ExecutiveLayout />}>
+                <Route path="/executivo" element={<ExecutivoDashboard />} />
+                <Route path="/executivo/automacao" element={<ExecutivoAutomacao />} />
+              </Route>
+            </Route>
 
-          {/* Docs */}
-          <Route path="/documentacao" element={<DocumentacaoPage />} />
+            {/* Docs */}
+            <Route path="/documentacao" element={<DocumentacaoPage />} />
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

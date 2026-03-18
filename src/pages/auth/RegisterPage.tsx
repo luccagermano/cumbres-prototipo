@@ -1,28 +1,36 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, Mail, Lock, ArrowRight } from "lucide-react";
+import { Building2, Mail, Lock, User, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const navigate = useNavigate();
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName },
+        emailRedirectTo: window.location.origin,
+      },
+    });
     setLoading(false);
     if (error) {
-      toast.error("Erro ao entrar: " + error.message);
+      toast.error("Erro ao criar conta: " + error.message);
     } else {
-      toast.success("Login realizado com sucesso!");
-      navigate("/cliente");
+      toast.success("Conta criada! Verifique seu e-mail para confirmar o cadastro.");
+      navigate("/login");
     }
   };
 
@@ -39,10 +47,21 @@ export default function LoginPage() {
           <span className="font-display text-xl font-bold text-foreground">Construtora</span>
         </div>
 
-        <h1 className="font-display text-2xl font-bold text-foreground mb-2">Bem-vindo de volta</h1>
-        <p className="text-sm text-muted-foreground mb-8">Acesse sua conta para continuar.</p>
+        <h1 className="font-display text-2xl font-bold text-foreground mb-2">Criar conta</h1>
+        <p className="text-sm text-muted-foreground mb-8">Preencha os dados abaixo para se cadastrar.</p>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleRegister} className="space-y-4">
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Nome completo"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="pl-10"
+              required
+            />
+          </div>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -58,23 +77,24 @@ export default function LoginPage() {
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="password"
-              placeholder="Sua senha"
+              placeholder="Crie uma senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="pl-10"
               required
+              minLength={6}
             />
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Entrando..." : "Entrar"}
+            {loading ? "Criando..." : "Criar conta"}
             {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
           </Button>
-      </form>
+        </form>
 
         <p className="text-sm text-muted-foreground text-center mt-6">
-          Não tem conta?{" "}
-          <Link to="/register" className="text-primary hover:underline font-medium">
-            Criar conta
+          Já tem conta?{" "}
+          <Link to="/login" className="text-primary hover:underline font-medium">
+            Entrar
           </Link>
         </p>
       </motion.div>

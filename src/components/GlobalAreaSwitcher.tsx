@@ -1,7 +1,9 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import {
-  Globe, Layers, Users, Wrench, BarChart3, BookOpen, Building2,
+  Globe, Layers, Users, Wrench, BarChart3, BookOpen, Building2, LogOut, User,
 } from "lucide-react";
 
 const areas = [
@@ -15,6 +17,8 @@ const areas = [
 
 export function GlobalAreaSwitcher() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { session, profile } = useAuth();
 
   const getActive = () => {
     for (const area of areas) {
@@ -24,6 +28,11 @@ export function GlobalAreaSwitcher() {
   };
 
   const active = getActive();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/login");
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[60] h-11 border-b border-border/60 bg-card/80 backdrop-blur-xl">
@@ -54,13 +63,28 @@ export function GlobalAreaSwitcher() {
           })}
         </nav>
 
-        <div className="ml-auto">
-          <Link
-            to="/login"
-            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-          >
-            Entrar
-          </Link>
+        <div className="ml-auto flex items-center gap-2">
+          {session ? (
+            <>
+              <span className="text-xs text-muted-foreground hidden sm:inline truncate max-w-[120px]">
+                {profile?.full_name || session.user.email}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors"
+                title="Sair"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+            >
+              Entrar
+            </Link>
+          )}
         </div>
       </div>
     </header>

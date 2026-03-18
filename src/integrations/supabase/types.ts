@@ -14,16 +14,328 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      blocks: {
+        Row: {
+          created_at: string
+          development_id: string
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          development_id: string
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          development_id?: string
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocks_development_id_fkey"
+            columns: ["development_id"]
+            isOneToOne: false
+            referencedRelation: "developments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      developments: {
+        Row: {
+          address_line: string | null
+          city: string | null
+          created_at: string
+          delivery_forecast_at: string | null
+          id: string
+          launch_status: string | null
+          name: string
+          neighborhood: string | null
+          organization_id: string
+          slug: string
+          state: string | null
+          total_units: number | null
+          updated_at: string
+          zip_code: string | null
+        }
+        Insert: {
+          address_line?: string | null
+          city?: string | null
+          created_at?: string
+          delivery_forecast_at?: string | null
+          id?: string
+          launch_status?: string | null
+          name: string
+          neighborhood?: string | null
+          organization_id: string
+          slug: string
+          state?: string | null
+          total_units?: number | null
+          updated_at?: string
+          zip_code?: string | null
+        }
+        Update: {
+          address_line?: string | null
+          city?: string | null
+          created_at?: string
+          delivery_forecast_at?: string | null
+          id?: string
+          launch_status?: string | null
+          name?: string
+          neighborhood?: string | null
+          organization_id?: string
+          slug?: string
+          state?: string | null
+          total_units?: number | null
+          updated_at?: string
+          zip_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_memberships: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          organization_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          organization_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          organization_id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_memberships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          legal_name: string | null
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          legal_name?: string | null
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          legal_name?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_path: string | null
+          cpf_last4: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          phone_e164: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_path?: string | null
+          cpf_last4?: string | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id: string
+          phone_e164?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_path?: string | null
+          cpf_last4?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          phone_e164?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      unit_memberships: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          is_primary: boolean
+          membership_type: string
+          purchased_at: string | null
+          unit_id: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          membership_type: string
+          purchased_at?: string | null
+          unit_id: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          membership_type?: string
+          purchased_at?: string | null
+          unit_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_memberships_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unit_memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      units: {
+        Row: {
+          bathrooms: number | null
+          bedrooms: number | null
+          block_id: string
+          code: string
+          commercial_status: string | null
+          created_at: string
+          floor_label: string | null
+          handed_over_at: string | null
+          id: string
+          parking_spots: number | null
+          private_area_m2: number | null
+          typology: string | null
+          updated_at: string
+        }
+        Insert: {
+          bathrooms?: number | null
+          bedrooms?: number | null
+          block_id: string
+          code: string
+          commercial_status?: string | null
+          created_at?: string
+          floor_label?: string | null
+          handed_over_at?: string | null
+          id?: string
+          parking_spots?: number | null
+          private_area_m2?: number | null
+          typology?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bathrooms?: number | null
+          bedrooms?: number | null
+          block_id?: string
+          code?: string
+          commercial_status?: string | null
+          created_at?: string
+          floor_label?: string | null
+          handed_over_at?: string | null
+          id?: string
+          parking_spots?: number | null
+          private_area_m2?: number | null
+          typology?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "units_block_id_fkey"
+            columns: ["block_id"]
+            isOneToOne: false
+            referencedRelation: "blocks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "customer"
+        | "org_admin"
+        | "finance_agent"
+        | "support_agent"
+        | "inspection_agent"
+        | "document_agent"
+        | "executive_viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +462,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "customer",
+        "org_admin",
+        "finance_agent",
+        "support_agent",
+        "inspection_agent",
+        "document_agent",
+        "executive_viewer",
+      ],
+    },
   },
 } as const
