@@ -24,7 +24,7 @@ export default function InternoDocumentos() {
   const { user, memberships } = useAuth();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
-  const [catFilter, setCatFilter] = useState("Todos");
+  const [catFilter, setCatFilter] = useState<string[]>(["Todos"]);
   const [showUpload, setShowUpload] = useState(false);
   const [uploading, setUploading] = useState(false);
 
