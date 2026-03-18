@@ -174,7 +174,7 @@ export default function InternoCategoriasDocumentos() {
         title="Categorias de Documentos"
         description="Organize o acervo documental com categorias normalizadas."
         breadcrumb={["Interno", "Cadastros", "Categorias de Documentos"]}
-        actions={
+        actions={canWrite ? (
           <Dialog open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) resetForm(); }}>
             <DialogTrigger asChild>
               <Button className="gap-2"><Plus className="h-4 w-4" /> Nova Categoria</Button>
