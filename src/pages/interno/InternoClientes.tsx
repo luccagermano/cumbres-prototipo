@@ -50,7 +50,7 @@ type CustomerRow = Profile & {
   memberships: MembershipEnriched[];
   unit_count: number;
   has_active: boolean;
-  portal_status: "ready" | "pending" | "incomplete";
+  portal_status: "ready" | "pending" | "incomplete" | "sem_vinculo";
 };
 
 type ProfileFormData = {
