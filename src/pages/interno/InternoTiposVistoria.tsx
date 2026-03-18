@@ -39,8 +39,9 @@ type InspectionType = {
 };
 
 export default function InternoTiposVistoria() {
-  const { user } = useAuth();
+  const { user, isPlatformAdmin, memberships } = useAuth();
   const qc = useQueryClient();
+  const canWrite = isPlatformAdmin || memberships.some(m => m.active && ["org_admin", "inspection_agent"].includes(m.role));
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>(["all"]);
