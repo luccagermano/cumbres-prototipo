@@ -3,14 +3,14 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Globe, Layers, Users, Wrench, BarChart3, BookOpen, Building2, LogOut,
+  Globe, Layers, Users, Wrench, BarChart3, BookOpen, Building2, LogOut, Shield,
 } from "lucide-react";
 import { useMemo } from "react";
 
 export function GlobalAreaSwitcher() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { session, profile, isStaff, isExecutive, hasRole } = useAuth();
+  const { session, profile, isStaff, isExecutive, hasRole, isPlatformAdmin } = useAuth();
 
   const areas = useMemo(() => {
     const base = [
@@ -21,18 +21,18 @@ export function GlobalAreaSwitcher() {
     if (session) {
       base.push({ label: "Portal do Cliente", path: "/cliente", icon: Users });
 
-      if (isStaff || hasRole("org_admin")) {
+      if (isPlatformAdmin || isStaff || hasRole("org_admin")) {
         base.push({ label: "Painel Interno", path: "/interno", icon: Wrench });
       }
 
-      if (isExecutive || hasRole("org_admin")) {
+      if (isPlatformAdmin || isExecutive || hasRole("org_admin")) {
         base.push({ label: "Executivo", path: "/executivo", icon: BarChart3 });
       }
     }
 
     base.push({ label: "Documentação", path: "/documentacao", icon: BookOpen });
     return base;
-  }, [session, isStaff, isExecutive, hasRole]);
+  }, [session, isStaff, isExecutive, hasRole, isPlatformAdmin]);
 
   const getActive = () => {
     for (const area of areas) {
@@ -80,6 +80,12 @@ export function GlobalAreaSwitcher() {
         <div className="ml-auto flex items-center gap-2">
           {session ? (
             <>
+              {isPlatformAdmin && (
+                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-semibold uppercase tracking-wider">
+                  <Shield className="h-3 w-3" />
+                  Admin
+                </span>
+              )}
               <span className="text-xs text-muted-foreground hidden sm:inline truncate max-w-[120px]">
                 {profile?.full_name || session.user.email}
               </span>

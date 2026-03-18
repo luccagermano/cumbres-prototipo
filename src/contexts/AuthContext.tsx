@@ -28,6 +28,7 @@ type AuthContextType = {
   isStaff: boolean;
   isCustomer: boolean;
   isExecutive: boolean;
+  isPlatformAdmin: boolean;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -40,6 +41,7 @@ const AuthContext = createContext<AuthContextType>({
   isStaff: false,
   isCustomer: false,
   isExecutive: false,
+  isPlatformAdmin: false,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -51,15 +53,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [memberships, setMemberships] = useState<OrgMembership[]>([]);
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchUserData = async (userId: string) => {
-    const [profileRes, membershipsRes] = await Promise.all([
+    const [profileRes, membershipsRes, platformAdminRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", userId).single(),
       supabase.from("organization_memberships").select("id, organization_id, role, active").eq("user_id", userId).eq("active", true),
+      supabase.from("platform_admins").select("user_id").eq("user_id", userId).eq("active", true).maybeSingle(),
     ]);
     if (profileRes.data) setProfile(profileRes.data as Profile);
     if (membershipsRes.data) setMemberships(membershipsRes.data as OrgMembership[]);
+    setIsPlatformAdmin(!!platformAdminRes.data);
   };
 
   useEffect(() => {
@@ -73,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setProfile(null);
           setMemberships([]);
+          setIsPlatformAdmin(false);
         }
         setLoading(false);
       }
@@ -91,12 +97,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const hasRole = (role: string) => memberships.some((m) => m.role === role && m.active);
-  const isStaff = memberships.some((m) => STAFF_ROLES.includes(m.role) && m.active);
-  const isCustomer = hasRole("customer");
-  const isExecutive = hasRole("executive_viewer");
+  const isStaff = isPlatformAdmin || memberships.some((m) => STAFF_ROLES.includes(m.role) && m.active);
+  const isCustomer = isPlatformAdmin || hasRole("customer");
+  const isExecutive = isPlatformAdmin || hasRole("executive_viewer");
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, memberships, loading, hasRole, isStaff, isCustomer, isExecutive }}>
+    <AuthContext.Provider value={{ session, user, profile, memberships, loading, hasRole, isStaff, isCustomer, isExecutive, isPlatformAdmin }}>
       {children}
     </AuthContext.Provider>
   );
