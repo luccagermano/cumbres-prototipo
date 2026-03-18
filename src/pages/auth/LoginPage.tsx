@@ -2,11 +2,14 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
+import { setLastArea } from "@/contexts/OrgContext";
 import { Building2, Mail, Lock, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+
+const STAFF_ROLES = ["org_admin", "finance_agent", "support_agent", "inspection_agent", "document_agent"];
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -18,26 +21,58 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast.error("Erro ao entrar: " + error.message);
-    } else {
-      toast.success("Login realizado com sucesso!");
-      const { data: isAdmin } = await supabase.rpc("get_my_platform_admin_status");
-      if (isAdmin === true) {
-        navigate("/interno");
-      } else {
-        const { data: memberships } = await supabase
-          .from("organization_memberships")
-          .select("role")
-          .eq("user_id", authData.user.id)
-          .eq("active", true);
-        const staffRoles = ["org_admin", "finance_agent", "support_agent", "inspection_agent", "document_agent"];
-        const hasStaff = memberships?.some((m) => staffRoles.includes(m.role));
-        navigate(hasStaff ? "/interno" : "/cliente");
-      }
+      return;
     }
+
+    toast.success("Login realizado com sucesso!");
+
+    // Resolve destination area
+    const userId = authData.user.id;
+
+    const [adminRes, membershipRes] = await Promise.all([
+      supabase.rpc("get_my_platform_admin_status"),
+      supabase.from("organization_memberships").select("role").eq("user_id", userId).eq("active", true),
+    ]);
+
+    const isAdmin = adminRes.data === true;
+    const memberships = membershipRes.data ?? [];
+    const hasStaff = memberships.some((m) => STAFF_ROLES.includes(m.role));
+    const hasCustomer = memberships.some((m) => m.role === "customer");
+
+    let destination: string;
+
+    if (isAdmin) {
+      // Platform admin: prefer internal
+      destination = "/interno";
+    } else if (hasStaff && !hasCustomer) {
+      // Staff only
+      destination = "/interno";
+    } else if (!hasStaff && hasCustomer) {
+      // Customer only
+      destination = "/cliente";
+    } else if (hasStaff && hasCustomer) {
+      // Both: prefer internal (staff takes priority)
+      destination = "/interno";
+    } else {
+      // No org memberships at all — check if they have unit memberships (customer without org role)
+      const { data: unitMemberships } = await supabase
+        .from("unit_memberships")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("active", true)
+        .limit(1);
+
+      destination = unitMemberships?.length ? "/cliente" : "/cliente";
+    }
+
+    setLastArea(destination);
+    setLoading(false);
+    navigate(destination);
   };
 
   return (
