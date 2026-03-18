@@ -541,8 +541,7 @@ export default function InternoContratos() {
           icon={FileSignature}
           title="Nenhum contrato cadastrado"
           description="Crie o primeiro contrato de venda para começar a acompanhar a carteira."
-          actionLabel={canWrite ? "Novo Contrato" : undefined}
-          onAction={canWrite ? openCreate : undefined}
+          action={canWrite ? <Button size="sm" onClick={openCreate}><Plus className="h-4 w-4 mr-1" /> Novo Contrato</Button> : undefined}
         />
       ) : filtered.length === 0 ? (
         <EmptyState icon={FileSignature} title="Nenhum contrato encontrado" description="Tente ajustar os filtros ou a busca." />
