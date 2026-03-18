@@ -21,11 +21,11 @@ export function GlobalAreaSwitcher() {
     if (session) {
       base.push({ label: "Portal do Cliente", path: "/cliente", icon: Users });
 
-      if (isStaff || hasRole("org_admin")) {
+      if (isPlatformAdmin || isStaff || hasRole("org_admin")) {
         base.push({ label: "Painel Interno", path: "/interno", icon: Wrench });
       }
 
-      if (isExecutive || hasRole("org_admin")) {
+      if (isPlatformAdmin || isExecutive || hasRole("org_admin")) {
         base.push({ label: "Executivo", path: "/executivo", icon: BarChart3 });
       }
     }
