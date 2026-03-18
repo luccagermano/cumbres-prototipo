@@ -360,7 +360,7 @@ export default function InternoCadastros() {
           count: warrantyCount,
           loading: loadWarranty,
           emptyWarning: "Nenhuma regra de garantia cadastrada",
-          href: "/interno/garantia",
+          href: "/interno/cadastros/regras-garantia",
           ...getReadiness(warrantyCount, warrantyActiveCount > 0),
         },
         {
