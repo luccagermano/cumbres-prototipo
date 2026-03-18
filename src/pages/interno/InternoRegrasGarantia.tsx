@@ -135,7 +135,7 @@ export default function InternoRegrasGarantia() {
         title="Regras de Garantia"
         description="Prazos, condições e recomendações de garantia por categoria."
         breadcrumb={["Interno", "Cadastros", "Regras de Garantia"]}
-        actions={
+        actions={canWrite ? (
           <Dialog open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) resetForm(); }}>
             <DialogTrigger asChild>
               <Button className="gap-2"><Plus className="h-4 w-4" /> Nova Regra</Button>
