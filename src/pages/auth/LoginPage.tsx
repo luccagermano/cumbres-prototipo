@@ -69,7 +69,14 @@ export default function LoginPage() {
             {loading ? "Entrando..." : "Entrar"}
             {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
           </Button>
-        </form>
+      </form>
+
+        <p className="text-sm text-muted-foreground text-center mt-6">
+          Não tem conta?{" "}
+          <Link to="/register" className="text-primary hover:underline font-medium">
+            Criar conta
+          </Link>
+        </p>
       </motion.div>
     </div>
   );
