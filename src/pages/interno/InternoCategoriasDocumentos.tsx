@@ -38,7 +38,8 @@ const emptyForm = {
 };
 
 export default function InternoCategoriasDocumentos() {
-  const { user } = useAuth();
+  const { user, isPlatformAdmin, memberships } = useAuth();
+  const canWrite = isPlatformAdmin || memberships.some(m => m.active && ["org_admin", "document_agent"].includes(m.role));
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filterScope, setFilterScope] = useState<string>("all");
