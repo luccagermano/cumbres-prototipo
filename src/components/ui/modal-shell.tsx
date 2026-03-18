@@ -55,10 +55,11 @@ interface DrawerShellProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
+  footer?: ReactNode;
   side?: "right" | "bottom";
 }
 
-export function DrawerShell({ open, onClose, title, children, side = "right" }: DrawerShellProps) {
+export function DrawerShell({ open, onClose, title, children, footer, side = "right" }: DrawerShellProps) {
   useBodyScrollLock(open);
   if (!open) return null;
 
@@ -73,13 +74,20 @@ export function DrawerShell({ open, onClose, title, children, side = "right" }: 
           : "mt-auto w-full max-h-[80vh] rounded-t-2xl"
       )}>
         {/* Sticky header */}
-        <div className="shrink-0 flex items-center justify-between p-6 pb-4 border-b border-border/50">
+        <div className="shrink-0 flex items-center justify-between px-6 pt-5 pb-4 border-b border-border/50">
           <h2 className="font-display text-lg font-bold text-foreground">{title}</h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground">✕</button>
         </div>
 
         {/* Scrollable body */}
         <div className="flex-1 min-h-0 overflow-y-auto p-6">{children}</div>
+
+        {/* Sticky footer */}
+        {footer && (
+          <div className="shrink-0 px-6 py-4 border-t border-border/50 bg-background/60 backdrop-blur-sm flex justify-end gap-2">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );
