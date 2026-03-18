@@ -9,6 +9,7 @@ import { KpiCard } from "@/components/ui/kpi-card";
 import { StatusChip } from "@/components/ui/status-chip";
 import { EmptyState } from "@/components/EmptyState";
 import { canAccessRoute } from "@/lib/internal-permissions";
+import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 
 const allSections = [
