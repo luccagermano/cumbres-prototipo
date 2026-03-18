@@ -46,6 +46,60 @@ export type Database = {
           },
         ]
       }
+      calendar_custom_events: {
+        Row: {
+          created_at: string
+          detail: string | null
+          ends_at: string | null
+          event_type: string
+          id: string
+          organization_id: string
+          starts_at: string
+          title: string
+          unit_id: string | null
+          visible_to_customer: boolean
+        }
+        Insert: {
+          created_at?: string
+          detail?: string | null
+          ends_at?: string | null
+          event_type: string
+          id?: string
+          organization_id: string
+          starts_at: string
+          title: string
+          unit_id?: string | null
+          visible_to_customer?: boolean
+        }
+        Update: {
+          created_at?: string
+          detail?: string | null
+          ends_at?: string | null
+          event_type?: string
+          id?: string
+          organization_id?: string
+          starts_at?: string
+          title?: string
+          unit_id?: string | null
+          visible_to_customer?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_custom_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_custom_events_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       developments: {
         Row: {
           address_line: string | null
@@ -302,6 +356,227 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "faq_categories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inspection_bookings: {
+        Row: {
+          booked_by: string | null
+          booking_status: string
+          checklist_status: string | null
+          created_at: string
+          customer_notes: string | null
+          id: string
+          inspection_type_id: string
+          internal_notes: string | null
+          organization_id: string
+          scheduled_at: string | null
+          slot_id: string | null
+          term_signed_at: string | null
+          unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          booked_by?: string | null
+          booking_status: string
+          checklist_status?: string | null
+          created_at?: string
+          customer_notes?: string | null
+          id?: string
+          inspection_type_id: string
+          internal_notes?: string | null
+          organization_id: string
+          scheduled_at?: string | null
+          slot_id?: string | null
+          term_signed_at?: string | null
+          unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          booked_by?: string | null
+          booking_status?: string
+          checklist_status?: string | null
+          created_at?: string
+          customer_notes?: string | null
+          id?: string
+          inspection_type_id?: string
+          internal_notes?: string | null
+          organization_id?: string
+          scheduled_at?: string | null
+          slot_id?: string | null
+          term_signed_at?: string | null
+          unit_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_bookings_booked_by_fkey"
+            columns: ["booked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_bookings_inspection_type_id_fkey"
+            columns: ["inspection_type_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_bookings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_bookings_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_slots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_bookings_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inspection_report_items: {
+        Row: {
+          id: string
+          inspection_booking_id: string
+          item_name: string
+          notes: string | null
+          result_status: string
+          room_name: string
+          sort_order: number
+        }
+        Insert: {
+          id?: string
+          inspection_booking_id: string
+          item_name: string
+          notes?: string | null
+          result_status: string
+          room_name: string
+          sort_order?: number
+        }
+        Update: {
+          id?: string
+          inspection_booking_id?: string
+          item_name?: string
+          notes?: string | null
+          result_status?: string
+          room_name?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_report_items_inspection_booking_id_fkey"
+            columns: ["inspection_booking_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inspection_slots: {
+        Row: {
+          capacity: number
+          created_at: string
+          development_id: string
+          ends_at: string
+          id: string
+          inspection_type_id: string
+          location: string | null
+          organization_id: string
+          starts_at: string
+          status: string
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string
+          development_id: string
+          ends_at: string
+          id?: string
+          inspection_type_id: string
+          location?: string | null
+          organization_id: string
+          starts_at: string
+          status: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          development_id?: string
+          ends_at?: string
+          id?: string
+          inspection_type_id?: string
+          location?: string | null
+          organization_id?: string
+          starts_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_slots_development_id_fkey"
+            columns: ["development_id"]
+            isOneToOne: false
+            referencedRelation: "developments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_slots_inspection_type_id_fkey"
+            columns: ["inspection_type_id"]
+            isOneToOne: false
+            referencedRelation: "inspection_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_slots_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inspection_types: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          organization_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          organization_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_types_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -774,6 +1049,253 @@ export type Database = {
           },
         ]
       }
+      service_catalog: {
+        Row: {
+          active: boolean
+          description: string | null
+          id: string
+          name: string
+          organization_id: string
+          price_label: string | null
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          description?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          price_label?: string | null
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          description?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          price_label?: string | null
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_catalog_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_requests: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          organization_id: string
+          quoted_price: number | null
+          request_status: string
+          requested_by: string
+          service_catalog_id: string | null
+          service_name_snapshot: string | null
+          unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          organization_id: string
+          quoted_price?: number | null
+          request_status: string
+          requested_by: string
+          service_catalog_id?: string | null
+          service_name_snapshot?: string | null
+          unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          organization_id?: string
+          quoted_price?: number | null
+          request_status?: string
+          requested_by?: string
+          service_catalog_id?: string | null
+          service_name_snapshot?: string | null
+          unit_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_service_catalog_id_fkey"
+            columns: ["service_catalog_id"]
+            isOneToOne: false
+            referencedRelation: "service_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_messages: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          is_internal: boolean
+          ticket_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          ticket_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tickets: {
+        Row: {
+          assigned_to: string | null
+          category_name: string
+          closed_at: string | null
+          description: string
+          estimated_deadline: string | null
+          id: string
+          internal_status: string
+          opened_at: string
+          opened_by: string
+          organization_id: string
+          priority: string
+          public_status: string
+          room_name: string | null
+          unit_id: string
+          updated_at: string
+          warranty_rule_id: string | null
+          warranty_status: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          category_name: string
+          closed_at?: string | null
+          description: string
+          estimated_deadline?: string | null
+          id?: string
+          internal_status: string
+          opened_at?: string
+          opened_by: string
+          organization_id: string
+          priority: string
+          public_status: string
+          room_name?: string | null
+          unit_id: string
+          updated_at?: string
+          warranty_rule_id?: string | null
+          warranty_status?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          category_name?: string
+          closed_at?: string | null
+          description?: string
+          estimated_deadline?: string | null
+          id?: string
+          internal_status?: string
+          opened_at?: string
+          opened_by?: string
+          organization_id?: string
+          priority?: string
+          public_status?: string
+          room_name?: string | null
+          unit_id?: string
+          updated_at?: string
+          warranty_rule_id?: string | null
+          warranty_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_opened_by_fkey"
+            columns: ["opened_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_warranty_rule_id_fkey"
+            columns: ["warranty_rule_id"]
+            isOneToOne: false
+            referencedRelation: "warranty_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       unit_memberships: {
         Row: {
           active: boolean
@@ -874,6 +1396,50 @@ export type Database = {
             columns: ["block_id"]
             isOneToOne: false
             referencedRelation: "blocks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      warranty_rules: {
+        Row: {
+          active: boolean
+          category_name: string
+          contract_clause: string | null
+          coverage_condition: string | null
+          created_at: string
+          deadline_months: number
+          id: string
+          organization_id: string
+          recommendation: string | null
+        }
+        Insert: {
+          active?: boolean
+          category_name: string
+          contract_clause?: string | null
+          coverage_condition?: string | null
+          created_at?: string
+          deadline_months: number
+          id?: string
+          organization_id: string
+          recommendation?: string | null
+        }
+        Update: {
+          active?: boolean
+          category_name?: string
+          contract_clause?: string | null
+          coverage_condition?: string | null
+          created_at?: string
+          deadline_months?: number
+          id?: string
+          organization_id?: string
+          recommendation?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "warranty_rules_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
