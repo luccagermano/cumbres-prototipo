@@ -98,6 +98,7 @@ const emptyForm: FormData = {
 
 export default function InternoUnidades() {
   const { user, isPlatformAdmin, memberships } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const prefilledBlockId = searchParams.get("block") ?? "";
