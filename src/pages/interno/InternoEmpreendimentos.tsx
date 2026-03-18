@@ -509,6 +509,14 @@ export default function InternoEmpreendimentos() {
         open={drawerOpen}
         onClose={closeDrawer}
         title={editing ? "Editar Empreendimento" : "Novo Empreendimento"}
+        footer={
+          <>
+            <Button variant="outline" size="sm" onClick={closeDrawer}>Cancelar</Button>
+            <Button size="sm" onClick={handleSubmit} disabled={saveMutation.isPending}>
+              {saveMutation.isPending ? "Salvando..." : editing ? "Salvar Alterações" : "Criar Empreendimento"}
+            </Button>
+          </>
+        }
       >
         <div className="space-y-4">
           {/* Organization */}
@@ -618,14 +626,6 @@ export default function InternoEmpreendimentos() {
           <div>
             <Label className="text-xs font-medium">Previsão de Entrega</Label>
             <Input className="mt-1" type="date" value={form.delivery_forecast_at} onChange={(e) => updateField("delivery_forecast_at", e.target.value)} />
-          </div>
-
-          {/* Actions */}
-          <div className="pt-4 border-t border-border flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={closeDrawer}>Cancelar</Button>
-            <Button size="sm" onClick={handleSubmit} disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? "Salvando..." : editing ? "Salvar Alterações" : "Criar Empreendimento"}
-            </Button>
           </div>
         </div>
       </DrawerShell>

@@ -512,13 +512,6 @@ export default function InternoEquipe() {
             <Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} />
           </div>
 
-          {/* Save */}
-          <div className="flex gap-2 pt-4">
-            <Button variant="outline" className="flex-1" onClick={closeDrawer}>Cancelar</Button>
-            <Button className="flex-1" onClick={handleSave} disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? "Salvando..." : editing ? "Salvar Alterações" : "Adicionar Membro"}
-            </Button>
-          </div>
         </div>
       </DrawerShell>
     </div>

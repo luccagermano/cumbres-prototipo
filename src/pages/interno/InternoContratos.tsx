@@ -682,13 +682,8 @@ export default function InternoContratos() {
             <Input type="date" value={form.handover_at} onChange={(e) => setForm({ ...form, handover_at: e.target.value })} />
           </div>
 
-          {/* Save */}
-          <div className="flex gap-2 pt-4">
-            <Button variant="outline" className="flex-1" onClick={closeDrawer}>Cancelar</Button>
-            <Button className="flex-1" onClick={handleSave} disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? "Salvando..." : editing ? "Salvar Alterações" : "Criar Contrato"}
-            </Button>
-          </div>
+        </div>
+      </DrawerShell>
         </div>
       </DrawerShell>
     </div>

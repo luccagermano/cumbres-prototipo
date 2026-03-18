@@ -959,6 +959,24 @@ export default function InternoUnidades() {
         open={drawerOpen}
         onClose={closeDrawer}
         title={editing ? "Editar Unidade" : "Nova Unidade"}
+        footer={
+          <>
+            <Button variant="outline" size="sm" onClick={closeDrawer}>
+              Cancelar
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSubmit}
+              disabled={saveMutation.isPending}
+            >
+              {saveMutation.isPending
+                ? "Salvando..."
+                : editing
+                ? "Salvar Alterações"
+                : "Criar Unidade"}
+            </Button>
+          </>
+        }
       >
         <div className="space-y-4">
           <div>
@@ -1127,23 +1145,6 @@ export default function InternoUnidades() {
                 onChange={(e) => updateField("handed_over_at", e.target.value)}
               />
             </div>
-          </div>
-
-          <div className="pt-4 border-t border-border flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={closeDrawer}>
-              Cancelar
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleSubmit}
-              disabled={saveMutation.isPending}
-            >
-              {saveMutation.isPending
-                ? "Salvando..."
-                : editing
-                ? "Salvar Alterações"
-                : "Criar Unidade"}
-            </Button>
           </div>
         </div>
       </DrawerShell>
