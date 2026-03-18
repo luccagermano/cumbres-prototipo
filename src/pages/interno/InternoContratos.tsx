@@ -528,11 +528,11 @@ export default function InternoContratos() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
         <SearchBar value={search} onChange={setSearch} placeholder="Buscar por nº contrato, unidade, cliente..." className="w-full sm:max-w-xs" />
         {isPlatformAdmin && orgOptions.length > 1 && (
-          <ChipFilter label="Organização" options={orgOptions} selected={orgFilter} onChange={setOrgFilter} />
+          <ChipFilter options={orgOptions} selected={orgFilter} onChange={setOrgFilter} />
         )}
-        <ChipFilter label="Empreendimento" options={devOptions} selected={devFilter} onChange={setDevFilter} />
-        <ChipFilter label="Status" options={CONTRACT_STATUSES} selected={statusFilter} onChange={setStatusFilter} />
-        <ChipFilter label="Financiamento" options={FINANCING_STATUSES} selected={finStatusFilter} onChange={setFinStatusFilter} />
+        <ChipFilter options={devOptions} selected={devFilter} onChange={setDevFilter} />
+        <ChipFilter options={CONTRACT_STATUSES} selected={statusFilter} onChange={setStatusFilter} />
+        <ChipFilter options={FINANCING_STATUSES} selected={finStatusFilter} onChange={setFinStatusFilter} />
       </div>
 
       {/* Table */}
