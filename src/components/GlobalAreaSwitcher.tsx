@@ -32,7 +32,7 @@ export function GlobalAreaSwitcher() {
 
     base.push({ label: "Documentação", path: "/documentacao", icon: BookOpen });
     return base;
-  }, [session, isStaff, isExecutive, hasRole]);
+  }, [session, isStaff, isExecutive, hasRole, isPlatformAdmin]);
 
   const getActive = () => {
     for (const area of areas) {
