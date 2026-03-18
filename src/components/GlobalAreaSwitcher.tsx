@@ -86,8 +86,18 @@ export function GlobalAreaSwitcher() {
     <header className="fixed top-0 left-0 right-0 z-[60] h-11 border-b border-border/60 bg-card/80 backdrop-blur-xl">
       <div className="h-full flex items-center px-4 gap-1">
         <Link to="/site" className="flex items-center gap-1.5 mr-4 shrink-0">
-          <Building2 className="h-5 w-5 text-primary" />
-          <span className="font-display text-sm font-bold text-foreground hidden sm:inline">Construtora</span>
+          {orgLogoUrl ? (
+            <img src={orgLogoUrl} alt={currentOrg?.name ?? ""} className="h-6 max-w-[6rem] object-contain shrink-0" />
+          ) : orgInitials ? (
+            <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center shrink-0">
+              <span className="text-[10px] font-bold text-primary">{orgInitials}</span>
+            </div>
+          ) : (
+            <Building2 className="h-5 w-5 text-primary" />
+          )}
+          <span className="font-display text-sm font-bold text-foreground hidden sm:inline truncate max-w-[120px]">
+            {currentOrg?.name ?? "Construtora"}
+          </span>
         </Link>
 
         <nav className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide">
