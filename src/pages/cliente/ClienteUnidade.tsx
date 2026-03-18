@@ -109,7 +109,7 @@ export default function ClienteUnidade() {
             </div>
             <div>
               <p className="text-muted-foreground">Status</p>
-              <StatusChip status={contract.contract_status} />
+              <StatusBadge label={contract.contract_status} />
             </div>
             <div>
               <p className="text-muted-foreground">Valor Total</p>
