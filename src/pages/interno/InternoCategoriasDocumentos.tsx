@@ -218,7 +218,7 @@ export default function InternoCategoriasDocumentos() {
               </div>
             </DialogContent>
           </Dialog>
-        }
+        ) : undefined}
       />
 
       {/* KPIs */}
