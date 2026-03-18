@@ -10,7 +10,7 @@ import { useMemo } from "react";
 export function GlobalAreaSwitcher() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { session, profile, isStaff, isExecutive, hasRole } = useAuth();
+  const { session, profile, isStaff, isExecutive, hasRole, isPlatformAdmin } = useAuth();
 
   const areas = useMemo(() => {
     const base = [
