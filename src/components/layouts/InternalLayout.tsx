@@ -2,13 +2,15 @@ import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { GlobalAreaSwitcher } from "@/components/GlobalAreaSwitcher";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import { filterSidebarItems } from "@/lib/internal-permissions";
 import {
   Home, Ticket, Shield, Calendar, FileText, DollarSign, LogOut, Menu, Database,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
-const sidebarItems = [
+const allSidebarItems = [
   { label: "Painel", path: "/interno", icon: Home },
   { label: "Cadastros", path: "/interno/cadastros", icon: Database },
   { label: "Chamados", path: "/interno/chamados", icon: Ticket },
