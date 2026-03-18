@@ -108,7 +108,7 @@ export default function InternoCadastros() {
           count: blocks?.length ?? null,
           loading: loadBlocks,
           emptyWarning: "Nenhum bloco cadastrado",
-          href: "/empreendimentos",
+          href: "/interno/cadastros/blocos",
         },
         {
           title: "Unidades",
