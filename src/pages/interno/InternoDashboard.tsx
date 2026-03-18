@@ -8,13 +8,15 @@ import { PageHeader } from "@/components/ui/page-header";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { StatusChip } from "@/components/ui/status-chip";
 import { EmptyState } from "@/components/EmptyState";
+import { canAccessRoute } from "@/lib/internal-permissions";
+import { useMemo } from "react";
 
-const sections = [
-  { label: "Chamados", path: "/interno/chamados", icon: Ticket, description: "Gestão de tickets e atendimento" },
-  { label: "Garantia", path: "/interno/garantia", icon: Shield, description: "Solicitações de garantia" },
-  { label: "Agenda", path: "/interno/agenda", icon: Calendar, description: "Calendário da equipe" },
-  { label: "Documentos", path: "/interno/documentos", icon: FileText, description: "Documentos internos" },
-  { label: "Financeiro", path: "/interno/financeiro", icon: DollarSign, description: "Relatórios financeiros" },
+const allSections = [
+  { label: "Chamados", path: "/interno/chamados", icon: Ticket, description: "Gestão de tickets e atendimento", routeKey: "chamados" as const },
+  { label: "Garantia", path: "/interno/garantia", icon: Shield, description: "Solicitações de garantia", routeKey: "garantia" as const },
+  { label: "Agenda", path: "/interno/agenda", icon: Calendar, description: "Calendário da equipe", routeKey: "agenda" as const },
+  { label: "Documentos", path: "/interno/documentos", icon: FileText, description: "Documentos internos", routeKey: "documentos" as const },
+  { label: "Financeiro", path: "/interno/financeiro", icon: DollarSign, description: "Relatórios financeiros", routeKey: "financeiro" as const },
 ];
 
 const statusMap: Record<string, { variant: "success" | "warning" | "error" | "info" | "neutral"; label: string }> = {
