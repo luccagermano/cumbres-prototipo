@@ -246,11 +246,11 @@ export default function InternoTiposVistoria() {
         title="Tipos de Vistoria"
         description="Gerencie os tipos de vistoria disponíveis para agendamento."
         breadcrumb={["Interno", "Cadastros", "Tipos de Vistoria"]}
-        actions={
+        actions={canWrite ? (
           <Button size="sm" className="gap-1.5" onClick={openCreate}>
             <Plus className="h-4 w-4" /> Novo Tipo
           </Button>
-        }
+        ) : undefined}
       />
 
       {/* KPIs */}
