@@ -16,13 +16,27 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
       toast.error("Erro ao entrar: " + error.message);
     } else {
       toast.success("Login realizado com sucesso!");
-      navigate("/cliente");
+      // Check if platform admin to redirect smartly
+      const { data: isAdmin } = await supabase.rpc("get_my_platform_admin_status");
+      if (isAdmin === true) {
+        navigate("/interno");
+      } else {
+        // Check if user has staff roles
+        const { data: memberships } = await supabase
+          .from("organization_memberships")
+          .select("role")
+          .eq("user_id", authData.user.id)
+          .eq("active", true);
+        const staffRoles = ["org_admin", "finance_agent", "support_agent", "inspection_agent", "document_agent"];
+        const hasStaff = memberships?.some((m) => staffRoles.includes(m.role));
+        navigate(hasStaff ? "/interno" : "/cliente");
+      }
     }
   };
 
