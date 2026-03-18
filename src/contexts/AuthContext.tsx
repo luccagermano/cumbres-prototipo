@@ -41,6 +41,7 @@ const AuthContext = createContext<AuthContextType>({
   isStaff: false,
   isCustomer: false,
   isExecutive: false,
+  isPlatformAdmin: false,
 });
 
 export const useAuth = () => useContext(AuthContext);
