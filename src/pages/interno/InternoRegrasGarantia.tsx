@@ -32,7 +32,8 @@ const emptyForm = {
 };
 
 export default function InternoRegrasGarantia() {
-  const { user } = useAuth();
+  const { user, isPlatformAdmin, memberships } = useAuth();
+  const canWrite = isPlatformAdmin || memberships.some(m => m.active && m.role === "org_admin");
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filterActive, setFilterActive] = useState<string>("all");
