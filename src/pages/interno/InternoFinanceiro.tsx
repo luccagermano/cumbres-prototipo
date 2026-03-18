@@ -58,6 +58,7 @@ const filterOptions = [
 
 export default function InternoFinanceiro() {
   const { memberships, isPlatformAdmin } = useAuth();
+  const { canWrite, isReadOnly } = useInternalPermissions();
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<string[]>(["all"]);
   const [showReceivableModal, setShowReceivableModal] = useState(false);
