@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-import { useOrg } from "@/contexts/OrgContext";
+import { useOrg, setLastArea } from "@/contexts/OrgContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Globe, Layers, Users, Wrench, BarChart3, BookOpen, Building2, LogOut, Shield,
