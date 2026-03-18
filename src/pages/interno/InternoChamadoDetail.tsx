@@ -38,6 +38,7 @@ const publicStatuses = [
 export default function InternoChamadoDetail() {
   const { id } = useParams();
   const { user } = useAuth();
+  const { canWrite } = useInternalPermissions();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [newMsg, setNewMsg] = useState("");
