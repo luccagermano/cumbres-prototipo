@@ -116,6 +116,8 @@ export default function InternoCadastros() {
   const clientCount = unitMemberships ? new Set(unitMemberships.map(m => m.unit_id)).size : 0;
   const contractCount = contracts?.length ?? 0;
   const teamCount = orgMembers?.filter(m => m.role !== "customer")?.length ?? 0;
+  const orgCount = orgs?.length ?? 0;
+  const orgActiveCount = orgs?.filter(o => o.active).length ?? 0;
 
   // ── Readiness computations ──
   const devsWithBlocks = blocks ? new Set(blocks.map(b => b.development_id)).size : 0;
