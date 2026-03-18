@@ -20,7 +20,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   Building2, Plus, Pencil, Layers, Home, MapPin, Calendar,
-  Rocket, HardHat, CheckCircle2,
+  Rocket, HardHat, CheckCircle2, AlertCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Tables } from "@/integrations/supabase/types";
