@@ -274,7 +274,7 @@ export default function InternoCategoriasChamados() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <SearchBar value={search} onChange={setSearch} placeholder="Buscar categoria..." className="flex-1" />
-        <ChipFilter options={statusFilters} value={statusFilter} onChange={setStatusFilter} />
+        <ChipFilter options={statusFilters} selected={statusFilter} onChange={setStatusFilter} />
       </div>
 
       {/* Category list */}
