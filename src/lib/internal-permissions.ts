@@ -11,7 +11,7 @@ export type InternalRole =
   | "document_agent"
   | "executive_viewer";
 
-type RouteKey =
+export type RouteKey =
   | "dashboard"
   | "cadastros"
   | "chamados"
@@ -22,7 +22,6 @@ type RouteKey =
 
 /**
  * Maps each role to the route keys it can access.
- * org_admin and executive_viewer have access to everything.
  */
 const ACCESS_MATRIX: Record<InternalRole, readonly RouteKey[]> = {
   org_admin: ["dashboard", "cadastros", "chamados", "garantia", "agenda", "documentos", "financeiro"],
@@ -34,8 +33,18 @@ const ACCESS_MATRIX: Record<InternalRole, readonly RouteKey[]> = {
 };
 
 /**
- * Map path prefixes to route keys.
+ * Maps each role to the route keys where it can perform WRITE actions (create/edit/delete).
+ * executive_viewer is read-only everywhere.
  */
+const WRITE_MATRIX: Record<InternalRole, readonly RouteKey[]> = {
+  org_admin: ["dashboard", "cadastros", "chamados", "garantia", "agenda", "documentos", "financeiro"],
+  executive_viewer: [], // read-only
+  finance_agent: ["financeiro", "documentos"],
+  support_agent: ["chamados", "garantia"],
+  inspection_agent: ["agenda"],
+  document_agent: ["documentos", "garantia"],
+};
+
 const PATH_TO_KEY: { prefix: string; key: RouteKey }[] = [
   { prefix: "/interno/cadastros", key: "cadastros" },
   { prefix: "/interno/chamados", key: "chamados" },
@@ -55,10 +64,7 @@ export function getRouteKeyFromPath(pathname: string): RouteKey | null {
 
 export type Membership = { role: string; active: boolean };
 
-/**
- * Check if a user can access a given route key.
- * Platform admins always return true (check externally).
- */
+/** Check if user can VIEW a route. */
 export function canAccessRoute(
   memberships: Membership[],
   isPlatformAdmin: boolean,
@@ -66,15 +72,33 @@ export function canAccessRoute(
 ): boolean {
   if (isPlatformAdmin) return true;
   return memberships.some(
-    (m) =>
-      m.active &&
-      ACCESS_MATRIX[m.role as InternalRole]?.includes(routeKey)
+    (m) => m.active && ACCESS_MATRIX[m.role as InternalRole]?.includes(routeKey)
   );
 }
 
-/**
- * Check if a user can access a given pathname.
- */
+/** Check if user can perform WRITE actions on a given module. */
+export function canWriteModule(
+  memberships: Membership[],
+  isPlatformAdmin: boolean,
+  routeKey: RouteKey
+): boolean {
+  if (isPlatformAdmin) return true;
+  return memberships.some(
+    (m) => m.active && WRITE_MATRIX[m.role as InternalRole]?.includes(routeKey)
+  );
+}
+
+/** Check if user can write in cadastros (structural admin). Only org_admin + platform_admin. */
+export function canManageCadastros(
+  memberships: Membership[],
+  isPlatformAdmin: boolean
+): boolean {
+  if (isPlatformAdmin) return true;
+  return memberships.some(
+    (m) => m.active && m.role === "org_admin"
+  );
+}
+
 export function canAccessPath(
   memberships: Membership[],
   isPlatformAdmin: boolean,
@@ -82,13 +106,10 @@ export function canAccessPath(
 ): boolean {
   if (isPlatformAdmin) return true;
   const key = getRouteKeyFromPath(pathname);
-  if (!key) return true; // unknown routes are allowed (handled by 404)
+  if (!key) return true;
   return canAccessRoute(memberships, isPlatformAdmin, key);
 }
 
-/**
- * Filter sidebar items based on role access.
- */
 export function filterSidebarItems<T extends { path: string }>(
   items: T[],
   memberships: Membership[],
@@ -98,9 +119,6 @@ export function filterSidebarItems<T extends { path: string }>(
   return items.filter((item) => canAccessPath(memberships, isPlatformAdmin, item.path));
 }
 
-/**
- * Sidebar route key mapping for convenience.
- */
 export const SIDEBAR_ROUTE_KEYS: Record<string, RouteKey> = {
   "/interno": "dashboard",
   "/interno/cadastros": "cadastros",
