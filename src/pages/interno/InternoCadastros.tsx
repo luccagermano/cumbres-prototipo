@@ -99,7 +99,7 @@ export default function InternoCadastros() {
           count: developments?.length ?? null,
           loading: loadDev,
           emptyWarning: "Nenhum empreendimento cadastrado",
-          href: "/empreendimentos",
+          href: "/interno/cadastros/empreendimentos",
         },
         {
           title: "Blocos / Torres",
