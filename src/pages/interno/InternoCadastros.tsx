@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import {
   Building2, Layers, Home, Users, FileSignature, UserCog,
-  ArrowRight, AlertCircle, CheckCircle2, AlertTriangle, Info,
+  ArrowRight, AlertCircle, CheckCircle2, AlertTriangle, Info, Sparkles,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
