@@ -31,7 +31,8 @@ Brazilian construction company multi-area platform. Glassmorphism design, green 
 - Group 4: warranty_rules, calendar_custom_events, inspection_types, inspection_slots, inspection_bookings, inspection_report_items, tickets, ticket_messages, service_catalog, service_requests
 - Group 5: knowledge_sources, knowledge_chunks, audit_events
 - Enum: app_role (customer, org_admin, finance_agent, support_agent, inspection_agent, document_agent, executive_viewer)
-- Security definer functions: has_role(), get_user_org_ids()
+- platform_admins table: global superuser bypass, checked via is_platform_admin() security definer function
+- Security definer functions: has_role(), get_user_org_ids(), is_platform_admin()
 - Auto-create profile trigger on auth.users insert
 - Storage buckets: documents-private, avatars-private (both private)
 
