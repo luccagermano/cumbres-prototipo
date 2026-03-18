@@ -222,7 +222,7 @@ export default function InternoCadastros() {
       diagnostics.push({ icon: Info, variant: "info", message: "Nenhum tipo de vistoria cadastrado.", action: "Configurar", href: "/interno/cadastros/tipos-vistoria" });
     }
     if (warrantyCount === 0) {
-      diagnostics.push({ icon: Info, variant: "info", message: "Nenhuma regra de garantia cadastrada.", action: "Configurar", href: "/interno/garantia" });
+      diagnostics.push({ icon: Info, variant: "info", message: "Nenhuma regra de garantia cadastrada.", action: "Configurar", href: "/interno/cadastros/regras-garantia" });
     }
     if (serviceCount === 0) {
       diagnostics.push({ icon: Info, variant: "info", message: "Nenhum serviço cadastrado no catálogo.", action: "Configurar", href: "/interno/cadastros/catalogo-servicos" });

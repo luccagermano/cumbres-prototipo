@@ -131,6 +131,9 @@ const App = () => (
                 <Route path="/interno/cadastros/onboarding-cliente" element={<InternoOnboardingCliente />} />
                 <Route path="/interno/cadastros/categorias-chamados" element={<InternoCategoriasChamados />} />
                 <Route path="/interno/cadastros/tipos-vistoria" element={<InternoTiposVistoria />} />
+                <Route path="/interno/cadastros/regras-garantia" element={<InternoRegrasGarantia />} />
+                <Route path="/interno/cadastros/categorias-documentos" element={<InternoCategoriasDocumentos />} />
+                <Route path="/interno/cadastros/catalogo-servicos" element={<InternoCatalogoServicos />} />
                 <Route path="/interno/chamados" element={<InternoChamados />} />
                 <Route path="/interno/chamados/:id" element={<InternoChamadoDetail />} />
                 <Route path="/interno/garantia" element={<InternoGarantia />} />
