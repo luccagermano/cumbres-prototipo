@@ -428,7 +428,14 @@ export default function InternoContratos() {
       key: "customer_name",
       header: "Cliente",
       render: (row) => (
-        <span className="text-sm">{row.customer_name ?? <span className="text-muted-foreground italic">Sem vínculo</span>}</span>
+        <div>
+          <span className="text-sm">{row.customer_name ?? <span className="text-muted-foreground italic">Sem vínculo</span>}</span>
+          {!row.customer_name && (
+            <p className="text-[10px] text-amber-600 flex items-center gap-0.5 mt-0.5">
+              <AlertCircle className="h-2.5 w-2.5" /> Vincular cliente
+            </p>
+          )}
+        </div>
       ),
     },
     {
