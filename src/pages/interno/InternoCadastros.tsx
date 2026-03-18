@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import {
   Building2, Layers, Home, Users, FileSignature, UserCog, Landmark,
   ArrowRight, AlertCircle, CheckCircle2, AlertTriangle, Info, Sparkles,
+  Tags, ClipboardCheck, Shield, FolderOpen, Wrench,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -43,7 +44,7 @@ export default function InternoCadastros() {
 
   const isAdmin = isPlatformAdmin || memberships.some((m) => m.role === "org_admin" && m.active);
 
-  // ── Queries ──────────────────────────────────────────────
+  // ── Structural Queries ──────────────────────────────────
   const { data: developments, isLoading: loadDev } = useQuery({
     queryKey: ["cadastros-developments"],
     enabled: !!user,
@@ -107,7 +108,54 @@ export default function InternoCadastros() {
     },
   });
 
-  const anyLoading = loadDev || loadBlocks || loadUnits || loadClients || loadContracts || loadTeam || loadOrgs;
+  // ── Operational Queries ──────────────────────────────────
+  const { data: ticketCategories, isLoading: loadTicketCats } = useQuery({
+    queryKey: ["cadastros-ticket-categories"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("ticket_categories").select("id, active");
+      return data ?? [];
+    },
+  });
+
+  const { data: inspectionTypes, isLoading: loadInspTypes } = useQuery({
+    queryKey: ["cadastros-inspection-types"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("inspection_types").select("id, active");
+      return data ?? [];
+    },
+  });
+
+  const { data: warrantyRules, isLoading: loadWarranty } = useQuery({
+    queryKey: ["cadastros-warranty-rules"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("warranty_rules").select("id, active");
+      return data ?? [];
+    },
+  });
+
+  const { data: serviceCatalog, isLoading: loadServices } = useQuery({
+    queryKey: ["cadastros-service-catalog"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("service_catalog").select("id, active");
+      return data ?? [];
+    },
+  });
+
+  const { data: faqCategories, isLoading: loadFaqCats } = useQuery({
+    queryKey: ["cadastros-faq-categories"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("faq_categories").select("id, active");
+      return data ?? [];
+    },
+  });
+
+  const anyLoading = loadDev || loadBlocks || loadUnits || loadClients || loadContracts || loadTeam || loadOrgs
+    || loadTicketCats || loadInspTypes || loadWarranty || loadServices || loadFaqCats;
 
   // ── Derived Counts ──
   const devCount = developments?.length ?? 0;
@@ -118,6 +166,17 @@ export default function InternoCadastros() {
   const teamCount = orgMembers?.filter(m => m.role !== "customer")?.length ?? 0;
   const orgCount = orgs?.length ?? 0;
   const orgActiveCount = orgs?.filter(o => o.active).length ?? 0;
+
+  // Operational counts
+  const ticketCatCount = ticketCategories?.length ?? 0;
+  const ticketCatActiveCount = ticketCategories?.filter(c => c.active).length ?? 0;
+  const inspTypeCount = inspectionTypes?.length ?? 0;
+  const inspTypeActiveCount = inspectionTypes?.filter(t => t.active).length ?? 0;
+  const warrantyCount = warrantyRules?.length ?? 0;
+  const warrantyActiveCount = warrantyRules?.filter(w => w.active).length ?? 0;
+  const serviceCount = serviceCatalog?.length ?? 0;
+  const serviceActiveCount = serviceCatalog?.filter(s => s.active).length ?? 0;
+  const faqCatCount = faqCategories?.length ?? 0;
 
   // ── Readiness computations ──
   const devsWithBlocks = blocks ? new Set(blocks.map(b => b.development_id)).size : 0;
@@ -154,6 +213,19 @@ export default function InternoCadastros() {
     }
     if (teamCount === 0 && devCount > 0) {
       diagnostics.push({ icon: AlertTriangle, variant: "warning", message: "Nenhum membro interno configurado. Adicione a equipe operacional.", action: "Ver equipe", href: "/interno/cadastros/equipe" });
+    }
+    // Operational diagnostics
+    if (ticketCatCount === 0) {
+      diagnostics.push({ icon: Info, variant: "info", message: "Nenhuma categoria de chamado cadastrada.", action: "Configurar", href: "/interno/cadastros/categorias-chamados" });
+    }
+    if (inspTypeCount === 0) {
+      diagnostics.push({ icon: Info, variant: "info", message: "Nenhum tipo de vistoria cadastrado.", action: "Configurar", href: "/interno/cadastros/tipos-vistoria" });
+    }
+    if (warrantyCount === 0) {
+      diagnostics.push({ icon: Info, variant: "info", message: "Nenhuma regra de garantia cadastrada.", action: "Configurar", href: "/interno/garantia" });
+    }
+    if (serviceCount === 0) {
+      diagnostics.push({ icon: Info, variant: "info", message: "Nenhum serviço cadastrado no catálogo.", action: "Configurar", href: "/interno/cadastros/catalogo-servicos" });
     }
   }
 
@@ -262,13 +334,54 @@ export default function InternoCadastros() {
       title: "Cadastros Operacionais",
       cards: [
         {
-          title: "Garantias",
-          description: "Regras de garantia e prazos por categoria",
-          icon: Building2,
-          count: null,
-          loading: false,
-          emptyWarning: "",
+          title: "Categorias de Chamados",
+          description: "Categorias e subcategorias para classificação de chamados",
+          icon: Tags,
+          count: ticketCatCount,
+          loading: loadTicketCats,
+          emptyWarning: "Nenhuma categoria de chamado cadastrada",
+          href: "/interno/cadastros/categorias-chamados",
+          ...getReadiness(ticketCatCount, ticketCatActiveCount > 0),
+        },
+        {
+          title: "Tipos de Vistoria",
+          description: "Tipos de vistoria disponíveis para agendamento",
+          icon: ClipboardCheck,
+          count: inspTypeCount,
+          loading: loadInspTypes,
+          emptyWarning: "Nenhum tipo de vistoria cadastrado",
+          href: "/interno/cadastros/tipos-vistoria",
+          ...getReadiness(inspTypeCount, inspTypeActiveCount > 0),
+        },
+        {
+          title: "Regras de Garantia",
+          description: "Prazos e condições de garantia por categoria",
+          icon: Shield,
+          count: warrantyCount,
+          loading: loadWarranty,
+          emptyWarning: "Nenhuma regra de garantia cadastrada",
           href: "/interno/garantia",
+          ...getReadiness(warrantyCount, warrantyActiveCount > 0),
+        },
+        {
+          title: "Categorias de Documentos",
+          description: "Categorias para organização do acervo documental",
+          icon: FolderOpen,
+          count: faqCatCount,
+          loading: loadFaqCats,
+          emptyWarning: "Nenhuma categoria de documento cadastrada",
+          href: "/interno/cadastros/categorias-documentos",
+          ...getReadiness(faqCatCount, faqCatCount > 0),
+        },
+        {
+          title: "Catálogo de Serviços",
+          description: "Serviços disponíveis para solicitação pelo cliente",
+          icon: Wrench,
+          count: serviceCount,
+          loading: loadServices,
+          emptyWarning: "Nenhum serviço cadastrado",
+          href: "/interno/cadastros/catalogo-servicos",
+          ...getReadiness(serviceCount, serviceActiveCount > 0),
         },
       ],
     },
