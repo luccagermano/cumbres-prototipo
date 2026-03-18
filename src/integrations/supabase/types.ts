@@ -105,6 +105,60 @@ export type Database = {
           },
         ]
       }
+      journey_events: {
+        Row: {
+          contract_id: string | null
+          created_at: string
+          description: string | null
+          event_date: string | null
+          id: string
+          sort_order: number | null
+          stage_key: string
+          title: string
+          unit_id: string
+          visible_to_customer: boolean | null
+        }
+        Insert: {
+          contract_id?: string | null
+          created_at?: string
+          description?: string | null
+          event_date?: string | null
+          id?: string
+          sort_order?: number | null
+          stage_key: string
+          title: string
+          unit_id: string
+          visible_to_customer?: boolean | null
+        }
+        Update: {
+          contract_id?: string | null
+          created_at?: string
+          description?: string | null
+          event_date?: string | null
+          id?: string
+          sort_order?: number | null
+          stage_key?: string
+          title?: string
+          unit_id?: string
+          visible_to_customer?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_events_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "sales_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journey_events_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_memberships: {
         Row: {
           active: boolean
@@ -177,6 +231,47 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          paid_amount: number
+          paid_at: string
+          payment_method: string | null
+          receivable_id: string
+          reference_code: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          paid_amount: number
+          paid_at: string
+          payment_method?: string | null
+          receivable_id: string
+          reference_code?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          paid_amount?: number
+          paid_at?: string
+          payment_method?: string | null
+          receivable_id?: string
+          reference_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_receivable_id_fkey"
+            columns: ["receivable_id"]
+            isOneToOne: false
+            referencedRelation: "receivables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_path: string | null
@@ -209,6 +304,147 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      receivables: {
+        Row: {
+          charge_type: string
+          contract_id: string
+          created_at: string
+          discount_amount: number | null
+          due_date: string
+          id: string
+          interest_amount: number | null
+          notes: string | null
+          original_amount: number
+          paid_at: string | null
+          sequence_no: number | null
+          status: string
+          title: string
+          total_amount: number
+          unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          charge_type: string
+          contract_id: string
+          created_at?: string
+          discount_amount?: number | null
+          due_date: string
+          id?: string
+          interest_amount?: number | null
+          notes?: string | null
+          original_amount: number
+          paid_at?: string | null
+          sequence_no?: number | null
+          status?: string
+          title: string
+          total_amount: number
+          unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          charge_type?: string
+          contract_id?: string
+          created_at?: string
+          discount_amount?: number | null
+          due_date?: string
+          id?: string
+          interest_amount?: number | null
+          notes?: string | null
+          original_amount?: number
+          paid_at?: string | null
+          sequence_no?: number | null
+          status?: string
+          title?: string
+          total_amount?: number
+          unit_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receivables_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "sales_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receivables_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_contracts: {
+        Row: {
+          bank_name: string | null
+          contract_number: string
+          contract_status: string
+          created_at: string
+          down_payment_amount: number | null
+          financed_amount: number | null
+          financing_status: string | null
+          handover_at: string | null
+          handover_forecast_at: string | null
+          id: string
+          organization_id: string
+          signed_at: string | null
+          total_contract_value: number
+          unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          bank_name?: string | null
+          contract_number: string
+          contract_status?: string
+          created_at?: string
+          down_payment_amount?: number | null
+          financed_amount?: number | null
+          financing_status?: string | null
+          handover_at?: string | null
+          handover_forecast_at?: string | null
+          id?: string
+          organization_id: string
+          signed_at?: string | null
+          total_contract_value: number
+          unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          bank_name?: string | null
+          contract_number?: string
+          contract_status?: string
+          created_at?: string
+          down_payment_amount?: number | null
+          financed_amount?: number | null
+          financing_status?: string | null
+          handover_at?: string | null
+          handover_forecast_at?: string | null
+          id?: string
+          organization_id?: string
+          signed_at?: string | null
+          total_contract_value?: number
+          unit_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_contracts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_contracts_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       unit_memberships: {
         Row: {
