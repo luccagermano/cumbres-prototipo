@@ -28,7 +28,16 @@ const statusMap: Record<string, { variant: "success" | "warning" | "error" | "in
 };
 
 export default function InternoDashboard() {
-  const { user } = useAuth();
+  const { user, memberships, isPlatformAdmin } = useAuth();
+
+  const sections = useMemo(
+    () => allSections.filter((s) => canAccessRoute(memberships, isPlatformAdmin, s.routeKey)),
+    [memberships, isPlatformAdmin]
+  );
+
+  const canSeeTickets = canAccessRoute(memberships, isPlatformAdmin, "chamados");
+  const canSeeWarranty = canAccessRoute(memberships, isPlatformAdmin, "garantia");
+  const canSeeAgenda = canAccessRoute(memberships, isPlatformAdmin, "agenda");
 
   const { data: tickets } = useQuery({
     queryKey: ["interno-tickets-summary"],
