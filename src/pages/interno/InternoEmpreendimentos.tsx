@@ -341,9 +341,32 @@ export default function InternoEmpreendimentos() {
     {
       key: "total_units",
       header: "Unidades",
-      render: (row) => (
-        <span className="text-sm font-medium text-foreground">{row.total_units ?? "—"}</span>
-      ),
+      render: (row) => {
+        const bc = blockCounts[row.id] ?? 0;
+        const uc = unitCountsByDev[row.id] ?? 0;
+        return (
+          <div className="text-sm">
+            <span className="font-medium text-foreground">{uc}</span>
+            <span className="text-muted-foreground text-[11px] ml-1">({bc} blocos)</span>
+            {bc === 0 && (
+              <p className="text-[10px] text-amber-600 flex items-center gap-0.5 mt-0.5">
+                <AlertCircle className="h-2.5 w-2.5" /> Sem blocos
+              </p>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      key: "readiness",
+      header: "Status Config.",
+      render: (row) => {
+        const bc = blockCounts[row.id] ?? 0;
+        const uc = unitCountsByDev[row.id] ?? 0;
+        if (bc > 0 && uc > 0) return <StatusChip variant="success" label="Pronto" />;
+        if (bc > 0) return <StatusChip variant="warning" label="Sem unidades" />;
+        return <StatusChip variant="neutral" label="Pendente" />;
+      },
     },
     {
       key: "delivery_forecast_at",
@@ -361,7 +384,7 @@ export default function InternoEmpreendimentos() {
     {
       key: "actions",
       header: "",
-      className: "w-[180px]",
+      className: "w-[240px]",
       render: (row) => (
         <div className="flex items-center gap-1.5 justify-end">
           {canWrite && (
@@ -372,6 +395,11 @@ export default function InternoEmpreendimentos() {
           <Link to={`/interno/cadastros/blocos?dev=${row.id}`} onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
               <Layers className="h-3 w-3" /> Blocos
+            </Button>
+          </Link>
+          <Link to={`/interno/cadastros/unidades?dev=${row.id}`} onClick={(e) => e.stopPropagation()}>
+            <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
+              <Home className="h-3 w-3" /> Unidades
             </Button>
           </Link>
         </div>
