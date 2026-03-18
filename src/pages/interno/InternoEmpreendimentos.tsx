@@ -115,6 +115,36 @@ export default function InternoEmpreendimentos() {
     },
   });
 
+  const { data: blockCounts = {} } = useQuery({
+    queryKey: ["interno-dev-block-counts"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("blocks").select("development_id");
+      const counts: Record<string, number> = {};
+      (data ?? []).forEach((b) => {
+        counts[b.development_id] = (counts[b.development_id] || 0) + 1;
+      });
+      return counts;
+    },
+  });
+
+  const { data: unitCountsByDev = {} } = useQuery({
+    queryKey: ["interno-dev-unit-counts"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data: blocksData } = await supabase.from("blocks").select("id, development_id");
+      const { data: unitsData } = await supabase.from("units").select("block_id");
+      const blockDevMap: Record<string, string> = {};
+      (blocksData ?? []).forEach(b => { blockDevMap[b.id] = b.development_id; });
+      const counts: Record<string, number> = {};
+      (unitsData ?? []).forEach(u => {
+        const devId = blockDevMap[u.block_id];
+        if (devId) counts[devId] = (counts[devId] || 0) + 1;
+      });
+      return counts;
+    },
+  });
+
   const orgMap = useMemo(() => {
     const m = new Map<string, string>();
     organizations.forEach((o) => m.set(o.id, o.name));
