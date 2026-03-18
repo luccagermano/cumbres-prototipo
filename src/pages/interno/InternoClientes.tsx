@@ -83,10 +83,11 @@ const emptyLinkForm: LinkFormData = {
   purchased_at: "",
 };
 
-const portalChip: Record<string, { variant: "success" | "warning" | "pending"; label: string }> = {
+const portalChip: Record<string, { variant: "success" | "warning" | "pending" | "neutral"; label: string }> = {
   ready: { variant: "success", label: "Pronto" },
   pending: { variant: "warning", label: "Pendente" },
   incomplete: { variant: "pending", label: "Incompleto" },
+  sem_vinculo: { variant: "neutral", label: "Sem vínculo" },
 };
 
 export default function InternoClientes() {
