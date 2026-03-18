@@ -32,56 +32,54 @@ export default function InternalLayout() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background">
       <GlobalAreaSwitcher />
 
       <div className="flex flex-1 pt-11">
-        {/* Left Sidebar */}
         <aside
           className={cn(
-            "hidden md:flex fixed left-0 top-11 h-[calc(100vh-2.75rem)] z-40 flex-col border-r border-border bg-card/60 backdrop-blur-xl transition-all duration-300",
-            collapsed ? "w-16" : "w-56"
+            "hidden md:flex fixed left-0 top-11 h-[calc(100vh-2.75rem)] z-40 flex-col border-r border-border/60 bg-card/90 backdrop-blur-xl transition-all duration-300",
+            collapsed ? "w-[3.5rem]" : "w-52"
           )}
         >
-          <div className="h-12 flex items-center px-3 border-b border-border">
+          <div className="h-11 flex items-center px-2.5 border-b border-border/50">
             <button onClick={() => setCollapsed(!collapsed)} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
-              <Menu className="h-4 w-4 text-foreground" />
+              <Menu className="h-4 w-4 text-muted-foreground" />
             </button>
-            {!collapsed && <span className="ml-2 font-display text-sm font-bold text-foreground truncate">Painel Interno</span>}
+            {!collapsed && <span className="ml-2 font-display text-[13px] font-semibold text-foreground truncate">Painel Interno</span>}
           </div>
 
-          <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
+          <nav className="flex-1 py-2 px-1.5 space-y-0.5 overflow-y-auto">
             {sidebarItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all",
+                  "flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-[13px] transition-all duration-150",
                   isActive(item.path)
                     ? "bg-primary text-primary-foreground shadow-sm font-medium"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                 )}
               >
-                <item.icon className="h-4 w-4 shrink-0" />
+                <item.icon className="h-[15px] w-[15px] shrink-0" />
                 {!collapsed && <span className="truncate">{item.label}</span>}
               </Link>
             ))}
           </nav>
 
-          <div className="p-2 border-t border-border">
+          <div className="p-1.5 border-t border-border/50">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-muted transition-colors w-full"
+              className="flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg text-[13px] text-muted-foreground hover:text-destructive hover:bg-muted/60 transition-colors w-full"
             >
-              <LogOut className="h-4 w-4 shrink-0" />
+              <LogOut className="h-[15px] w-[15px] shrink-0" />
               {!collapsed && <span>Sair</span>}
             </button>
           </div>
         </aside>
 
-        {/* Main content */}
-        <main className={cn("flex-1 transition-all duration-300", collapsed ? "md:ml-16" : "md:ml-56")}>
-          <div className="p-4 lg:p-8 max-w-7xl mx-auto animate-fade-in">
+        <main className={cn("flex-1 transition-all duration-300", collapsed ? "md:ml-[3.5rem]" : "md:ml-52")}>
+          <div className="px-4 py-4 sm:px-6 lg:px-8 lg:py-6 max-w-7xl mx-auto animate-fade-in">
             <Outlet />
           </div>
         </main>
