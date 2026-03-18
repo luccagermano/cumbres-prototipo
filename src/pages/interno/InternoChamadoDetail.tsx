@@ -210,18 +210,20 @@ export default function InternoChamadoDetail() {
               })}
               {!messages?.length && <p className="text-sm text-muted-foreground">Nenhuma mensagem.</p>}
             </div>
-            <div className="flex gap-2 pt-4 border-t border-border/50">
-              <Textarea value={newMsg} onChange={(e) => setNewMsg(e.target.value)} placeholder="Responder..." className="flex-1" rows={2} maxLength={2000} />
-              <div className="flex flex-col gap-1 self-end">
-                <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground cursor-pointer">
-                  <input type="checkbox" checked={isInternal} onChange={(e) => setIsInternal(e.target.checked)} className="rounded" />
-                  Interno
-                </label>
-                <Button size="sm" onClick={() => sendMsg.mutate()} disabled={!newMsg.trim() || sendMsg.isPending}>
-                  {sendMsg.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                </Button>
+            {canWrite && (
+              <div className="flex gap-2 pt-4 border-t border-border/50">
+                <Textarea value={newMsg} onChange={(e) => setNewMsg(e.target.value)} placeholder="Responder..." className="flex-1" rows={2} maxLength={2000} />
+                <div className="flex flex-col gap-1 self-end">
+                  <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground cursor-pointer">
+                    <input type="checkbox" checked={isInternal} onChange={(e) => setIsInternal(e.target.checked)} className="rounded" />
+                    Interno
+                  </label>
+                  <Button size="sm" onClick={() => sendMsg.mutate()} disabled={!newMsg.trim() || sendMsg.isPending}>
+                    {sendMsg.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
           </GlassCard>
         </div>
 
