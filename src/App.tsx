@@ -114,6 +114,7 @@ const App = () => (
               <Route element={<InternalLayout />}>
                 <Route path="/interno" element={<InternoDashboard />} />
                 <Route path="/interno/cadastros" element={<InternoCadastros />} />
+                <Route path="/interno/cadastros/organizacoes" element={<InternoOrganizacoes />} />
                 <Route path="/interno/cadastros/empreendimentos" element={<InternoEmpreendimentos />} />
                 <Route path="/interno/cadastros/blocos" element={<InternoBlocos />} />
                 <Route path="/interno/cadastros/unidades" element={<InternoUnidades />} />
