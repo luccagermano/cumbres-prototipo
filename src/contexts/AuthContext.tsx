@@ -53,15 +53,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [memberships, setMemberships] = useState<OrgMembership[]>([]);
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchUserData = async (userId: string) => {
-    const [profileRes, membershipsRes] = await Promise.all([
+    const [profileRes, membershipsRes, platformAdminRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", userId).single(),
       supabase.from("organization_memberships").select("id, organization_id, role, active").eq("user_id", userId).eq("active", true),
+      supabase.from("platform_admins").select("user_id").eq("user_id", userId).eq("active", true).maybeSingle(),
     ]);
     if (profileRes.data) setProfile(profileRes.data as Profile);
     if (membershipsRes.data) setMemberships(membershipsRes.data as OrgMembership[]);
+    setIsPlatformAdmin(!!platformAdminRes.data);
   };
 
   useEffect(() => {
