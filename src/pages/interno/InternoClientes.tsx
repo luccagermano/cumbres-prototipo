@@ -50,7 +50,7 @@ type CustomerRow = Profile & {
   memberships: MembershipEnriched[];
   unit_count: number;
   has_active: boolean;
-  portal_status: "ready" | "pending" | "incomplete";
+  portal_status: "ready" | "pending" | "incomplete" | "sem_vinculo";
 };
 
 type ProfileFormData = {
@@ -83,10 +83,11 @@ const emptyLinkForm: LinkFormData = {
   purchased_at: "",
 };
 
-const portalChip: Record<string, { variant: "success" | "warning" | "pending"; label: string }> = {
+const portalChip: Record<string, { variant: "success" | "warning" | "pending" | "neutral"; label: string }> = {
   ready: { variant: "success", label: "Pronto" },
   pending: { variant: "warning", label: "Pendente" },
   incomplete: { variant: "pending", label: "Incompleto" },
+  sem_vinculo: { variant: "neutral", label: "Sem vínculo" },
 };
 
 export default function InternoClientes() {
@@ -204,21 +205,23 @@ export default function InternoClientes() {
     return m;
   }, [enrichedMemberships]);
 
-  // ── Customer rows ──
-  // Include profiles that have memberships (customers with units)
-  // For platform admins, show all profiles; for org_admin, only those visible via RLS
+  // ── Customer rows — show ALL profiles, not just those with memberships ──
   const customerRows: CustomerRow[] = useMemo(() => {
-    const customerUserIds = new Set(memberships.map((m) => m.user_id));
-    const customerProfiles = profiles.filter((p) => customerUserIds.has(p.id));
-
-    return customerProfiles.map((p) => {
+    return profiles.map((p) => {
       const ms = membershipsByUser.get(p.id) ?? [];
       const hasActive = ms.some((m) => m.active);
       const unitCount = ms.filter((m) => m.active).length;
 
-      let portalStatus: "ready" | "pending" | "incomplete" = "incomplete";
-      if (hasActive && p.email) portalStatus = "ready";
-      else if (hasActive || p.email) portalStatus = "pending";
+      let portalStatus: "ready" | "pending" | "incomplete" | "sem_vinculo" = "sem_vinculo";
+      if (unitCount === 0) {
+        portalStatus = "sem_vinculo";
+      } else if (hasActive && p.email) {
+        portalStatus = "ready";
+      } else if (hasActive || p.email) {
+        portalStatus = "pending";
+      } else {
+        portalStatus = "incomplete";
+      }
 
       return {
         ...p,
@@ -228,7 +231,7 @@ export default function InternoClientes() {
         portal_status: portalStatus,
       };
     });
-  }, [profiles, memberships, membershipsByUser]);
+  }, [profiles, membershipsByUser]);
 
   // ── Filters ──
   const filtered = useMemo(() => {
@@ -245,10 +248,10 @@ export default function InternoClientes() {
 
   // ── KPIs ──
   const kpis = [
-    { title: "Total de Clientes", value: customerRows.length, icon: Users },
+    { title: "Total de Perfis", value: customerRows.length, icon: Users },
     { title: "Prontos", value: customerRows.filter((c) => c.portal_status === "ready").length, icon: UserCheck },
-    { title: "Pendentes", value: customerRows.filter((c) => c.portal_status === "pending").length, icon: Clock },
-    { title: "Incompletos", value: customerRows.filter((c) => c.portal_status === "incomplete").length, icon: UserX },
+    { title: "Sem Vínculo", value: customerRows.filter((c) => c.portal_status === "sem_vinculo").length, icon: UserX },
+    { title: "Pendentes", value: customerRows.filter((c) => c.portal_status === "pending" || c.portal_status === "incomplete").length, icon: Clock },
   ];
 
   // ── Profile Mutations ──
@@ -497,7 +500,7 @@ export default function InternoClientes() {
     <div>
       <PageHeader
         title="Clientes"
-        description="Gestão de clientes vinculados a unidades da plataforma."
+        description="Gestão de perfis de usuários e vínculos com unidades."
         breadcrumb={["Interno", "Cadastros", "Clientes"]}
       />
 
@@ -519,8 +522,8 @@ export default function InternoClientes() {
       {customerRows.length === 0 ? (
         <EmptyState
           icon={Users}
-          title="Nenhum cliente vinculado"
-          description="Vincule clientes a unidades para que eles possam acessar o portal do cliente."
+          title="Nenhum perfil encontrado"
+          description="Nenhum perfil de usuário foi retornado. Verifique se existem usuários cadastrados e se suas permissões de acesso estão configuradas corretamente."
         />
       ) : (
         <DataTable
