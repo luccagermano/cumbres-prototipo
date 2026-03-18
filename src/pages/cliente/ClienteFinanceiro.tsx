@@ -69,7 +69,7 @@ export default function ClienteFinanceiro() {
               Financiamento: <span className="font-medium text-foreground">{contract.bank_name}</span>
             </span>
           )}
-          {contract.financing_status && <StatusChip status={contract.financing_status} />}
+          {contract.financing_status && <StatusChip label={contract.financing_status} variant="info" />}
           <span className="text-muted-foreground ml-auto">
             Valor total: <span className="font-semibold text-foreground">{BRL.format(Number(contract.total_contract_value))}</span>
           </span>
