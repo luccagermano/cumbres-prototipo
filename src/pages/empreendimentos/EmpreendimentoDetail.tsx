@@ -67,10 +67,10 @@ export default function EmpreendimentoDetail() {
       <PageHeader title={dev.name} breadcrumb={["Empreendimentos", dev.name]} />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <KpiCard label="Status" value={statusLabel} icon={Building} />
-        <KpiCard label="Total de Unidades" value={String(dev.total_units ?? "—")} icon={Home} />
+        <KpiCard title="Status" value={statusLabel} icon={Building} />
+        <KpiCard title="Total de Unidades" value={String(dev.total_units ?? "—")} icon={Home} />
         <KpiCard
-          label="Previsão de Entrega"
+          title="Previsão de Entrega"
           value={dev.delivery_forecast_at ? format(new Date(dev.delivery_forecast_at), "MMM yyyy", { locale: ptBR }) : "—"}
           icon={Calendar}
         />
