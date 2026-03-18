@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/ui/page-header";
+import { useInternalPermissions } from "@/hooks/useInternalPermissions";
 import { EmptyState } from "@/components/EmptyState";
 import { SearchBar } from "@/components/ui/search-bar";
 import { GlassCard } from "@/components/ui/glass-card";
