@@ -248,10 +248,10 @@ export default function InternoClientes() {
 
   // ── KPIs ──
   const kpis = [
-    { title: "Total de Clientes", value: customerRows.length, icon: Users },
+    { title: "Total de Perfis", value: customerRows.length, icon: Users },
     { title: "Prontos", value: customerRows.filter((c) => c.portal_status === "ready").length, icon: UserCheck },
-    { title: "Pendentes", value: customerRows.filter((c) => c.portal_status === "pending").length, icon: Clock },
-    { title: "Incompletos", value: customerRows.filter((c) => c.portal_status === "incomplete").length, icon: UserX },
+    { title: "Sem Vínculo", value: customerRows.filter((c) => c.portal_status === "sem_vinculo").length, icon: UserX },
+    { title: "Pendentes", value: customerRows.filter((c) => c.portal_status === "pending" || c.portal_status === "incomplete").length, icon: Clock },
   ];
 
   // ── Profile Mutations ──
