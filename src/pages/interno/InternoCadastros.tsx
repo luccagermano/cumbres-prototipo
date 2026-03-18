@@ -167,6 +167,21 @@ export default function InternoCadastros() {
   // ── Sections ─────────────────────────────────────────────
   const sections: Section[] = [
     {
+      title: "Cadastros Base",
+      cards: [
+        {
+          title: "Organizações",
+          description: "Entidade raiz: organização › empreendimento › bloco › unidade",
+          icon: Landmark,
+          count: orgCount,
+          loading: loadOrgs,
+          emptyWarning: "Nenhuma organização cadastrada",
+          href: "/interno/cadastros/organizacoes",
+          ...getReadiness(orgCount, orgActiveCount > 0),
+        },
+      ],
+    },
+    {
       title: "Cadastros Estruturais",
       cards: [
         {
