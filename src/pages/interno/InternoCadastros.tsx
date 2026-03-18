@@ -394,7 +394,29 @@ export default function InternoCadastros() {
         </div>
       )}
 
-      {/* Setup guidance for empty state */}
+      {/* No org warning */}
+      {orgCount === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.28 }}
+          className="glass-card p-4 mb-8 border-l-4 border-amber-400/60"
+        >
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-foreground">Cadastre uma organização para continuar a configuração do sistema.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">A organização é a entidade raiz da hierarquia de dados.</p>
+            </div>
+            <Link to="/interno/cadastros/organizacoes">
+              <Button size="sm" variant="outline" className="gap-1 text-xs shrink-0">
+                Criar Organização <ArrowRight className="h-3 w-3" />
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
+      )}
+
       {devCount === 0 && (
         <motion.div
           initial={{ opacity: 0 }}
