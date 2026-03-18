@@ -339,7 +339,7 @@ export default function InternoEmpreendimentos() {
               <Pencil className="h-3 w-3" /> Editar
             </Button>
           )}
-          <Link to={`/empreendimentos/${row.slug}`} onClick={(e) => e.stopPropagation()}>
+          <Link to={`/interno/cadastros/blocos?dev=${row.id}`} onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
               <Layers className="h-3 w-3" /> Blocos
             </Button>
