@@ -260,7 +260,7 @@ export default function InternoBlocos() {
     {
       key: "actions",
       header: "",
-      className: "w-[200px]",
+      className: "w-[260px]",
       render: (row) => (
         <div className="flex items-center gap-1.5 justify-end">
           {canWrite && (
@@ -273,6 +273,13 @@ export default function InternoBlocos() {
               <Home className="h-3 w-3" /> Unidades
             </Button>
           </Link>
+          {canWrite && (
+            <Link to={`/interno/cadastros/unidades?block=${row.id}`} onClick={(e) => e.stopPropagation()}>
+              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1">
+                <Plus className="h-3 w-3" /> Criar Unidade
+              </Button>
+            </Link>
+          )}
         </div>
       ),
     },
