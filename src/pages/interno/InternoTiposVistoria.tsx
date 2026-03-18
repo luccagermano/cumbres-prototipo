@@ -39,8 +39,9 @@ type InspectionType = {
 };
 
 export default function InternoTiposVistoria() {
-  const { user } = useAuth();
+  const { user, isPlatformAdmin, memberships } = useAuth();
   const qc = useQueryClient();
+  const canWrite = isPlatformAdmin || memberships.some(m => m.active && ["org_admin", "inspection_agent"].includes(m.role));
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>(["all"]);
@@ -218,16 +219,16 @@ export default function InternoTiposVistoria() {
       header: "Status",
       render: (row) => <StatusChip variant={row.active ? "success" : "neutral"} label={row.active ? "Ativo" : "Inativo"} size="sm" />,
     },
-    {
+    ...(canWrite ? [{
       key: "actions",
       header: "",
       className: "w-12",
-      render: (row) => (
+      render: (row: InspectionType) => (
         <Button variant="ghost" size="sm" className="h-7" onClick={(e) => { e.stopPropagation(); openEdit(row); }}>
           <Pencil className="h-3 w-3" />
         </Button>
       ),
-    },
+    }] : []),
   ];
 
   if (isLoading) {
@@ -245,11 +246,11 @@ export default function InternoTiposVistoria() {
         title="Tipos de Vistoria"
         description="Gerencie os tipos de vistoria disponíveis para agendamento."
         breadcrumb={["Interno", "Cadastros", "Tipos de Vistoria"]}
-        actions={
+        actions={canWrite ? (
           <Button size="sm" className="gap-1.5" onClick={openCreate}>
             <Plus className="h-4 w-4" /> Novo Tipo
           </Button>
-        }
+        ) : undefined}
       />
 
       {/* KPIs */}

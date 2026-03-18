@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { SearchBar } from "@/components/ui/search-bar";
 import { ChipFilter } from "@/components/ui/chip-filter";
 import { TicketRow } from "@/components/ui/ticket-row";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Ticket, Loader2 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +36,17 @@ export default function InternoChamados() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<string[]>(["all"]);
+  const [categoryFilter, setCategoryFilter] = useState("all");
+
+  // Ticket categories for filter
+  const { data: ticketCategories } = useQuery({
+    queryKey: ["ticket-categories-filter"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("ticket_categories").select("id, name").eq("active", true).order("name");
+      return data ?? [];
+    },
+  });
 
   const { data: tickets, isLoading } = useQuery({
     queryKey: ["internal-tickets"],
@@ -54,16 +66,28 @@ export default function InternoChamados() {
     return tickets.filter((t) => {
       const matchSearch = !search || t.description.toLowerCase().includes(search.toLowerCase()) || t.category_name.toLowerCase().includes(search.toLowerCase()) || t.id.includes(search);
       const matchFilter = filters.includes("all") || filters.includes(t.internal_status);
-      return matchSearch && matchFilter;
+      const matchCategory = categoryFilter === "all" || t.ticket_category_id === categoryFilter;
+      return matchSearch && matchFilter && matchCategory;
     });
-  }, [tickets, search, filters]);
+  }, [tickets, search, filters, categoryFilter]);
 
   return (
     <div>
       <PageHeader title="Chamados" description="Gestão de tickets e atendimento técnico." breadcrumb={["Painel Interno", "Chamados"]} />
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <SearchBar placeholder="Buscar chamado..." value={search} onChange={setSearch} className="sm:max-w-xs" />
         <ChipFilter options={statusFilters} selected={filters} onChange={setFilters} />
+        {ticketCategories && ticketCategories.length > 0 && (
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[180px]"><SelectValue placeholder="Categoria" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas categorias</SelectItem>
+              {ticketCategories.map(c => (
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       {isLoading ? (

@@ -38,7 +38,8 @@ const emptyForm = {
 };
 
 export default function InternoCategoriasDocumentos() {
-  const { user } = useAuth();
+  const { user, isPlatformAdmin, memberships } = useAuth();
+  const canWrite = isPlatformAdmin || memberships.some(m => m.active && ["org_admin", "document_agent"].includes(m.role));
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filterScope, setFilterScope] = useState<string>("all");
@@ -155,16 +156,16 @@ export default function InternoCategoriasDocumentos() {
       header: "Status",
       render: (row) => <StatusChip label={row.active ? "Ativa" : "Inativa"} variant={row.active ? "success" : "neutral"} size="sm" />,
     },
-    {
+    ...(canWrite ? [{
       key: "actions",
       header: "",
-      render: (row) => (
+      render: (row: any) => (
         <Button variant="ghost" size="sm" onClick={() => startEdit(row)}>
           <Pencil className="h-3.5 w-3.5" />
         </Button>
       ),
       className: "w-10",
-    },
+    }] : []),
   ];
 
   return (
@@ -173,7 +174,7 @@ export default function InternoCategoriasDocumentos() {
         title="Categorias de Documentos"
         description="Organize o acervo documental com categorias normalizadas."
         breadcrumb={["Interno", "Cadastros", "Categorias de Documentos"]}
-        actions={
+        actions={canWrite ? (
           <Dialog open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) resetForm(); }}>
             <DialogTrigger asChild>
               <Button className="gap-2"><Plus className="h-4 w-4" /> Nova Categoria</Button>
@@ -217,7 +218,7 @@ export default function InternoCategoriasDocumentos() {
               </div>
             </DialogContent>
           </Dialog>
-        }
+        ) : undefined}
       />
 
       {/* KPIs */}

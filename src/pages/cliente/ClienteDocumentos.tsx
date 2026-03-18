@@ -33,7 +33,7 @@ export default function ClienteDocumentos() {
       const unitIds = memberships.map((m) => m.unit_id);
       const { data, error } = await supabase
         .from("documents")
-        .select("*")
+        .select("*, doc_category:document_categories(name, visible_to_customer)")
         .in("unit_id", unitIds)
         .eq("visible_to_customer", true)
         .order("created_at", { ascending: false });
@@ -45,19 +45,22 @@ export default function ClienteDocumentos() {
 
   const categories = useMemo(() => {
     if (!documents?.length) return [];
-    const cats = [...new Set(documents.map((d) => d.category))];
+    // Use normalized category name if available, otherwise fall back to text field
+    const getCategoryLabel = (d: any) => d.doc_category?.name ?? d.category;
+    const cats = [...new Set(documents.map(getCategoryLabel))];
     return cats.map((c) => ({
       label: c,
       value: c,
-      count: documents.filter((d) => d.category === c).length,
+      count: documents.filter((d: any) => getCategoryLabel(d) === c).length,
     }));
   }, [documents]);
 
   const filtered = useMemo(() => {
     if (!documents) return [];
-    return documents.filter((d) => {
+    return documents.filter((d: any) => {
       const matchSearch = !search || d.title.toLowerCase().includes(search.toLowerCase()) || d.file_name.toLowerCase().includes(search.toLowerCase());
-      const matchCategory = !selectedCategories.length || selectedCategories.includes(d.category);
+      const catLabel = d.doc_category?.name ?? d.category;
+      const matchCategory = !selectedCategories.length || selectedCategories.includes(catLabel);
       return matchSearch && matchCategory;
     });
   }, [documents, search, selectedCategories]);
@@ -78,11 +81,11 @@ export default function ClienteDocumentos() {
         <EmptyState icon={FileText} title="Nenhum documento" description="Seus documentos estarão disponíveis aqui." />
       ) : (
         <div className="space-y-2">
-          {filtered.map((doc) => (
+          {filtered.map((doc: any) => (
             <DocumentRow
               key={doc.id}
               title={doc.title}
-              category={doc.category}
+              category={doc.doc_category?.name ?? doc.category}
               date={format(new Date(doc.created_at), "dd/MM/yyyy", { locale: ptBR })}
               onClick={() => navigate(`/cliente/documentos/${doc.id}`)}
               onDownload={async () => {

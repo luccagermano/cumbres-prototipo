@@ -32,7 +32,8 @@ const emptyForm = {
 };
 
 export default function InternoRegrasGarantia() {
-  const { user } = useAuth();
+  const { user, isPlatformAdmin, memberships } = useAuth();
+  const canWrite = isPlatformAdmin || memberships.some(m => m.active && m.role === "org_admin");
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filterActive, setFilterActive] = useState<string>("all");
@@ -134,7 +135,7 @@ export default function InternoRegrasGarantia() {
         title="Regras de Garantia"
         description="Prazos, condições e recomendações de garantia por categoria."
         breadcrumb={["Interno", "Cadastros", "Regras de Garantia"]}
-        actions={
+        actions={canWrite ? (
           <Dialog open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) resetForm(); }}>
             <DialogTrigger asChild>
               <Button className="gap-2"><Plus className="h-4 w-4" /> Nova Regra</Button>
@@ -197,7 +198,7 @@ export default function InternoRegrasGarantia() {
               </div>
             </DialogContent>
           </Dialog>
-        }
+        ) : undefined}
       />
 
       {/* KPIs */}
@@ -274,9 +275,11 @@ export default function InternoRegrasGarantia() {
                     <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
                   )}
                   <StatusChip label={rule.active ? "Ativa" : "Inativa"} variant={rule.active ? "success" : "neutral"} size="sm" />
-                  <Button variant="ghost" size="sm" onClick={() => startEdit(rule)}>
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
+                  {canWrite && (
+                    <Button variant="ghost" size="sm" onClick={() => startEdit(rule)}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                 </div>
               </div>
             </GlassCard>

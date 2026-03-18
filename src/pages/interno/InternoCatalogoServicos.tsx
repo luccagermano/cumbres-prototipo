@@ -31,7 +31,8 @@ const emptyForm = {
 };
 
 export default function InternoCatalogoServicos() {
-  const { user } = useAuth();
+  const { user, isPlatformAdmin, memberships } = useAuth();
+  const canWrite = isPlatformAdmin || memberships.some(m => m.active && m.role === "org_admin");
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filterActive, setFilterActive] = useState<string>("all");
@@ -167,16 +168,16 @@ export default function InternoCatalogoServicos() {
       header: "Status",
       render: (row) => <StatusChip label={row.active ? "Ativo" : "Inativo"} variant={row.active ? "success" : "neutral"} size="sm" />,
     },
-    {
+    ...(canWrite ? [{
       key: "actions",
       header: "",
-      render: (row) => (
+      render: (row: any) => (
         <Button variant="ghost" size="sm" onClick={() => startEdit(row)}>
           <Pencil className="h-3.5 w-3.5" />
         </Button>
       ),
       className: "w-10",
-    },
+    }] : []),
   ];
 
   return (
@@ -185,7 +186,7 @@ export default function InternoCatalogoServicos() {
         title="Catálogo de Serviços"
         description="Serviços disponíveis para solicitação pelo cliente ou pela equipe interna."
         breadcrumb={["Interno", "Cadastros", "Catálogo de Serviços"]}
-        actions={
+        actions={canWrite ? (
           <Dialog open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) resetForm(); }}>
             <DialogTrigger asChild>
               <Button className="gap-2"><Plus className="h-4 w-4" /> Novo Serviço</Button>
@@ -236,7 +237,7 @@ export default function InternoCatalogoServicos() {
               </div>
             </DialogContent>
           </Dialog>
-        }
+        ) : undefined}
       />
 
       {/* KPIs */}

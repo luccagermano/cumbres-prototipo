@@ -52,8 +52,9 @@ type Subcategory = {
 };
 
 export default function InternoCategoriasChamados() {
-  const { user, isPlatformAdmin } = useAuth();
+  const { user, isPlatformAdmin, memberships } = useAuth();
   const qc = useQueryClient();
+  const canWrite = isPlatformAdmin || memberships.some(m => m.active && ["org_admin", "support_agent"].includes(m.role));
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>(["all"]);
@@ -257,11 +258,11 @@ export default function InternoCategoriasChamados() {
         title="Categorias de Chamados"
         description="Gerencie categorias e subcategorias para classificação de chamados."
         breadcrumb={["Interno", "Cadastros", "Categorias de Chamados"]}
-        actions={
+        actions={canWrite ? (
           <Button size="sm" className="gap-1.5" onClick={openCreateCat}>
             <Plus className="h-4 w-4" /> Nova Categoria
           </Button>
-        }
+        ) : undefined}
       />
 
       {/* KPIs */}
@@ -314,14 +315,16 @@ export default function InternoCategoriasChamados() {
                       {cat.description && <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>}
                       <p className="text-[11px] text-muted-foreground mt-1">{orgName(cat.organization_id)} · {subs.length} subcategoria(s)</p>
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => openCreateSub(cat.id)}>
-                        <Plus className="h-3 w-3 mr-1" /> Sub
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => openEditCat(cat)}>
-                        <Pencil className="h-3 w-3" />
-                      </Button>
-                    </div>
+                    {canWrite && (
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => openCreateSub(cat.id)}>
+                          <Plus className="h-3 w-3 mr-1" /> Sub
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => openEditCat(cat)}>
+                          <Pencil className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
                   {isExpanded && subs.length > 0 && (
