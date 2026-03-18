@@ -300,7 +300,7 @@ export default function InternoFinanceiro() {
                     <td className="px-4 py-3 text-sm text-muted-foreground">{r.charge_type}</td>
                     <td className="px-4 py-3 text-sm text-foreground">{format(new Date(r.due_date), "dd/MM/yyyy")}</td>
                     <td className="px-4 py-3 text-sm text-foreground text-right font-medium">{BRL.format(Number(r.total_amount))}</td>
-                    <td className="px-4 py-3 text-center"><StatusChip status={r.status === "pending" && new Date(r.due_date) < now ? "overdue" : r.status} /></td>
+                    <td className="px-4 py-3 text-center"><StatusChip label={r.status === "pending" && new Date(r.due_date) < now ? "Vencida" : r.status === "paid" ? "Paga" : r.status === "overdue" ? "Vencida" : r.status === "cancelled" ? "Cancelada" : "Pendente"} variant={r.status === "paid" ? "success" : (r.status === "overdue" || (r.status === "pending" && new Date(r.due_date) < now)) ? "error" : r.status === "cancelled" ? "neutral" : "pending"} /></td>
                     <td className="px-4 py-3 text-center">
                       <div className="flex items-center justify-center gap-1">
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingReceivable(r); setShowReceivableModal(true); }}>

@@ -10,8 +10,6 @@ import { ptBR } from "date-fns/locale";
 function StatusBadge({ label }: { label: string }) {
   return <Badge variant="secondary" className="text-xs">{label}</Badge>;
 }
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
 export default function ClienteUnidade() {
   const { data: unitMemberships, isLoading } = useCustomerUnit();

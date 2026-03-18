@@ -139,7 +139,7 @@ export default function ClienteFinanceiro() {
                       <td className="px-4 py-3 text-sm text-foreground">{format(new Date(r.due_date), "dd/MM/yyyy")}</td>
                       <td className="px-4 py-3 text-sm text-foreground text-right font-medium">{BRL.format(Number(r.total_amount))}</td>
                       <td className="px-4 py-3 text-center">
-                        <StatusChip status={isOverdue ? "overdue" : r.status} />
+                        <StatusChip label={isOverdue ? "Vencida" : r.status === "paid" ? "Paga" : "A vencer"} variant={isOverdue ? "error" : r.status === "paid" ? "success" : "pending"} />
                       </td>
                       <td className="px-4 py-3 text-sm text-muted-foreground">
                         {r.paid_at ? format(new Date(r.paid_at), "dd/MM/yyyy") : "—"}
