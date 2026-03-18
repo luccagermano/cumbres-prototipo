@@ -176,7 +176,8 @@ export default function InternoCadastros() {
   const warrantyActiveCount = warrantyRules?.filter(w => w.active).length ?? 0;
   const serviceCount = serviceCatalog?.length ?? 0;
   const serviceActiveCount = serviceCatalog?.filter(s => s.active).length ?? 0;
-  const faqCatCount = faqCategories?.length ?? 0;
+  const docCatCount = docCategories?.length ?? 0;
+  const docCatActiveCount = docCategories?.filter(c => c.active).length ?? 0;
 
   // ── Readiness computations ──
   const devsWithBlocks = blocks ? new Set(blocks.map(b => b.development_id)).size : 0;
