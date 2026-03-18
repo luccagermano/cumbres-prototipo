@@ -154,7 +154,7 @@ export default function InternoCadastros() {
           count: orgMembers?.length ?? null,
           loading: loadTeam,
           emptyWarning: "Nenhum membro cadastrado",
-          href: "/interno/chamados",
+          href: "/interno/cadastros/equipe",
         },
       ],
     },
