@@ -276,6 +276,7 @@ export default function InternoCadastros() {
 
   // ── KPIs ─────────────────────────────────────────────
   const kpis = [
+    { title: "Organizações", value: orgCount, icon: Landmark },
     { title: "Empreendimentos", value: devCount, icon: Building2 },
     { title: "Blocos", value: blockCount, icon: Layers },
     { title: "Unidades", value: unitCount, icon: Home },
