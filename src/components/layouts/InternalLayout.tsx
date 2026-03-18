@@ -3,7 +3,7 @@ import { GlobalAreaSwitcher } from "@/components/GlobalAreaSwitcher";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import {
-  Home, Ticket, Shield, Calendar, FileText, DollarSign, LogOut, Menu,
+  Home, Ticket, Shield, Calendar, FileText, DollarSign, LogOut, Menu, Database,
 } from "lucide-react";
 import { useState } from "react";
 
