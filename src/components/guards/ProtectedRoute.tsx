@@ -1,6 +1,8 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { setLastArea } from "@/contexts/OrgContext";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 
 type Props = {
   /** If provided, user must have at least one of these roles */
@@ -16,6 +18,16 @@ function devLog(label: string, data: unknown) {
 export default function ProtectedRoute({ allowedRoles }: Props) {
   const { session, memberships, loading, isPlatformAdmin } = useAuth();
   const location = useLocation();
+
+  // Persist current area on every navigation within protected routes
+  useEffect(() => {
+    if (session) {
+      const area = "/" + location.pathname.split("/")[1];
+      if (["/cliente", "/interno", "/executivo"].includes(area)) {
+        setLastArea(area);
+      }
+    }
+  }, [location.pathname, session]);
 
   if (loading) {
     return (
