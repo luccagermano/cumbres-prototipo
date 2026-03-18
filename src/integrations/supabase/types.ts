@@ -207,6 +207,53 @@ export type Database = {
           },
         ]
       }
+      document_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          organization_id: string
+          scope: string
+          sort_order: number
+          updated_at: string
+          visible_to_customer: boolean
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          scope?: string
+          sort_order?: number
+          updated_at?: string
+          visible_to_customer?: boolean
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          scope?: string
+          sort_order?: number
+          updated_at?: string
+          visible_to_customer?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_categories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           bucket: string
@@ -214,6 +261,7 @@ export type Database = {
           contract_id: string | null
           created_at: string
           development_id: string | null
+          document_category_id: string | null
           file_name: string
           file_path: string
           id: string
@@ -236,6 +284,7 @@ export type Database = {
           contract_id?: string | null
           created_at?: string
           development_id?: string | null
+          document_category_id?: string | null
           file_name: string
           file_path: string
           id?: string
@@ -258,6 +307,7 @@ export type Database = {
           contract_id?: string | null
           created_at?: string
           development_id?: string | null
+          document_category_id?: string | null
           file_name?: string
           file_path?: string
           id?: string
@@ -287,6 +337,13 @@ export type Database = {
             columns: ["development_id"]
             isOneToOne: false
             referencedRelation: "developments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_document_category_id_fkey"
+            columns: ["document_category_id"]
+            isOneToOne: false
+            referencedRelation: "document_categories"
             referencedColumns: ["id"]
           },
           {
@@ -1247,30 +1304,42 @@ export type Database = {
       service_catalog: {
         Row: {
           active: boolean
+          category_name: string | null
           description: string | null
+          estimated_delivery_days: number | null
           id: string
           name: string
           organization_id: string
           price_label: string | null
+          service_code: string | null
           sort_order: number
+          visible_to_customer: boolean | null
         }
         Insert: {
           active?: boolean
+          category_name?: string | null
           description?: string | null
+          estimated_delivery_days?: number | null
           id?: string
           name: string
           organization_id: string
           price_label?: string | null
+          service_code?: string | null
           sort_order?: number
+          visible_to_customer?: boolean | null
         }
         Update: {
           active?: boolean
+          category_name?: string | null
           description?: string | null
+          estimated_delivery_days?: number | null
           id?: string
           name?: string
           organization_id?: string
           price_label?: string | null
+          service_code?: string | null
           sort_order?: number
+          visible_to_customer?: boolean | null
         }
         Relationships: [
           {
@@ -1719,8 +1788,13 @@ export type Database = {
           created_at: string
           deadline_months: number
           id: string
+          inactive_reason: string | null
           organization_id: string
+          priority_hint: string | null
           recommendation: string | null
+          room_name: string | null
+          service_type: string | null
+          visible_to_customer: boolean | null
         }
         Insert: {
           active?: boolean
@@ -1730,8 +1804,13 @@ export type Database = {
           created_at?: string
           deadline_months: number
           id?: string
+          inactive_reason?: string | null
           organization_id: string
+          priority_hint?: string | null
           recommendation?: string | null
+          room_name?: string | null
+          service_type?: string | null
+          visible_to_customer?: boolean | null
         }
         Update: {
           active?: boolean
@@ -1741,8 +1820,13 @@ export type Database = {
           created_at?: string
           deadline_months?: number
           id?: string
+          inactive_reason?: string | null
           organization_id?: string
+          priority_hint?: string | null
           recommendation?: string | null
+          room_name?: string | null
+          service_type?: string | null
+          visible_to_customer?: boolean | null
         }
         Relationships: [
           {
