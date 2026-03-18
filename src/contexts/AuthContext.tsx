@@ -28,6 +28,7 @@ type AuthContextType = {
   isStaff: boolean;
   isCustomer: boolean;
   isExecutive: boolean;
+  isPlatformAdmin: boolean;
 };
 
 const AuthContext = createContext<AuthContextType>({
