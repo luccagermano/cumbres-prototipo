@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 
 export default function InternoGarantia() {
   const { user } = useAuth();
+  const { canWrite, isReadOnly } = useInternalPermissions();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
