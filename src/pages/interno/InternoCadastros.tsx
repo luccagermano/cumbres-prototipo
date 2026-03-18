@@ -145,7 +145,7 @@ export default function InternoCadastros() {
           count: unitMemberships?.length ?? null,
           loading: loadClients,
           emptyWarning: "Nenhum cliente vinculado",
-          href: "/interno/chamados",
+          href: "/interno/cadastros/clientes",
         },
         {
           title: "Equipe",
