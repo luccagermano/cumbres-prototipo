@@ -88,9 +88,9 @@ export default function InternoDashboard() {
     .slice(0, 5);
 
   const kpis = [
-    { title: "Chamados Abertos", value: openTickets.length, icon: Ticket, subtitle: highPriority.length ? `${highPriority.length} urgente(s)` : "Nenhum urgente" },
-    { title: "Garantias Ativas", value: warrantyRules?.length ?? 0, icon: Shield, subtitle: "Regras cadastradas" },
-    { title: "Vistorias Hoje", value: todayInspections?.length ?? 0, icon: Calendar, subtitle: todayInspections?.length ? "Agendadas" : "Agenda livre" },
+    ...(canSeeTickets ? [{ title: "Chamados Abertos", value: openTickets.length, icon: Ticket, subtitle: highPriority.length ? `${highPriority.length} urgente(s)` : "Nenhum urgente" }] : []),
+    ...(canSeeWarranty ? [{ title: "Garantias Ativas", value: warrantyRules?.length ?? 0, icon: Shield, subtitle: "Regras cadastradas" }] : []),
+    ...(canSeeAgenda ? [{ title: "Vistorias Hoje", value: todayInspections?.length ?? 0, icon: Calendar, subtitle: todayInspections?.length ? "Agendadas" : "Agenda livre" }] : []),
   ];
 
   return (
