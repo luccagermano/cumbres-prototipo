@@ -5,7 +5,9 @@ Brazilian construction company multi-area platform. Glassmorphism design, green 
 - Brand colors: brand-50 through brand-700 in tailwind config
 - Gradient text: `gradient-text` class
 - All CSS colors in HSL
-- Custom primitives: GlassCard, KpiCard, StatusChip, Timeline, DataTable, ChipFilter, SearchBar, UploadArea, NotificationItem, DocumentRow, TicketRow, CalendarGrid, ChatLayout, PageHeader, ModalShell
+- Custom primitives: GlassCard, KpiCard, StatusChip, Timeline, DataTable, ChipFilter, SearchBar, UploadArea, NotificationItem, DocumentRow, TicketRow, CalendarGrid, ChatLayout, PageHeader, ModalShell, DrawerShell
+- StatusChip variants: success, warning, error, info, neutral, pending (NOT "default")
+- ChipFilter expects { label, value }[] and selected: string[]
 
 ## Route Structure
 - Public: /site, /site/sobre, /site/contato, /empreendimentos/*, /campanha/:slug (PublicLayout)
@@ -22,13 +24,16 @@ Brazilian construction company multi-area platform. Glassmorphism design, green 
 - CustomerLayout: desktop sidebar + mobile bottom nav + WhatsApp FAB
 - EmptyState: shared component for empty data states
 
-## Database Schema (Group 1)
+## Database Schema
+- Group 1: organizations, profiles, organization_memberships, developments, blocks, units, unit_memberships
+- Group 2: sales_contracts, journey_events, receivables, payments
+- Group 3: documents, faq_categories, faq_articles, notifications, leads
+- Group 4: warranty_rules, calendar_custom_events, inspection_types, inspection_slots, inspection_bookings, inspection_report_items, tickets, ticket_messages, service_catalog, service_requests
+- Group 5: knowledge_sources, knowledge_chunks, audit_events
 - Enum: app_role (customer, org_admin, finance_agent, support_agent, inspection_agent, document_agent, executive_viewer)
-- Tables: organizations, profiles, organization_memberships, developments, blocks, units, unit_memberships
-- has_role() security definer function for RLS
+- Security definer functions: has_role(), get_user_org_ids()
 - Auto-create profile trigger on auth.users insert
-- update_updated_at() trigger on orgs, profiles, developments, units
-- RLS enabled on all tables
+- Storage buckets: documents-private, avatars-private (both private)
 
 ## Rules
 - All UI copy in Brazilian Portuguese
