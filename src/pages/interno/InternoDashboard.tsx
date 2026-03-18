@@ -97,14 +97,15 @@ export default function InternoDashboard() {
     <div>
       <PageHeader title="Painel Interno" description="Visão geral das operações." />
 
-      {/* KPI Row */}
-      <div className="grid sm:grid-cols-3 gap-4 mb-8">
-        {kpis.map((kpi, i) => (
-          <motion.div key={kpi.title} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-            <KpiCard title={kpi.title} value={kpi.value} icon={kpi.icon} subtitle={kpi.subtitle} />
-          </motion.div>
-        ))}
-      </div>
+      {kpis.length > 0 && (
+        <div className={cn("grid gap-4 mb-8", kpis.length === 1 ? "sm:grid-cols-1 max-w-sm" : kpis.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3")}>
+          {kpis.map((kpi, i) => (
+            <motion.div key={kpi.title} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+              <KpiCard title={kpi.title} value={kpi.value} icon={kpi.icon} subtitle={kpi.subtitle} />
+            </motion.div>
+          ))}
+        </div>
+      )}
 
       {/* Ticket queue + Categories */}
       <div className="grid lg:grid-cols-3 gap-6 mb-8">
