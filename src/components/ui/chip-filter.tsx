@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
 
-interface ChipFilterOption {
+export interface ChipFilterOption {
   label: string;
   value: string;
   count?: number;
@@ -24,7 +24,7 @@ export function ChipFilter({ options, selected, onChange, className }: ChipFilte
   };
 
   return (
-    <div className={cn("flex flex-wrap gap-2", className)}>
+    <div className={cn("flex flex-wrap gap-1.5", className)}>
       {options.map((opt) => {
         const isSelected = selected.includes(opt.value);
         return (
@@ -32,22 +32,22 @@ export function ChipFilter({ options, selected, onChange, className }: ChipFilte
             key={opt.value}
             onClick={() => toggle(opt.value)}
             className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all",
+              "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition-all duration-150",
               isSelected
                 ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                : "bg-card text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
+                : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
             )}
           >
             {opt.label}
             {opt.count !== undefined && (
               <span className={cn(
-                "px-1.5 py-0.5 rounded-full text-[10px]",
+                "px-1 py-0.5 rounded text-[10px] leading-none",
                 isSelected ? "bg-primary-foreground/20" : "bg-muted"
               )}>
                 {opt.count}
               </span>
             )}
-            {isSelected && <X className="h-3 w-3 ml-0.5" />}
+            {isSelected && <X className="h-3 w-3 ml-0.5 opacity-70" />}
           </button>
         );
       })}
