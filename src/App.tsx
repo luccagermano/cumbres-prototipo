@@ -115,6 +115,7 @@ const App = () => (
                 <Route path="/interno/cadastros/blocos" element={<InternoBlocos />} />
                 <Route path="/interno/cadastros/unidades" element={<InternoUnidades />} />
                 <Route path="/interno/cadastros/clientes" element={<InternoClientes />} />
+                <Route path="/interno/cadastros/contratos" element={<InternoContratos />} />
                 <Route path="/interno/chamados" element={<InternoChamados />} />
                 <Route path="/interno/chamados/:id" element={<InternoChamadoDetail />} />
                 <Route path="/interno/garantia" element={<InternoGarantia />} />

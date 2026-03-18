@@ -131,7 +131,7 @@ export default function InternoCadastros() {
           count: contracts?.length ?? null,
           loading: loadContracts,
           emptyWarning: "Nenhum contrato criado",
-          href: "/interno/financeiro",
+          href: "/interno/cadastros/contratos",
         },
       ],
     },
