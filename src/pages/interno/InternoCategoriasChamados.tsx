@@ -258,11 +258,11 @@ export default function InternoCategoriasChamados() {
         title="Categorias de Chamados"
         description="Gerencie categorias e subcategorias para classificação de chamados."
         breadcrumb={["Interno", "Cadastros", "Categorias de Chamados"]}
-        actions={
+        actions={canWrite ? (
           <Button size="sm" className="gap-1.5" onClick={openCreateCat}>
             <Plus className="h-4 w-4" /> Nova Categoria
           </Button>
-        }
+        ) : undefined}
       />
 
       {/* KPIs */}
