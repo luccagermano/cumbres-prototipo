@@ -63,7 +63,7 @@ export default function ClienteFinanceiro() {
             <FileText className="h-4 w-4 text-primary" />
             <span className="font-medium text-foreground">Contrato {contract.contract_number}</span>
           </div>
-          <StatusChip status={contract.contract_status} />
+          <StatusChip label={contract.contract_status} variant="info" />
           {contract.bank_name && (
             <span className="text-muted-foreground">
               Financiamento: <span className="font-medium text-foreground">{contract.bank_name}</span>
