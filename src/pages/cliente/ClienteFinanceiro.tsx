@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { ChipFilter } from "@/components/ui/chip-filter";
 import { StatusChip } from "@/components/ui/status-chip";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/EmptyState";
 import { DollarSign, Calendar, AlertTriangle, CreditCard, FileText } from "lucide-react";
 import { useCustomerReceivables, useCustomerContracts } from "@/hooks/useCustomerData";

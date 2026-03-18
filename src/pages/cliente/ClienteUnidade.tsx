@@ -126,7 +126,7 @@ export default function ClienteUnidade() {
             {contract.financing_status && (
               <div>
                 <p className="text-muted-foreground">Financiamento</p>
-                <StatusChip status={contract.financing_status} />
+                <StatusBadge label={contract.financing_status} />
               </div>
             )}
             {contract.signed_at && (
