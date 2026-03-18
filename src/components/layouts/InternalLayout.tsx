@@ -9,6 +9,7 @@ import { useState } from "react";
 
 const sidebarItems = [
   { label: "Painel", path: "/interno", icon: Home },
+  { label: "Cadastros", path: "/interno/cadastros", icon: Database },
   { label: "Chamados", path: "/interno/chamados", icon: Ticket },
   { label: "Garantia", path: "/interno/garantia", icon: Shield },
   { label: "Agenda", path: "/interno/agenda", icon: Calendar },

@@ -105,6 +105,7 @@ const App = () => (
             <Route element={<ProtectedRoute allowedRoles={["org_admin", "finance_agent", "support_agent", "inspection_agent", "document_agent"]} />}>
               <Route element={<InternalLayout />}>
                 <Route path="/interno" element={<InternoDashboard />} />
+                <Route path="/interno/cadastros" element={<InternoCadastros />} />
                 <Route path="/interno/chamados" element={<InternoChamados />} />
                 <Route path="/interno/chamados/:id" element={<InternoChamadoDetail />} />
                 <Route path="/interno/garantia" element={<InternoGarantia />} />
