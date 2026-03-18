@@ -242,9 +242,16 @@ export default function InternoBlocos() {
       key: "unit_count",
       header: "Unidades",
       render: (row) => (
-        <span className={`text-sm font-medium ${row.unit_count === 0 ? "text-amber-600" : "text-foreground"}`}>
-          {row.unit_count}
-        </span>
+        <div>
+          <span className={`text-sm font-medium ${row.unit_count === 0 ? "text-amber-600" : "text-foreground"}`}>
+            {row.unit_count}
+          </span>
+          {row.unit_count === 0 && (
+            <p className="text-[10px] text-amber-600 flex items-center gap-0.5">
+              <AlertCircle className="h-2.5 w-2.5" /> Pendente
+            </p>
+          )}
+        </div>
       ),
     },
     {
