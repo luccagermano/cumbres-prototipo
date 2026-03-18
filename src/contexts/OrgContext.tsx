@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,25 +17,56 @@ type OrgContextType = {
   logoUrl: string | null;
   orgInitials: string | null;
   loading: boolean;
+  /** Manually set the active org (e.g. for multi-org admins) */
+  setActiveOrgId: (id: string) => void;
+  /** The resolved org ID before org data is fetched */
+  activeOrgId: string | null;
 };
+
+const ORG_STORAGE_KEY = "app_active_org_id";
+const AREA_STORAGE_KEY = "app_last_area";
+
+/** Persist last-used area for session restore */
+export function setLastArea(area: string) {
+  try { sessionStorage.setItem(AREA_STORAGE_KEY, area); } catch {}
+}
+export function getLastArea(): string | null {
+  try { return sessionStorage.getItem(AREA_STORAGE_KEY); } catch { return null; }
+}
 
 const OrgContext = createContext<OrgContextType>({
   org: null,
   logoUrl: null,
   orgInitials: null,
   loading: true,
+  setActiveOrgId: () => {},
+  activeOrgId: null,
 });
 
 export const useOrg = () => useContext(OrgContext);
 
+function getSavedOrgId(): string | null {
+  try { return sessionStorage.getItem(ORG_STORAGE_KEY); } catch { return null; }
+}
+
 export function OrgProvider({ children }: { children: ReactNode }) {
-  const { session, user, memberships, isPlatformAdmin } = useAuth();
+  const { session, user, memberships } = useAuth();
+  const [manualOrgId, setManualOrgId] = useState<string | null>(getSavedOrgId);
 
-  // For staff/internal: resolve from organization_memberships
+  const setActiveOrgId = useCallback((id: string) => {
+    setManualOrgId(id);
+    try { sessionStorage.setItem(ORG_STORAGE_KEY, id); } catch {}
+  }, []);
+
+  // Staff org IDs from organization_memberships
   const staffOrgIds = [...new Set(memberships.filter(m => m.active).map(m => m.organization_id))];
-  const staffOrgId = staffOrgIds[0] ?? null;
 
-  // For customers: resolve org through unit_memberships -> units -> blocks -> developments
+  // If manual selection exists and is still valid for staff, use it
+  const staffOrgId = manualOrgId && staffOrgIds.includes(manualOrgId)
+    ? manualOrgId
+    : staffOrgIds[0] ?? null;
+
+  // For customers without org memberships: resolve through unit chain
   const { data: customerOrgId } = useQuery({
     queryKey: ["customer-org-resolve", user?.id],
     enabled: !!user && !staffOrgId,
@@ -47,14 +78,17 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         .eq("user_id", user!.id)
         .eq("active", true)
         .limit(1);
-      
+
       if (!data?.length) return null;
       const unit = data[0].unit as any;
       return unit?.block?.development?.organization_id ?? null;
     },
   });
 
-  const resolvedOrgId = staffOrgId || customerOrgId || null;
+  // Use manual selection if set (for platform admins), otherwise auto-resolved
+  const resolvedOrgId = manualOrgId && !staffOrgIds.length && !customerOrgId
+    ? manualOrgId // platform admin with manual selection
+    : staffOrgId || customerOrgId || manualOrgId || null;
 
   // Fetch organization data
   const { data: org, isLoading: orgLoading } = useQuery({
@@ -71,7 +105,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  // Generate signed URL for logo
+  // Signed URL for logo
   const { data: logoUrl } = useQuery({
     queryKey: ["active-org-logo", org?.logo_path],
     enabled: !!org?.logo_path,
@@ -91,7 +125,14 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   const loading = !!session && !resolvedOrgId && orgLoading;
 
   return (
-    <OrgContext.Provider value={{ org: org ?? null, logoUrl: logoUrl ?? null, orgInitials, loading }}>
+    <OrgContext.Provider value={{
+      org: org ?? null,
+      logoUrl: logoUrl ?? null,
+      orgInitials,
+      loading,
+      setActiveOrgId,
+      activeOrgId: resolvedOrgId,
+    }}>
       {children}
     </OrgContext.Provider>
   );

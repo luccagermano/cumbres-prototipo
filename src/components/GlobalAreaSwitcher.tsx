@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-import { useOrg } from "@/contexts/OrgContext";
+import { useOrg, setLastArea } from "@/contexts/OrgContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Globe, Layers, Users, Wrench, BarChart3, BookOpen, Building2, LogOut, Shield,
@@ -46,8 +46,15 @@ export function GlobalAreaSwitcher() {
   const active = getActive();
 
   const handleLogout = async () => {
+    try { sessionStorage.removeItem("app_active_org_id"); sessionStorage.removeItem("app_last_area"); } catch {}
     await supabase.auth.signOut();
     navigate("/login");
+  };
+
+  const handleAreaClick = (path: string) => {
+    if (["/cliente", "/interno", "/executivo"].includes(path)) {
+      setLastArea(path);
+    }
   };
 
   return (
@@ -75,6 +82,7 @@ export function GlobalAreaSwitcher() {
               <Link
                 key={area.path}
                 to={area.path}
+                onClick={() => handleAreaClick(area.path)}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all",
                   isActive
