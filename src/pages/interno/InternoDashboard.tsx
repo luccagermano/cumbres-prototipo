@@ -53,7 +53,7 @@ export default function InternoDashboard() {
 
   const { data: warrantyRules } = useQuery({
     queryKey: ["interno-warranty-count"],
-    enabled: !!user,
+    enabled: !!user && canSeeWarranty,
     queryFn: async () => {
       const { data } = await supabase.from("warranty_rules").select("id").eq("active", true);
       return data ?? [];
