@@ -1,51 +1,19 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useOrg } from "@/contexts/OrgContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Globe, Layers, Users, Wrench, BarChart3, BookOpen, Building2, LogOut, Shield,
 } from "lucide-react";
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
 
 export function GlobalAreaSwitcher() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { session, profile, isStaff, isExecutive, hasRole, isPlatformAdmin, memberships } = useAuth();
+  const { session, profile, isStaff, isExecutive, hasRole, isPlatformAdmin } = useAuth();
+  const { org, logoUrl, orgInitials } = useOrg();
 
-  // Resolve current org
-  const orgIds = [...new Set(memberships.filter(m => m.active).map(m => m.organization_id))];
-  const currentOrgId = orgIds[0] ?? null;
-
-  const { data: currentOrg } = useQuery({
-    queryKey: ["global-header-org", currentOrgId],
-    enabled: !!session && !!currentOrgId,
-    staleTime: 5 * 60 * 1000,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("organizations")
-        .select("id, name, slug, logo_path")
-        .eq("id", currentOrgId!)
-        .single();
-      return data;
-    },
-  });
-
-  const { data: orgLogoUrl } = useQuery({
-    queryKey: ["global-header-logo", currentOrg?.logo_path],
-    enabled: !!currentOrg?.logo_path,
-    staleTime: 30 * 60 * 1000,
-    queryFn: async () => {
-      const { data } = await supabase.storage
-        .from("organization-assets-private")
-        .createSignedUrl(currentOrg!.logo_path!, 3600);
-      return data?.signedUrl ?? null;
-    },
-  });
-
-  const orgInitials = currentOrg?.name
-    ? currentOrg.name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase()
-    : null;
   const areas = useMemo(() => {
     const base = [
       { label: "Site", path: "/site", icon: Globe },
@@ -86,8 +54,8 @@ export function GlobalAreaSwitcher() {
     <header className="fixed top-0 left-0 right-0 z-[60] h-11 border-b border-border/60 bg-card/80 backdrop-blur-xl">
       <div className="h-full flex items-center px-4 gap-1">
         <Link to="/site" className="flex items-center gap-1.5 mr-4 shrink-0">
-          {orgLogoUrl ? (
-            <img src={orgLogoUrl} alt={currentOrg?.name ?? ""} className="h-6 max-w-[6rem] object-contain shrink-0" />
+          {logoUrl ? (
+            <img src={logoUrl} alt={org?.name ?? ""} className="h-6 max-w-[6rem] object-contain shrink-0" />
           ) : orgInitials ? (
             <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center shrink-0">
               <span className="text-[10px] font-bold text-primary">{orgInitials}</span>
@@ -96,7 +64,7 @@ export function GlobalAreaSwitcher() {
             <Building2 className="h-5 w-5 text-primary" />
           )}
           <span className="font-display text-sm font-bold text-foreground hidden sm:inline truncate max-w-[120px]">
-            {currentOrg?.name ?? "Construtora"}
+            {org?.name ?? "Construtora"}
           </span>
         </Link>
 
