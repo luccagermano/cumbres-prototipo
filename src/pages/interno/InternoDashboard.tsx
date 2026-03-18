@@ -107,62 +107,61 @@ export default function InternoDashboard() {
         </div>
       )}
 
-      {/* Ticket queue + Categories */}
-      <div className="grid lg:grid-cols-3 gap-6 mb-8">
-        {/* Recent tickets */}
-        <div className="lg:col-span-2 glass-card p-6">
-          <h3 className="font-display font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Ticket className="h-4 w-4 text-primary" />
-            Fila de Chamados
-          </h3>
-          {recentTickets.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nenhum chamado registrado.</p>
-          ) : (
-            <div className="space-y-2">
-              {recentTickets.map((t) => {
-                const st = statusMap[t.internal_status] ?? { variant: "default" as const, label: t.internal_status };
-                return (
-                  <Link
-                    key={t.id}
-                    to={`/interno/chamados/${t.id}`}
-                    className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      {t.priority === "urgent" || t.priority === "high" ? (
-                        <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
-                      ) : (
-                        <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
-                      )}
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{t.category_name}</p>
-                        <p className="text-xs text-muted-foreground">#{t.id.slice(0, 8)}</p>
+      {canSeeTickets && (
+        <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-2 glass-card p-6">
+            <h3 className="font-display font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Ticket className="h-4 w-4 text-primary" />
+              Fila de Chamados
+            </h3>
+            {recentTickets.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nenhum chamado registrado.</p>
+            ) : (
+              <div className="space-y-2">
+                {recentTickets.map((t) => {
+                  const st = statusMap[t.internal_status] ?? { variant: "default" as const, label: t.internal_status };
+                  return (
+                    <Link
+                      key={t.id}
+                      to={`/interno/chamados/${t.id}`}
+                      className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        {t.priority === "urgent" || t.priority === "high" ? (
+                          <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
+                        ) : (
+                          <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{t.category_name}</p>
+                          <p className="text-xs text-muted-foreground">#{t.id.slice(0, 8)}</p>
+                        </div>
                       </div>
-                    </div>
-                    <StatusChip variant={st.variant as any} label={st.label} />
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                      <StatusChip variant={st.variant as any} label={st.label} />
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
-        {/* Categories breakdown */}
-        <div className="glass-card p-6">
-          <h3 className="font-display font-semibold text-foreground mb-4">Categorias Abertas</h3>
-          {topCategories.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Sem chamados abertos.</p>
-          ) : (
-            <div className="space-y-3">
-              {topCategories.map(([cat, count]) => (
-                <div key={cat} className="flex items-center justify-between">
-                  <span className="text-sm text-foreground">{cat}</span>
-                  <span className="text-sm font-semibold text-primary">{count}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="glass-card p-6">
+            <h3 className="font-display font-semibold text-foreground mb-4">Categorias Abertas</h3>
+            {topCategories.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Sem chamados abertos.</p>
+            ) : (
+              <div className="space-y-3">
+                {topCategories.map(([cat, count]) => (
+                  <div key={cat} className="flex items-center justify-between">
+                    <span className="text-sm text-foreground">{cat}</span>
+                    <span className="text-sm font-semibold text-primary">{count}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Quick links */}
       <h2 className="font-display text-lg font-semibold text-foreground mb-4">Acesso Rápido</h2>
