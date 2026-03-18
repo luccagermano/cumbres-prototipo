@@ -86,7 +86,7 @@ export default function ExecutivoAutomacao() {
                   <auto.icon className="h-5 w-5 text-primary" />
                 </div>
                 <StatusChip
-                  variant={auto.status === "Em breve" ? "warning" : "default"}
+                  variant={auto.status === "Em breve" ? "warning" : "neutral"}
                   label={auto.status}
                 />
               </div>

@@ -49,11 +49,12 @@ export default function InternoDocumentos() {
     },
   });
 
-  const categories = ["Todos", ...new Set(documents?.map((d) => d.category) ?? [])];
+  const categoryValues = ["Todos", ...new Set(documents?.map((d) => d.category) ?? [])];
+  const categoryOptions = categoryValues.map((c) => ({ label: c, value: c }));
 
   const filtered = (documents ?? []).filter((d) => {
     const matchSearch = !search || d.title.toLowerCase().includes(search.toLowerCase()) || d.file_name.toLowerCase().includes(search.toLowerCase());
-    const matchCat = catFilter === "Todos" || d.category === catFilter;
+    const matchCat = catFilter.length === 0 || catFilter.includes("Todos") || catFilter.includes(d.category);
     return matchSearch && matchCat;
   });
 

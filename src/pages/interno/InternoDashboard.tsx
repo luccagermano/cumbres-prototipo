@@ -17,10 +17,10 @@ const sections = [
   { label: "Financeiro", path: "/interno/financeiro", icon: DollarSign, description: "Relatórios financeiros" },
 ];
 
-const statusMap: Record<string, { variant: "success" | "warning" | "error" | "info" | "default"; label: string }> = {
+const statusMap: Record<string, { variant: "success" | "warning" | "error" | "info" | "neutral"; label: string }> = {
   open: { variant: "warning", label: "Aberto" },
   in_progress: { variant: "info", label: "Em andamento" },
-  waiting_customer: { variant: "default", label: "Aguardando cliente" },
+  waiting_customer: { variant: "neutral", label: "Aguardando cliente" },
   resolved: { variant: "success", label: "Resolvido" },
   closed: { variant: "success", label: "Fechado" },
 };
