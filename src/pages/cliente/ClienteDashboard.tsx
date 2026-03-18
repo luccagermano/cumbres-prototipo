@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { PageHeader } from "@/components/ui/page-header";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { Timeline } from "@/components/ui/timeline";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCustomerUnit, useCustomerReceivables, useCustomerJourneyEvents } from "@/hooks/useCustomerData";
 import { format } from "date-fns";
@@ -22,11 +23,15 @@ const quickLinks = [
 
 export default function ClienteDashboard() {
   const { profile } = useAuth();
-  const { data: unitMemberships } = useCustomerUnit();
-  const { data: receivables } = useCustomerReceivables();
+  const { data: unitMemberships, isLoading: loadingUnits } = useCustomerUnit();
+  const { data: receivables, isLoading: loadingReceivables } = useCustomerReceivables();
   const { data: journeyEvents } = useCustomerJourneyEvents();
 
   const firstName = profile?.full_name?.split(" ")[0] || "Cliente";
+
+  if (loadingUnits || loadingReceivables) {
+    return <PageSkeleton kpiCount={3} rows={4} />;
+  }
 
   const now = new Date();
   const paid = receivables?.filter((r) => r.status === "paid") ?? [];
@@ -74,29 +79,29 @@ export default function ClienteDashboard() {
       {/* Journey Timeline */}
       {timelineItems.length > 0 && (
         <div className="mb-8">
-          <h2 className="font-display text-lg font-semibold text-foreground mb-4">Jornada da Compra</h2>
-          <div className="glass-card p-6">
+          <h2 className="font-display text-base font-semibold text-foreground mb-3">Jornada da Compra</h2>
+          <div className="glass-card p-5 sm:p-6">
             <Timeline items={timelineItems} />
           </div>
         </div>
       )}
 
       {/* Quick Links */}
-      <h2 className="font-display text-lg font-semibold text-foreground mb-4">Acesso Rápido</h2>
-      <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <h2 className="font-display text-base font-semibold text-foreground mb-3">Acesso Rápido</h2>
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         {quickLinks.map((item, i) => (
           <motion.div
             key={item.path}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 + i * 0.05, duration: 0.3 }}
+            transition={{ delay: 0.2 + i * 0.04, duration: 0.3 }}
           >
-            <Link to={item.path} className="glass-card p-5 block hover:shadow-lg hover:scale-[1.01] transition-all group">
-              <div className="p-2 rounded-xl bg-primary/10 w-fit mb-3 group-hover:bg-primary/15 transition-colors">
-                <item.icon className="h-5 w-5 text-primary" />
+            <Link to={item.path} className="glass-card p-4 sm:p-5 block hover:shadow-md transition-all group">
+              <div className="p-1.5 sm:p-2 rounded-lg bg-primary/8 w-fit mb-2.5 group-hover:bg-primary/12 transition-colors">
+                <item.icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </div>
-              <h3 className="font-display font-semibold text-sm text-foreground mb-0.5">{item.label}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">{item.description}</p>
+              <h3 className="font-display font-semibold text-[13px] text-foreground mb-0.5">{item.label}</h3>
+              <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed hidden sm:block">{item.description}</p>
             </Link>
           </motion.div>
         ))}

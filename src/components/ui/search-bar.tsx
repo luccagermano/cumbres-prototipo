@@ -19,13 +19,18 @@ export function SearchBar({ placeholder = "Buscar...", value, onChange, classNam
 
   return (
     <div className={cn("relative", className)}>
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
       <input
         type="text"
         value={currentValue}
         onChange={(e) => handleChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full pl-10 pr-9 py-2.5 rounded-xl border border-border bg-card text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary/40 transition-all"
+        className={cn(
+          "w-full pl-10 pr-9 py-2 rounded-lg border border-border bg-card/80 text-sm text-foreground",
+          "placeholder:text-muted-foreground/50",
+          "focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30",
+          "transition-all duration-200"
+        )}
       />
       {currentValue && (
         <button

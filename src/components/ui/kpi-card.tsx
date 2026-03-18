@@ -1,6 +1,7 @@
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { forwardRef } from "react";
 
 type Trend = "up" | "down" | "neutral";
 
@@ -20,29 +21,33 @@ const trendConfig: Record<Trend, { icon: LucideIcon; color: string }> = {
   neutral: { icon: Minus, color: "text-muted-foreground" },
 };
 
-export function KpiCard({ title, value, subtitle, icon: Icon, trend, trendValue, className }: KpiCardProps) {
-  const TrendIcon = trend ? trendConfig[trend].icon : null;
+export const KpiCard = forwardRef<HTMLDivElement, KpiCardProps>(
+  ({ title, value, subtitle, icon: Icon, trend, trendValue, className }, ref) => {
+    const TrendIcon = trend ? trendConfig[trend].icon : null;
 
-  return (
-    <div className={cn("glass-card p-6", className)}>
-      <div className="flex items-start justify-between mb-3">
-        <span className="text-sm font-medium text-muted-foreground">{title}</span>
-        {Icon && (
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Icon className="h-4 w-4 text-primary" />
-          </div>
-        )}
+    return (
+      <div ref={ref} className={cn("glass-card p-5 sm:p-6", className)}>
+        <div className="flex items-start justify-between mb-2.5">
+          <span className="text-[13px] font-medium text-muted-foreground leading-tight">{title}</span>
+          {Icon && (
+            <div className="p-2 rounded-lg bg-primary/8">
+              <Icon className="h-4 w-4 text-primary" />
+            </div>
+          )}
+        </div>
+        <div className="flex items-end gap-2">
+          <span className="font-display text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{value}</span>
+          {trend && trendValue && TrendIcon && (
+            <span className={cn("flex items-center gap-0.5 text-xs font-medium mb-0.5", trendConfig[trend].color)}>
+              <TrendIcon className="h-3 w-3" />
+              {trendValue}
+            </span>
+          )}
+        </div>
+        {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
       </div>
-      <div className="flex items-end gap-2">
-        <span className="font-display text-3xl font-bold text-foreground">{value}</span>
-        {trend && trendValue && TrendIcon && (
-          <span className={cn("flex items-center gap-0.5 text-xs font-medium mb-1", trendConfig[trend].color)}>
-            <TrendIcon className="h-3 w-3" />
-            {trendValue}
-          </span>
-        )}
-      </div>
-      {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
-    </div>
-  );
-}
+    );
+  }
+);
+
+KpiCard.displayName = "KpiCard";
