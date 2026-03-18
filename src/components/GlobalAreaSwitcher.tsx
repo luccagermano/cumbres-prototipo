@@ -80,6 +80,12 @@ export function GlobalAreaSwitcher() {
         <div className="ml-auto flex items-center gap-2">
           {session ? (
             <>
+              {isPlatformAdmin && (
+                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-semibold uppercase tracking-wider">
+                  <Shield className="h-3 w-3" />
+                  Admin
+                </span>
+              )}
               <span className="text-xs text-muted-foreground hidden sm:inline truncate max-w-[120px]">
                 {profile?.full_name || session.user.email}
               </span>

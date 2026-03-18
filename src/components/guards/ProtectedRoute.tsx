@@ -8,7 +8,7 @@ type Props = {
 };
 
 export default function ProtectedRoute({ allowedRoles }: Props) {
-  const { session, memberships, loading } = useAuth();
+  const { session, memberships, loading, isPlatformAdmin } = useAuth();
 
   if (loading) {
     return (
@@ -20,6 +20,11 @@ export default function ProtectedRoute({ allowedRoles }: Props) {
 
   if (!session) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Platform admins bypass all role checks
+  if (isPlatformAdmin) {
+    return <Outlet />;
   }
 
   if (allowedRoles && allowedRoles.length > 0) {
