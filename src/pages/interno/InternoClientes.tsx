@@ -500,7 +500,7 @@ export default function InternoClientes() {
     <div>
       <PageHeader
         title="Clientes"
-        description="Gestão de clientes vinculados a unidades da plataforma."
+        description="Gestão de perfis de usuários e vínculos com unidades."
         breadcrumb={["Interno", "Cadastros", "Clientes"]}
       />
 
