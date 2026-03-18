@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,10 +11,11 @@ import { SearchBar } from "@/components/ui/search-bar";
 import { ChipFilter, ChipFilterOption } from "@/components/ui/chip-filter";
 import { StatusChip } from "@/components/ui/status-chip";
 import { EmptyState } from "@/components/EmptyState";
-import { DrawerShell } from "@/components/ui/modal-shell";
+import { DrawerShell, ModalShell } from "@/components/ui/modal-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -39,6 +40,9 @@ import {
   Ruler,
   AlertCircle,
   Link2,
+  X,
+  Copy,
+  Trash2,
 } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
@@ -70,6 +74,13 @@ const statusVariant: Record<
   handed_over: { variant: "neutral", label: "Entregue" },
 };
 
+const STATUS_LABEL: Record<string, string> = {
+  available: "Disponível",
+  reserved: "Reservada",
+  sold: "Vendida",
+  handed_over: "Entregue",
+};
+
 type FormData = {
   block_id: string;
   code: string;
@@ -96,6 +107,54 @@ const emptyForm: FormData = {
   handed_over_at: "",
 };
 
+// ── Bulk types ──
+type BulkConfig = {
+  dev_id: string;
+  block_id: string;
+  floor_start: string;
+  floor_end: string;
+  unit_start: string;
+  unit_end: string;
+  prefix: string;
+  suffix: string;
+  typology: string;
+  private_area_m2: string;
+  bedrooms: string;
+  bathrooms: string;
+  parking_spots: string;
+  commercial_status: string;
+};
+
+const emptyBulkConfig: BulkConfig = {
+  dev_id: "",
+  block_id: "",
+  floor_start: "1",
+  floor_end: "10",
+  unit_start: "1",
+  unit_end: "4",
+  prefix: "",
+  suffix: "",
+  typology: "",
+  private_area_m2: "",
+  bedrooms: "",
+  bathrooms: "",
+  parking_spots: "",
+  commercial_status: "available",
+};
+
+type BulkRow = {
+  key: string;
+  code: string;
+  floor_label: string;
+  typology: string | null;
+  private_area_m2: number | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  parking_spots: number | null;
+  commercial_status: string | null;
+  conflict: boolean;
+};
+
 export default function InternoUnidades() {
   const { user, isPlatformAdmin, memberships } = useAuth();
   const navigate = useNavigate();
@@ -120,6 +179,13 @@ export default function InternoUnidades() {
   const [formErrors, setFormErrors] = useState<
     Partial<Record<keyof FormData, string>>
   >({});
+
+  // Bulk state
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkStep, setBulkStep] = useState<"config" | "preview">("config");
+  const [bulkConfig, setBulkConfig] = useState<BulkConfig>(emptyBulkConfig);
+  const [bulkRows, setBulkRows] = useState<BulkRow[]>([]);
+  const [bulkErrors, setBulkErrors] = useState<Partial<Record<keyof BulkConfig, string>>>({});
 
   const canWrite =
     isPlatformAdmin ||
@@ -325,7 +391,7 @@ export default function InternoUnidades() {
     },
   ];
 
-  // ── Drawer ──
+  // ── Single Drawer ──
   const openCreate = () => {
     setEditing(null);
     setForm({
@@ -451,15 +517,142 @@ export default function InternoUnidades() {
       setFormErrors((prev) => ({ ...prev, [key]: undefined }));
   };
 
-  // ── Form block options filtered by selected dev in drawer ──
-  const formDevId = form.block_id
-    ? blockMap.get(form.block_id)?.dev_id
-    : undefined;
+  const drawerBlockOptions = useMemo(() => blocks, [blocks]);
 
-  const drawerBlockOptions = useMemo(() => {
-    // Show all blocks, grouped labels will indicate context
-    return blocks;
-  }, [blocks]);
+  // ═══════════════════════════════════════════════════════
+  // ── BULK CREATION LOGIC ──
+  // ═══════════════════════════════════════════════════════
+
+  const bulkBlocksForDev = useMemo(() => {
+    if (!bulkConfig.dev_id) return [];
+    return blocks.filter((b) => b.development_id === bulkConfig.dev_id);
+  }, [blocks, bulkConfig.dev_id]);
+
+  const existingCodesInBlock = useMemo(() => {
+    if (!bulkConfig.block_id) return new Set<string>();
+    return new Set(
+      units
+        .filter((u) => u.block_id === bulkConfig.block_id)
+        .map((u) => u.code.toLowerCase())
+    );
+  }, [units, bulkConfig.block_id]);
+
+  const openBulk = () => {
+    setBulkConfig({
+      ...emptyBulkConfig,
+      dev_id: devFilter.length === 1 ? devFilter[0] : "",
+      block_id: blockFilter.length === 1 ? blockFilter[0] : "",
+    });
+    setBulkRows([]);
+    setBulkErrors({});
+    setBulkStep("config");
+    setBulkOpen(true);
+  };
+
+  const closeBulk = () => {
+    setBulkOpen(false);
+    setBulkRows([]);
+    setBulkStep("config");
+  };
+
+  const updateBulk = (key: keyof BulkConfig, value: string) => {
+    setBulkConfig((prev) => {
+      const next = { ...prev, [key]: value };
+      if (key === "dev_id") next.block_id = "";
+      return next;
+    });
+    if (bulkErrors[key]) setBulkErrors((prev) => ({ ...prev, [key]: undefined }));
+  };
+
+  const validateBulkConfig = (): boolean => {
+    const errs: Partial<Record<keyof BulkConfig, string>> = {};
+    if (!bulkConfig.dev_id) errs.dev_id = "Selecione um empreendimento.";
+    if (!bulkConfig.block_id) errs.block_id = "Selecione um bloco.";
+    const fs = parseInt(bulkConfig.floor_start, 10);
+    const fe = parseInt(bulkConfig.floor_end, 10);
+    if (isNaN(fs)) errs.floor_start = "Número inválido.";
+    if (isNaN(fe)) errs.floor_end = "Número inválido.";
+    if (!isNaN(fs) && !isNaN(fe) && fe < fs) errs.floor_end = "Deve ser ≥ andar inicial.";
+    const us = parseInt(bulkConfig.unit_start, 10);
+    const ue = parseInt(bulkConfig.unit_end, 10);
+    if (isNaN(us)) errs.unit_start = "Número inválido.";
+    if (isNaN(ue)) errs.unit_end = "Número inválido.";
+    if (!isNaN(us) && !isNaN(ue) && ue < us) errs.unit_end = "Deve ser ≥ inicial.";
+    const totalFloors = (!isNaN(fs) && !isNaN(fe)) ? fe - fs + 1 : 0;
+    const totalUnits = (!isNaN(us) && !isNaN(ue)) ? ue - us + 1 : 0;
+    if (totalFloors * totalUnits > 500) errs.floor_end = "Máximo de 500 unidades por lote.";
+    setBulkErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const generatePreview = () => {
+    if (!validateBulkConfig()) return;
+    const fs = parseInt(bulkConfig.floor_start, 10);
+    const fe = parseInt(bulkConfig.floor_end, 10);
+    const us = parseInt(bulkConfig.unit_start, 10);
+    const ue = parseInt(bulkConfig.unit_end, 10);
+
+    const rows: BulkRow[] = [];
+    for (let floor = fs; floor <= fe; floor++) {
+      for (let unit = us; unit <= ue; unit++) {
+        const unitNum = String(floor) + String(unit).padStart(String(ue).length, "0");
+        const code = `${bulkConfig.prefix}${unitNum}${bulkConfig.suffix}`;
+        rows.push({
+          key: `${floor}-${unit}`,
+          code,
+          floor_label: `${floor}º andar`,
+          typology: bulkConfig.typology.trim() || null,
+          private_area_m2: bulkConfig.private_area_m2 ? parseFloat(bulkConfig.private_area_m2) : null,
+          bedrooms: bulkConfig.bedrooms ? parseInt(bulkConfig.bedrooms, 10) : null,
+          bathrooms: bulkConfig.bathrooms ? parseInt(bulkConfig.bathrooms, 10) : null,
+          parking_spots: bulkConfig.parking_spots ? parseInt(bulkConfig.parking_spots, 10) : null,
+          commercial_status: bulkConfig.commercial_status || null,
+          conflict: existingCodesInBlock.has(code.toLowerCase()),
+        });
+      }
+    }
+    setBulkRows(rows);
+    setBulkStep("preview");
+  };
+
+  const removeBulkRow = (key: string) => {
+    setBulkRows((prev) => prev.filter((r) => r.key !== key));
+  };
+
+  const conflictCount = bulkRows.filter((r) => r.conflict).length;
+  const validBulkRows = bulkRows.filter((r) => !r.conflict);
+
+  const bulkInsertMutation = useMutation({
+    mutationFn: async () => {
+      if (validBulkRows.length === 0) throw new Error("Nenhuma unidade válida para inserir.");
+      const payload = validBulkRows.map((r) => ({
+        block_id: bulkConfig.block_id,
+        code: r.code,
+        floor_label: r.floor_label,
+        typology: r.typology,
+        private_area_m2: r.private_area_m2,
+        bedrooms: r.bedrooms,
+        bathrooms: r.bathrooms,
+        parking_spots: r.parking_spots,
+        commercial_status: r.commercial_status,
+      }));
+      const { error } = await supabase.from("units").insert(payload);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(`${validBulkRows.length} unidades criadas com sucesso.`);
+      queryClient.invalidateQueries({ queryKey: ["interno-unidades"] });
+      queryClient.invalidateQueries({ queryKey: ["cadastros-units"] });
+      closeBulk();
+    },
+    onError: (err: Error) => {
+      if (err.message?.includes("duplicate") || err.message?.includes("unique")) {
+        toast.error("Conflito: algumas unidades já existem neste bloco.");
+      } else {
+        toast.error("Erro ao criar unidades em lote.");
+      }
+    },
+  });
 
   // ── Columns ──
   const columns: DataColumn<UnitEnriched>[] = [
@@ -636,14 +829,25 @@ export default function InternoUnidades() {
         breadcrumb={["Interno", "Cadastros", "Unidades"]}
         actions={
           canWrite ? (
-            <Button
-              size="sm"
-              className="gap-1.5"
-              onClick={openCreate}
-              disabled={blocks.length === 0}
-            >
-              <Plus className="h-4 w-4" /> Nova Unidade
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5"
+                onClick={openBulk}
+                disabled={blocks.length === 0}
+              >
+                <Copy className="h-4 w-4" /> Criação em Lote
+              </Button>
+              <Button
+                size="sm"
+                className="gap-1.5"
+                onClick={openCreate}
+                disabled={blocks.length === 0}
+              >
+                <Plus className="h-4 w-4" /> Nova Unidade
+              </Button>
+            </div>
           ) : undefined
         }
       />
@@ -750,14 +954,13 @@ export default function InternoUnidades() {
         />
       )}
 
-      {/* Drawer */}
+      {/* ── Single unit drawer ── */}
       <DrawerShell
         open={drawerOpen}
         onClose={closeDrawer}
         title={editing ? "Editar Unidade" : "Nova Unidade"}
       >
         <div className="space-y-4">
-          {/* Block selection */}
           <div>
             <Label className="text-xs font-medium">Bloco / Torre *</Label>
             <Select
@@ -788,7 +991,6 @@ export default function InternoUnidades() {
             )}
           </div>
 
-          {/* Code & Floor */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label className="text-xs font-medium">Código *</Label>
@@ -817,7 +1019,6 @@ export default function InternoUnidades() {
             </div>
           </div>
 
-          {/* Typology & Area */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label className="text-xs font-medium">Tipologia</Label>
@@ -848,7 +1049,6 @@ export default function InternoUnidades() {
             </div>
           </div>
 
-          {/* Specs */}
           <div className="grid grid-cols-3 gap-3">
             <div>
               <Label className="text-xs font-medium">Quartos</Label>
@@ -900,7 +1100,6 @@ export default function InternoUnidades() {
             </div>
           </div>
 
-          {/* Status & Handover */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label className="text-xs font-medium">Status Comercial</Label>
@@ -930,7 +1129,6 @@ export default function InternoUnidades() {
             </div>
           </div>
 
-          {/* Actions */}
           <div className="pt-4 border-t border-border flex justify-end gap-2">
             <Button variant="outline" size="sm" onClick={closeDrawer}>
               Cancelar
@@ -949,6 +1147,239 @@ export default function InternoUnidades() {
           </div>
         </div>
       </DrawerShell>
+
+      {/* ── BULK CREATION MODAL ── */}
+      <ModalShell
+        open={bulkOpen}
+        onClose={closeBulk}
+        title="Criação de Unidades em Lote"
+        description={bulkStep === "config"
+          ? "Configure os parâmetros para gerar as unidades automaticamente."
+          : `${bulkRows.length} unidades geradas — revise antes de salvar.`}
+        size="lg"
+        footer={
+          bulkStep === "config" ? (
+            <>
+              <Button variant="outline" size="sm" onClick={closeBulk}>Cancelar</Button>
+              <Button size="sm" onClick={generatePreview} className="gap-1.5">
+                <Layers className="h-3.5 w-3.5" /> Gerar Prévia
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" onClick={() => setBulkStep("config")}>
+                Voltar
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => bulkInsertMutation.mutate()}
+                disabled={bulkInsertMutation.isPending || validBulkRows.length === 0}
+                className="gap-1.5"
+              >
+                {bulkInsertMutation.isPending
+                  ? "Salvando..."
+                  : `Criar ${validBulkRows.length} Unidades`}
+              </Button>
+            </>
+          )
+        }
+      >
+        {bulkStep === "config" ? (
+          <div className="space-y-4">
+            {/* Dev + Block */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs font-medium">Empreendimento *</Label>
+                <Select value={bulkConfig.dev_id} onValueChange={(v) => updateBulk("dev_id", v)}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                  <SelectContent>
+                    {developments.map((d) => (
+                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {bulkErrors.dev_id && <p className="text-[11px] text-destructive mt-1">{bulkErrors.dev_id}</p>}
+              </div>
+              <div>
+                <Label className="text-xs font-medium">Bloco / Torre *</Label>
+                <Select value={bulkConfig.block_id} onValueChange={(v) => updateBulk("block_id", v)} disabled={!bulkConfig.dev_id}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                  <SelectContent>
+                    {bulkBlocksForDev.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {bulkErrors.block_id && <p className="text-[11px] text-destructive mt-1">{bulkErrors.block_id}</p>}
+              </div>
+            </div>
+
+            {/* Numbering */}
+            <div className="glass-card p-3 space-y-3">
+              <p className="text-xs font-semibold text-foreground">Numeração</p>
+              <p className="text-[11px] text-muted-foreground">
+                O código será: <span className="font-mono text-foreground">[prefixo] + [andar][unidade] + [sufixo]</span>
+                <br />Exemplo: andar 1, unidade 2 com 2 dígitos → <span className="font-mono text-foreground">{bulkConfig.prefix}102{bulkConfig.suffix}</span>
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs font-medium">Andar inicial *</Label>
+                  <Input className="mt-1" type="number" value={bulkConfig.floor_start} onChange={(e) => updateBulk("floor_start", e.target.value)} />
+                  {bulkErrors.floor_start && <p className="text-[11px] text-destructive mt-1">{bulkErrors.floor_start}</p>}
+                </div>
+                <div>
+                  <Label className="text-xs font-medium">Andar final *</Label>
+                  <Input className="mt-1" type="number" value={bulkConfig.floor_end} onChange={(e) => updateBulk("floor_end", e.target.value)} />
+                  {bulkErrors.floor_end && <p className="text-[11px] text-destructive mt-1">{bulkErrors.floor_end}</p>}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs font-medium">Unidade inicial *</Label>
+                  <Input className="mt-1" type="number" value={bulkConfig.unit_start} onChange={(e) => updateBulk("unit_start", e.target.value)} />
+                  {bulkErrors.unit_start && <p className="text-[11px] text-destructive mt-1">{bulkErrors.unit_start}</p>}
+                </div>
+                <div>
+                  <Label className="text-xs font-medium">Unidade final *</Label>
+                  <Input className="mt-1" type="number" value={bulkConfig.unit_end} onChange={(e) => updateBulk("unit_end", e.target.value)} />
+                  {bulkErrors.unit_end && <p className="text-[11px] text-destructive mt-1">{bulkErrors.unit_end}</p>}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs font-medium">Prefixo</Label>
+                  <Input className="mt-1" value={bulkConfig.prefix} onChange={(e) => updateBulk("prefix", e.target.value)} placeholder="ex: BL1-" maxLength={10} />
+                </div>
+                <div>
+                  <Label className="text-xs font-medium">Sufixo</Label>
+                  <Input className="mt-1" value={bulkConfig.suffix} onChange={(e) => updateBulk("suffix", e.target.value)} placeholder="ex: -A" maxLength={10} />
+                </div>
+              </div>
+            </div>
+
+            {/* Defaults */}
+            <div className="glass-card p-3 space-y-3">
+              <p className="text-xs font-semibold text-foreground">Padrões das Unidades</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs font-medium">Tipologia</Label>
+                  <Input className="mt-1" value={bulkConfig.typology} onChange={(e) => updateBulk("typology", e.target.value)} placeholder="2 quartos" maxLength={50} />
+                </div>
+                <div>
+                  <Label className="text-xs font-medium">Área privativa (m²)</Label>
+                  <Input className="mt-1" type="number" min="0" step="0.01" value={bulkConfig.private_area_m2} onChange={(e) => updateBulk("private_area_m2", e.target.value)} placeholder="65.00" />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <Label className="text-xs font-medium">Quartos</Label>
+                  <Input className="mt-1" type="number" min="0" value={bulkConfig.bedrooms} onChange={(e) => updateBulk("bedrooms", e.target.value)} />
+                </div>
+                <div>
+                  <Label className="text-xs font-medium">Banheiros</Label>
+                  <Input className="mt-1" type="number" min="0" value={bulkConfig.bathrooms} onChange={(e) => updateBulk("bathrooms", e.target.value)} />
+                </div>
+                <div>
+                  <Label className="text-xs font-medium">Vagas</Label>
+                  <Input className="mt-1" type="number" min="0" value={bulkConfig.parking_spots} onChange={(e) => updateBulk("parking_spots", e.target.value)} />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs font-medium">Status Comercial</Label>
+                <Select value={bulkConfig.commercial_status} onValueChange={(v) => updateBulk("commercial_status", v)}>
+                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="available">Disponível</SelectItem>
+                    <SelectItem value="reserved">Reservada</SelectItem>
+                    <SelectItem value="sold">Vendida</SelectItem>
+                    <SelectItem value="handed_over">Entregue</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {/* Summary */}
+            <div className="flex items-center gap-3 flex-wrap text-xs">
+              <span className="text-muted-foreground">
+                Total: <span className="font-semibold text-foreground">{bulkRows.length}</span>
+              </span>
+              <span className="text-muted-foreground">
+                Válidas: <span className="font-semibold text-foreground">{validBulkRows.length}</span>
+              </span>
+              {conflictCount > 0 && (
+                <span className="text-amber-600 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {conflictCount} conflito{conflictCount > 1 ? "s" : ""} — já existem no bloco
+                </span>
+              )}
+            </div>
+
+            {/* Preview table */}
+            <ScrollArea className="max-h-[400px]">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border bg-muted/30">
+                    <th className="px-2 py-1.5 text-left font-semibold text-muted-foreground uppercase tracking-wider">Código</th>
+                    <th className="px-2 py-1.5 text-left font-semibold text-muted-foreground uppercase tracking-wider">Andar</th>
+                    <th className="px-2 py-1.5 text-left font-semibold text-muted-foreground uppercase tracking-wider">Tipologia</th>
+                    <th className="px-2 py-1.5 text-left font-semibold text-muted-foreground uppercase tracking-wider">Área</th>
+                    <th className="px-2 py-1.5 text-left font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
+                    <th className="px-2 py-1.5 w-16"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bulkRows.map((row) => (
+                    <tr key={row.key} className={`border-b border-border/40 ${row.conflict ? "bg-destructive/5" : ""}`}>
+                      <td className="px-2 py-1.5">
+                        <span className={`font-mono ${row.conflict ? "text-destructive line-through" : "text-foreground"}`}>
+                          {row.code}
+                        </span>
+                        {row.conflict && (
+                          <span className="ml-1.5 text-[10px] text-destructive">duplicado</span>
+                        )}
+                      </td>
+                      <td className="px-2 py-1.5 text-muted-foreground">{row.floor_label}</td>
+                      <td className="px-2 py-1.5 text-muted-foreground">{row.typology ?? "—"}</td>
+                      <td className="px-2 py-1.5 text-muted-foreground">
+                        {row.private_area_m2 ? `${row.private_area_m2} m²` : "—"}
+                      </td>
+                      <td className="px-2 py-1.5">
+                        {row.commercial_status && (
+                          <StatusChip
+                            variant={statusVariant[row.commercial_status]?.variant ?? "neutral"}
+                            label={STATUS_LABEL[row.commercial_status] ?? row.commercial_status}
+                            size="sm"
+                          />
+                        )}
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
+                          onClick={() => removeBulkRow(row.key)}
+                          title="Remover"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {bulkRows.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="px-2 py-8 text-center text-muted-foreground">
+                        Todas as unidades foram removidas.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </ScrollArea>
+          </div>
+        )}
+      </ModalShell>
     </div>
   );
 }
