@@ -567,8 +567,16 @@ export default function InternoContratos() {
         open={drawerOpen}
         onClose={closeDrawer}
         title={editing ? "Editar Contrato" : "Novo Contrato"}
+        footer={
+          <>
+            <Button variant="outline" size="sm" onClick={closeDrawer}>Cancelar</Button>
+            <Button size="sm" onClick={handleSave} disabled={saveMutation.isPending}>
+              {saveMutation.isPending ? "Salvando..." : editing ? "Salvar Alterações" : "Criar Contrato"}
+            </Button>
+          </>
+        }
       >
-        <div className="space-y-4 p-1">
+        <div className="space-y-4">
           {/* Organization */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium">Organização *</Label>
@@ -681,9 +689,6 @@ export default function InternoContratos() {
             <Label className="text-xs font-medium">Data de Entrega Efetiva</Label>
             <Input type="date" value={form.handover_at} onChange={(e) => setForm({ ...form, handover_at: e.target.value })} />
           </div>
-
-        </div>
-      </DrawerShell>
         </div>
       </DrawerShell>
     </div>

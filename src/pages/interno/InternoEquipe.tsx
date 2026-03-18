@@ -441,8 +441,20 @@ export default function InternoEquipe() {
       )}
 
       {/* Drawer */}
-      <DrawerShell open={drawerOpen} onClose={closeDrawer} title={editing ? "Editar Membro" : "Adicionar Membro"}>
-        <div className="space-y-4 p-1">
+      <DrawerShell
+        open={drawerOpen}
+        onClose={closeDrawer}
+        title={editing ? "Editar Membro" : "Adicionar Membro"}
+        footer={
+          <>
+            <Button variant="outline" size="sm" onClick={closeDrawer}>Cancelar</Button>
+            <Button size="sm" onClick={handleSave} disabled={saveMutation.isPending}>
+              {saveMutation.isPending ? "Salvando..." : editing ? "Salvar Alterações" : "Adicionar Membro"}
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
           {/* Organization */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium">Organização *</Label>
@@ -511,7 +523,6 @@ export default function InternoEquipe() {
             <Label className="text-xs font-medium">Membro ativo</Label>
             <Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} />
           </div>
-
         </div>
       </DrawerShell>
     </div>
