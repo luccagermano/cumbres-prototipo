@@ -45,10 +45,11 @@ export default function ClienteUnidade() {
   const now = new Date();
 
   const timelineItems = (journeyEvents ?? []).map((e: any) => ({
+    id: e.id,
     title: e.title,
     description: e.description ?? undefined,
-    date: e.event_date ? format(new Date(e.event_date), "dd MMM yyyy", { locale: ptBR }) : undefined,
-    status: (e.event_date && new Date(e.event_date) <= now ? "completed" : "pending") as "completed" | "pending",
+    date: e.event_date ? format(new Date(e.event_date), "dd MMM yyyy", { locale: ptBR }) : "",
+    variant: (e.event_date && new Date(e.event_date) <= now ? "success" : "default") as "success" | "default",
   }));
 
   const specs = [
