@@ -37,6 +37,8 @@ import {
   ShoppingCart,
   Tag,
   Ruler,
+  AlertCircle,
+  Link2,
 } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
