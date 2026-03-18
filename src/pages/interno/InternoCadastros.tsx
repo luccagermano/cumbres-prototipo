@@ -145,17 +145,17 @@ export default function InternoCadastros() {
     },
   });
 
-  const { data: faqCategories, isLoading: loadFaqCats } = useQuery({
-    queryKey: ["cadastros-faq-categories"],
+  const { data: docCategories, isLoading: loadDocCats } = useQuery({
+    queryKey: ["cadastros-doc-categories"],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("faq_categories").select("id, active");
+      const { data } = await supabase.from("document_categories").select("id, active");
       return data ?? [];
     },
   });
 
   const anyLoading = loadDev || loadBlocks || loadUnits || loadClients || loadContracts || loadTeam || loadOrgs
-    || loadTicketCats || loadInspTypes || loadWarranty || loadServices || loadFaqCats;
+    || loadTicketCats || loadInspTypes || loadWarranty || loadServices || loadDocCats;
 
   // ── Derived Counts ──
   const devCount = developments?.length ?? 0;
@@ -176,7 +176,8 @@ export default function InternoCadastros() {
   const warrantyActiveCount = warrantyRules?.filter(w => w.active).length ?? 0;
   const serviceCount = serviceCatalog?.length ?? 0;
   const serviceActiveCount = serviceCatalog?.filter(s => s.active).length ?? 0;
-  const faqCatCount = faqCategories?.length ?? 0;
+  const docCatCount = docCategories?.length ?? 0;
+  const docCatActiveCount = docCategories?.filter(c => c.active).length ?? 0;
 
   // ── Readiness computations ──
   const devsWithBlocks = blocks ? new Set(blocks.map(b => b.development_id)).size : 0;
@@ -222,7 +223,7 @@ export default function InternoCadastros() {
       diagnostics.push({ icon: Info, variant: "info", message: "Nenhum tipo de vistoria cadastrado.", action: "Configurar", href: "/interno/cadastros/tipos-vistoria" });
     }
     if (warrantyCount === 0) {
-      diagnostics.push({ icon: Info, variant: "info", message: "Nenhuma regra de garantia cadastrada.", action: "Configurar", href: "/interno/garantia" });
+      diagnostics.push({ icon: Info, variant: "info", message: "Nenhuma regra de garantia cadastrada.", action: "Configurar", href: "/interno/cadastros/regras-garantia" });
     }
     if (serviceCount === 0) {
       diagnostics.push({ icon: Info, variant: "info", message: "Nenhum serviço cadastrado no catálogo.", action: "Configurar", href: "/interno/cadastros/catalogo-servicos" });
@@ -360,18 +361,18 @@ export default function InternoCadastros() {
           count: warrantyCount,
           loading: loadWarranty,
           emptyWarning: "Nenhuma regra de garantia cadastrada",
-          href: "/interno/garantia",
+          href: "/interno/cadastros/regras-garantia",
           ...getReadiness(warrantyCount, warrantyActiveCount > 0),
         },
         {
           title: "Categorias de Documentos",
           description: "Categorias para organização do acervo documental",
           icon: FolderOpen,
-          count: faqCatCount,
-          loading: loadFaqCats,
+          count: docCatCount,
+          loading: loadDocCats,
           emptyWarning: "Nenhuma categoria de documento cadastrada",
           href: "/interno/cadastros/categorias-documentos",
-          ...getReadiness(faqCatCount, faqCatCount > 0),
+          ...getReadiness(docCatCount, docCatActiveCount > 0),
         },
         {
           title: "Catálogo de Serviços",
