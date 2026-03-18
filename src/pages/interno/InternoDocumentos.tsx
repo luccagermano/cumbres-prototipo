@@ -143,7 +143,7 @@ export default function InternoDocumentos() {
                   <p className="text-sm font-medium text-foreground truncate">{doc.title}</p>
                   <p className="text-xs text-muted-foreground">{doc.file_name} · {formatSize(doc.size_bytes)} · {format(new Date(doc.created_at), "dd/MM/yyyy")}</p>
                 </div>
-                <StatusChip variant={doc.visible_to_customer ? "success" : "default"} label={doc.visible_to_customer ? "Visível" : "Interno"} />
+                <StatusChip variant={doc.visible_to_customer ? "success" : "neutral"} label={doc.visible_to_customer ? "Visível" : "Interno"} />
                 <div className="flex items-center gap-1">
                   <Button variant="ghost" size="icon" onClick={() => handleDownload(doc.bucket, doc.file_path, doc.file_name)}>
                     <Download className="h-4 w-4" />

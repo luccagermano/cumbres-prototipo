@@ -126,7 +126,7 @@ export default function InternoDashboard() {
                         <p className="text-xs text-muted-foreground">#{t.id.slice(0, 8)}</p>
                       </div>
                     </div>
-                    <StatusChip variant={st.variant} label={st.label} />
+                    <StatusChip variant={st.variant as any} label={st.label} />
                   </Link>
                 );
               })}
