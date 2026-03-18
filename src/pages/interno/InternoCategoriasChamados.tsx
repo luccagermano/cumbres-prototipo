@@ -315,14 +315,16 @@ export default function InternoCategoriasChamados() {
                       {cat.description && <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>}
                       <p className="text-[11px] text-muted-foreground mt-1">{orgName(cat.organization_id)} · {subs.length} subcategoria(s)</p>
                     </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => openCreateSub(cat.id)}>
-                        <Plus className="h-3 w-3 mr-1" /> Sub
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => openEditCat(cat)}>
-                        <Pencil className="h-3 w-3" />
-                      </Button>
-                    </div>
+                    {canWrite && (
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => openCreateSub(cat.id)}>
+                          <Plus className="h-3 w-3 mr-1" /> Sub
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => openEditCat(cat)}>
+                          <Pencil className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
                   {isExpanded && subs.length > 0 && (

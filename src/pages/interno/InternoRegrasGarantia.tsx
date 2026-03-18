@@ -275,9 +275,11 @@ export default function InternoRegrasGarantia() {
                     <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
                   )}
                   <StatusChip label={rule.active ? "Ativa" : "Inativa"} variant={rule.active ? "success" : "neutral"} size="sm" />
-                  <Button variant="ghost" size="sm" onClick={() => startEdit(rule)}>
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
+                  {canWrite && (
+                    <Button variant="ghost" size="sm" onClick={() => startEdit(rule)}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                 </div>
               </div>
             </GlassCard>

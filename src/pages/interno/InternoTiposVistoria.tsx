@@ -219,16 +219,16 @@ export default function InternoTiposVistoria() {
       header: "Status",
       render: (row) => <StatusChip variant={row.active ? "success" : "neutral"} label={row.active ? "Ativo" : "Inativo"} size="sm" />,
     },
-    {
+    ...(canWrite ? [{
       key: "actions",
       header: "",
       className: "w-12",
-      render: (row) => (
+      render: (row: InspectionType) => (
         <Button variant="ghost" size="sm" className="h-7" onClick={(e) => { e.stopPropagation(); openEdit(row); }}>
           <Pencil className="h-3 w-3" />
         </Button>
       ),
-    },
+    }] : []),
   ];
 
   if (isLoading) {

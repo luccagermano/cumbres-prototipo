@@ -168,16 +168,16 @@ export default function InternoCatalogoServicos() {
       header: "Status",
       render: (row) => <StatusChip label={row.active ? "Ativo" : "Inativo"} variant={row.active ? "success" : "neutral"} size="sm" />,
     },
-    {
+    ...(canWrite ? [{
       key: "actions",
       header: "",
-      render: (row) => (
+      render: (row: any) => (
         <Button variant="ghost" size="sm" onClick={() => startEdit(row)}>
           <Pencil className="h-3.5 w-3.5" />
         </Button>
       ),
       className: "w-10",
-    },
+    }] : []),
   ];
 
   return (
