@@ -6,7 +6,7 @@ import { StatusChip } from "@/components/ui/status-chip";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ClipboardCheck, Loader2, Plus, Calendar } from "lucide-react";
+import { ClipboardCheck, Loader2, Plus, Calendar, Clock, FileSignature } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,16 +46,16 @@ export default function ClienteVistoria() {
     queryKey: ["customer-bookings", user?.id],
     enabled: unitIds.length > 0,
     queryFn: async () => {
-      const { data, error } = await supabase.from("inspection_bookings").select("*, inspection_type:inspection_types(name)").in("unit_id", unitIds).order("created_at", { ascending: false });
+      const { data, error } = await supabase.from("inspection_bookings").select("*, inspection_type:inspection_types(name, description, default_duration_minutes, requires_term_signature)").in("unit_id", unitIds).order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
   });
 
   const { data: types } = useQuery({
-    queryKey: ["inspection-types"],
+    queryKey: ["inspection-types-customer"],
     queryFn: async () => {
-      const { data } = await supabase.from("inspection_types").select("*").eq("active", true);
+      const { data } = await supabase.from("inspection_types").select("*").eq("active", true).in("audience", ["customer", "all"]);
       return data ?? [];
     },
   });
@@ -69,10 +69,11 @@ export default function ClienteVistoria() {
     },
   });
 
+  const selectedTypeObj = types?.find(t => t.id === selectedType);
+
   const bookMutation = useMutation({
     mutationFn: async () => {
       if (!unitIds.length || !selectedType) throw new Error("Dados incompletos");
-      // Get org from the slot or first available
       const slot = slots?.find((s) => s.id === selectedSlot);
       const { error } = await supabase.from("inspection_bookings").insert({
         organization_id: slot?.organization_id ?? "",
@@ -112,13 +113,32 @@ export default function ClienteVistoria() {
               <DialogHeader><DialogTitle>Agendar Vistoria</DialogTitle></DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label>Tipo de vistoria</Label>
-                  <Select value={selectedType} onValueChange={setSelectedType}>
-                    <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                  <Label>Tipo de vistoria *</Label>
+                  <Select value={selectedType} onValueChange={(v) => { setSelectedType(v); setSelectedSlot(""); }}>
+                    <SelectTrigger><SelectValue placeholder="Selecione o tipo..." /></SelectTrigger>
                     <SelectContent>
                       {types?.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
+                  {selectedTypeObj && (
+                    <div className="mt-2 space-y-1">
+                      {selectedTypeObj.description && (
+                        <p className="text-xs text-muted-foreground">{selectedTypeObj.description}</p>
+                      )}
+                      <div className="flex items-center gap-3 flex-wrap">
+                        {selectedTypeObj.default_duration_minutes && (
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Clock className="h-3 w-3" /> {selectedTypeObj.default_duration_minutes} min
+                          </span>
+                        )}
+                        {selectedTypeObj.requires_term_signature && (
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <FileSignature className="h-3 w-3" /> Requer assinatura de termo
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 {slots && slots.length > 0 && (
                   <div>
@@ -136,9 +156,12 @@ export default function ClienteVistoria() {
                     </Select>
                   </div>
                 )}
+                {selectedType && slots && slots.length === 0 && (
+                  <p className="text-xs text-muted-foreground">Nenhum horário disponível para este tipo de vistoria no momento.</p>
+                )}
                 <div>
                   <Label>Observações</Label>
-                  <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} rows={3} />
+                  <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} rows={3} placeholder="Informações adicionais..." />
                 </div>
                 <Button className="w-full" onClick={() => bookMutation.mutate()} disabled={!selectedType || bookMutation.isPending}>
                   {bookMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Calendar className="h-4 w-4 mr-2" />}
@@ -158,16 +181,29 @@ export default function ClienteVistoria() {
         <div className="space-y-3">
           {bookings.map((b) => {
             const st = statusMap[b.booking_status] ?? { label: b.booking_status, variant: "neutral" as const };
+            const typeData = (b as any).inspection_type;
             return (
               <GlassCard key={b.id} className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-sm font-medium text-foreground">{(b as any).inspection_type?.name ?? "Vistoria"}</span>
+                    <span className="text-sm font-medium text-foreground">{typeData?.name ?? "Vistoria"}</span>
                     {b.scheduled_at && (
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {format(new Date(b.scheduled_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                       </p>
                     )}
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      {typeData?.default_duration_minutes && (
+                        <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+                          <Clock className="h-2.5 w-2.5" /> {typeData.default_duration_minutes} min
+                        </span>
+                      )}
+                      {typeData?.requires_term_signature && (
+                        <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+                          <FileSignature className="h-2.5 w-2.5" /> Termo
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <StatusChip label={st.label} variant={st.variant} size="sm" />
                 </div>

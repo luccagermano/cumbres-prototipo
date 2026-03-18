@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Ticket, ArrowLeft, Loader2, Send, Shield, User } from "lucide-react";
+import { Ticket, ArrowLeft, Loader2, Send, Shield, Info } from "lucide-react";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,7 +48,7 @@ export default function InternoChamadoDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("tickets")
-        .select("*, warranty_rule:warranty_rules(*), opened_profile:profiles!tickets_opened_by_fkey(full_name, email), assigned_profile:profiles!tickets_assigned_to_fkey(full_name)")
+        .select("*, warranty_rule:warranty_rules(*), opened_profile:profiles!tickets_opened_by_fkey(full_name, email), assigned_profile:profiles!tickets_assigned_to_fkey(full_name), ticket_category:ticket_categories(name), ticket_subcategory:ticket_subcategories(name)")
         .eq("id", id!)
         .single();
       if (error) throw error;
@@ -123,6 +123,10 @@ export default function InternoChamadoDetail() {
     );
   }
 
+  const warrantyRule = (ticket as any).warranty_rule;
+  const linkedCategory = (ticket as any).ticket_category?.name;
+  const linkedSubcategory = (ticket as any).ticket_subcategory?.name;
+
   return (
     <div>
       <PageHeader title={`Chamado #${ticket.id.slice(0, 8)}`} breadcrumb={["Painel Interno", "Chamados", `#${ticket.id.slice(0, 8)}`]} />
@@ -138,6 +142,13 @@ export default function InternoChamadoDetail() {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h2 className="text-lg font-semibold text-foreground">{ticket.category_name}{ticket.room_name ? ` — ${ticket.room_name}` : ""}</h2>
+                {/* Normalized category labels */}
+                {(linkedCategory || linkedSubcategory) && (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    {linkedCategory && <StatusChip label={linkedCategory} variant="info" size="sm" dot={false} />}
+                    {linkedSubcategory && <StatusChip label={linkedSubcategory} variant="neutral" size="sm" dot={false} />}
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground mt-1">
                   Aberto por {(ticket as any).opened_profile?.full_name ?? "—"} em {format(new Date(ticket.opened_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                 </p>
@@ -145,15 +156,28 @@ export default function InternoChamadoDetail() {
             </div>
             <p className="text-sm text-foreground whitespace-pre-wrap">{ticket.description}</p>
 
-            {ticket.warranty_rule_id && (ticket as any).warranty_rule && (
+            {/* Warranty rule context */}
+            {ticket.warranty_rule_id && warrantyRule && (
               <div className="mt-4 p-3 rounded-xl border border-primary/20 bg-primary/5 flex items-start gap-3">
                 <Shield className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                <div>
-                  <span className="text-xs font-semibold text-primary">Garantia</span>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {(ticket as any).warranty_rule.category_name} — {(ticket as any).warranty_rule.deadline_months} meses
-                    {(ticket as any).warranty_rule.coverage_condition && ` · ${(ticket as any).warranty_rule.coverage_condition}`}
+                <div className="space-y-1">
+                  <span className="text-xs font-semibold text-primary">Garantia aplicável</span>
+                  <p className="text-xs text-muted-foreground">
+                    {warrantyRule.category_name} — {warrantyRule.deadline_months} meses
+                    {warrantyRule.coverage_condition && ` · ${warrantyRule.coverage_condition}`}
                   </p>
+                  {warrantyRule.recommendation && (
+                    <p className="text-xs text-muted-foreground flex items-start gap-1">
+                      <Info className="h-3 w-3 mt-0.5 shrink-0 text-primary/60" />
+                      {warrantyRule.recommendation}
+                    </p>
+                  )}
+                  {warrantyRule.contract_clause && (
+                    <p className="text-[11px] text-muted-foreground">Cláusula: {warrantyRule.contract_clause}</p>
+                  )}
+                  {warrantyRule.priority_hint && (
+                    <p className="text-[11px] text-muted-foreground">Prioridade sugerida: {warrantyRule.priority_hint}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -256,6 +280,8 @@ export default function InternoChamadoDetail() {
             <h4 className="text-sm font-semibold text-foreground mb-3">Informações</h4>
             <div className="space-y-2 text-xs">
               <div className="flex justify-between"><span className="text-muted-foreground">Garantia</span><span className="text-foreground">{ticket.warranty_status ?? "N/A"}</span></div>
+              {linkedCategory && <div className="flex justify-between"><span className="text-muted-foreground">Categoria</span><span className="text-foreground">{linkedCategory}</span></div>}
+              {linkedSubcategory && <div className="flex justify-between"><span className="text-muted-foreground">Subcategoria</span><span className="text-foreground">{linkedSubcategory}</span></div>}
               <div className="flex justify-between"><span className="text-muted-foreground">Atualizado</span><span className="text-foreground">{format(new Date(ticket.updated_at), "dd/MM/yyyy", { locale: ptBR })}</span></div>
               {ticket.closed_at && <div className="flex justify-between"><span className="text-muted-foreground">Fechado</span><span className="text-foreground">{format(new Date(ticket.closed_at), "dd/MM/yyyy", { locale: ptBR })}</span></div>}
             </div>

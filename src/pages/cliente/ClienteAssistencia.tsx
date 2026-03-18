@@ -6,11 +6,10 @@ import { TicketRow } from "@/components/ui/ticket-row";
 import { GlassCard } from "@/components/ui/glass-card";
 import { StatusChip } from "@/components/ui/status-chip";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Wrench, Plus, Loader2, ShoppingBag } from "lucide-react";
+import { Wrench, Plus, Loader2, ShoppingBag, Shield, Info } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -46,7 +45,8 @@ export default function ClienteAssistencia() {
   const [tab, setTab] = useState("tickets");
 
   // New ticket form
-  const [newCategory, setNewCategory] = useState("");
+  const [selCategoryId, setSelCategoryId] = useState("");
+  const [selSubcategoryId, setSelSubcategoryId] = useState("");
   const [newRoom, setNewRoom] = useState("");
   const [newDesc, setNewDesc] = useState("");
 
@@ -63,6 +63,25 @@ export default function ClienteAssistencia() {
     },
   });
   const unitIds = memberships?.map((m) => m.unit_id) ?? [];
+
+  // Ticket categories (customer-facing)
+  const { data: ticketCategories } = useQuery({
+    queryKey: ["customer-ticket-categories"],
+    queryFn: async () => {
+      const { data } = await supabase.from("ticket_categories").select("*").eq("active", true).in("audience", ["customer", "all"]).order("sort_order, name");
+      return data ?? [];
+    },
+  });
+
+  // Subcategories for selected category
+  const { data: ticketSubcategories } = useQuery({
+    queryKey: ["customer-ticket-subcategories", selCategoryId],
+    enabled: !!selCategoryId,
+    queryFn: async () => {
+      const { data } = await supabase.from("ticket_subcategories").select("*").eq("ticket_category_id", selCategoryId).eq("active", true).order("sort_order, name");
+      return data ?? [];
+    },
+  });
 
   // Tickets
   const { data: tickets, isLoading: loadingTickets } = useQuery({
@@ -95,11 +114,11 @@ export default function ClienteAssistencia() {
     },
   });
 
-  // Service catalog
+  // Service catalog (visible to customer)
   const { data: catalog } = useQuery({
-    queryKey: ["service-catalog"],
+    queryKey: ["service-catalog-customer"],
     queryFn: async () => {
-      const { data } = await supabase.from("service_catalog").select("*").eq("active", true).order("sort_order");
+      const { data } = await supabase.from("service_catalog").select("*").eq("active", true).eq("visible_to_customer", true).order("sort_order");
       return data ?? [];
     },
   });
@@ -113,7 +132,13 @@ export default function ClienteAssistencia() {
     });
   }, [tickets, search, filters]);
 
-  // Get org_id from first ticket or we'll need it for creation
+  // Selected category name for warranty matching
+  const selectedCategory = ticketCategories?.find(c => c.id === selCategoryId);
+  const categoryName = selectedCategory?.name ?? "";
+  const matchingWarrantyRule = warrantyRules?.find((r) =>
+    r.category_name.toLowerCase() === categoryName.toLowerCase() && r.visible_to_customer
+  );
+
   const getOrgId = async () => {
     if (!unitIds.length) return null;
     const { data } = await supabase.from("units").select("block:blocks(development:developments(organization_id))").eq("id", unitIds[0]).single();
@@ -124,26 +149,28 @@ export default function ClienteAssistencia() {
     mutationFn: async () => {
       const orgId = await getOrgId();
       if (!orgId) throw new Error("Organização não encontrada");
-      const matchingRule = warrantyRules?.find((r) => r.category_name.toLowerCase() === newCategory.toLowerCase());
       const { error } = await supabase.from("tickets").insert({
         organization_id: orgId,
         unit_id: unitIds[0],
         opened_by: user!.id,
-        category_name: newCategory,
+        category_name: categoryName,
+        ticket_category_id: selCategoryId || null,
+        ticket_subcategory_id: selSubcategoryId || null,
         room_name: newRoom || null,
         description: newDesc,
         public_status: "open",
         internal_status: "new",
-        priority: "normal",
-        warranty_rule_id: matchingRule?.id ?? null,
-        warranty_status: matchingRule ? "under_warranty" : null,
+        priority: matchingWarrantyRule?.priority_hint ?? "normal",
+        warranty_rule_id: matchingWarrantyRule?.id ?? null,
+        warranty_status: matchingWarrantyRule ? "under_warranty" : null,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Solicitação criada com sucesso!");
       setShowNew(false);
-      setNewCategory("");
+      setSelCategoryId("");
+      setSelSubcategoryId("");
       setNewRoom("");
       setNewDesc("");
       queryClient.invalidateQueries({ queryKey: ["customer-tickets"] });
@@ -198,20 +225,71 @@ export default function ClienteAssistencia() {
                 <TabsContent value="ticket" className="space-y-4 mt-4">
                   <div>
                     <Label>Categoria *</Label>
-                    <Input value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="Ex: Hidráulica, Elétrica..." maxLength={100} />
-                    {warrantyRules && warrantyRules.some((r) => r.category_name.toLowerCase() === newCategory.toLowerCase()) && (
-                      <p className="text-xs text-primary mt-1">✓ Esta categoria está coberta pela garantia.</p>
+                    {ticketCategories && ticketCategories.length > 0 ? (
+                      <Select value={selCategoryId} onValueChange={(v) => { setSelCategoryId(v); setSelSubcategoryId(""); }}>
+                        <SelectTrigger><SelectValue placeholder="Selecione a categoria..." /></SelectTrigger>
+                        <SelectContent>
+                          {ticketCategories.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="text-xs text-muted-foreground mt-1">Nenhuma categoria disponível. Entre em contato com o suporte.</p>
                     )}
                   </div>
+
+                  {/* Subcategory */}
+                  {selCategoryId && ticketSubcategories && ticketSubcategories.length > 0 && (
+                    <div>
+                      <Label>Subcategoria</Label>
+                      <Select value={selSubcategoryId} onValueChange={setSelSubcategoryId}>
+                        <SelectTrigger><SelectValue placeholder="Selecione (opcional)..." /></SelectTrigger>
+                        <SelectContent>
+                          {ticketSubcategories.map((s) => (
+                            <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {/* Warranty hint */}
+                  {matchingWarrantyRule && (
+                    <div className="p-3 rounded-xl border border-primary/20 bg-primary/5 flex items-start gap-2.5">
+                      <Shield className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      <div>
+                        <span className="text-xs font-semibold text-primary">Coberto pela garantia</span>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {matchingWarrantyRule.deadline_months} meses de cobertura
+                          {matchingWarrantyRule.coverage_condition && ` · ${matchingWarrantyRule.coverage_condition}`}
+                        </p>
+                        {matchingWarrantyRule.recommendation && (
+                          <p className="text-xs text-muted-foreground mt-1 flex items-start gap-1">
+                            <Info className="h-3 w-3 mt-0.5 shrink-0" />
+                            {matchingWarrantyRule.recommendation}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <div>
                     <Label>Cômodo</Label>
-                    <Input value={newRoom} onChange={(e) => setNewRoom(e.target.value)} placeholder="Ex: Cozinha, Banheiro..." maxLength={100} />
+                    <Select value={newRoom} onValueChange={setNewRoom}>
+                      <SelectTrigger><SelectValue placeholder="Selecione (opcional)..." /></SelectTrigger>
+                      <SelectContent>
+                        {["Sala", "Cozinha", "Banheiro", "Quarto", "Varanda", "Área de Serviço", "Garagem", "Hall", "Outro"].map(r => (
+                          <SelectItem key={r} value={r}>{r}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label>Descrição do problema *</Label>
-                    <Textarea value={newDesc} onChange={(e) => setNewDesc(e.target.value)} rows={4} maxLength={2000} />
+                    <Textarea value={newDesc} onChange={(e) => setNewDesc(e.target.value)} rows={4} maxLength={2000} placeholder="Descreva o problema com o máximo de detalhes possível." />
                   </div>
-                  <Button className="w-full" disabled={!newCategory || !newDesc || createTicket.isPending} onClick={() => createTicket.mutate()}>
+                  <Button className="w-full" disabled={!selCategoryId || !newDesc || createTicket.isPending} onClick={() => createTicket.mutate()}>
                     {createTicket.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wrench className="h-4 w-4 mr-2" />}
                     Abrir Chamado
                   </Button>
@@ -219,20 +297,30 @@ export default function ClienteAssistencia() {
                 <TabsContent value="service" className="space-y-4 mt-4">
                   <div>
                     <Label>Serviço</Label>
-                    <Select value={selService} onValueChange={setSelService}>
-                      <SelectTrigger><SelectValue placeholder="Selecione um serviço..." /></SelectTrigger>
-                      <SelectContent>
-                        {catalog?.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.name}{c.price_label ? ` — ${c.price_label}` : ""}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    {catalog && catalog.length > 0 ? (
+                      <Select value={selService} onValueChange={setSelService}>
+                        <SelectTrigger><SelectValue placeholder="Selecione um serviço..." /></SelectTrigger>
+                        <SelectContent>
+                          {catalog.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.name}{c.price_label ? ` — ${c.price_label}` : ""}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="text-xs text-muted-foreground mt-1">Nenhum serviço disponível no momento.</p>
+                    )}
+                    {selService && (() => {
+                      const svc = catalog?.find(c => c.id === selService);
+                      return svc?.estimated_delivery_days ? (
+                        <p className="text-xs text-muted-foreground mt-1">Prazo estimado: {svc.estimated_delivery_days} dias úteis</p>
+                      ) : null;
+                    })()}
                   </div>
                   <div>
                     <Label>Observações</Label>
-                    <Textarea value={svcDesc} onChange={(e) => setSvcDesc(e.target.value)} rows={3} maxLength={1000} />
+                    <Textarea value={svcDesc} onChange={(e) => setSvcDesc(e.target.value)} rows={3} maxLength={1000} placeholder="Detalhes adicionais sobre o serviço..." />
                   </div>
                   <Button className="w-full" disabled={!selService || createServiceReq.isPending} onClick={() => createServiceReq.mutate()}>
                     {createServiceReq.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <ShoppingBag className="h-4 w-4 mr-2" />}
