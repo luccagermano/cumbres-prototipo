@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { Building, MapPin, Bed, Bath, Car, Maximize2, Layers } from "lucide-react";
 import { useCustomerUnit, useCustomerContracts, useCustomerJourneyEvents } from "@/hooks/useCustomerData";
 import { Timeline } from "@/components/ui/timeline";
+import { Badge } from "@/components/ui/badge";
 import { StatusChip } from "@/components/ui/status-chip";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";

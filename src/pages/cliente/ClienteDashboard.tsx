@@ -37,10 +37,11 @@ export default function ClienteDashboard() {
   const development = unit?.block?.development;
 
   const timelineItems = (journeyEvents ?? []).map((e) => ({
+    id: e.id,
     title: e.title,
     description: e.description ?? undefined,
-    date: e.event_date ? format(new Date(e.event_date), "dd MMM yyyy", { locale: ptBR }) : undefined,
-    status: (e.event_date && new Date(e.event_date) <= now ? "completed" : "pending") as "completed" | "pending",
+    date: e.event_date ? format(new Date(e.event_date), "dd MMM yyyy", { locale: ptBR }) : "",
+    variant: (e.event_date && new Date(e.event_date) <= now ? "success" : "default") as "success" | "default",
   }));
 
   return (
