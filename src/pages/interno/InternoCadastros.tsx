@@ -145,11 +145,11 @@ export default function InternoCadastros() {
     },
   });
 
-  const { data: faqCategories, isLoading: loadFaqCats } = useQuery({
-    queryKey: ["cadastros-faq-categories"],
+  const { data: docCategories, isLoading: loadDocCats } = useQuery({
+    queryKey: ["cadastros-doc-categories"],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("faq_categories").select("id, active");
+      const { data } = await supabase.from("document_categories").select("id, active");
       return data ?? [];
     },
   });
