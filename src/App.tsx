@@ -51,6 +51,8 @@ import InternoEmpreendimentos from "@/pages/interno/InternoEmpreendimentos";
 import InternoBlocos from "@/pages/interno/InternoBlocos";
 import InternoUnidades from "@/pages/interno/InternoUnidades";
 import InternoClientes from "@/pages/interno/InternoClientes";
+import InternoCategoriasChamados from "@/pages/interno/InternoCategoriasChamados";
+import InternoTiposVistoria from "@/pages/interno/InternoTiposVistoria";
 
 // Executive pages
 import ExecutivoDashboard from "@/pages/executivo/ExecutivoDashboard";
