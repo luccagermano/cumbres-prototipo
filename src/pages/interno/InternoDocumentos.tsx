@@ -21,6 +21,7 @@ import { motion } from "framer-motion";
 
 export default function InternoDocumentos() {
   const { user, memberships, isPlatformAdmin } = useAuth();
+  const { canWrite, isReadOnly } = useInternalPermissions();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState<string[]>(["Todos"]);
