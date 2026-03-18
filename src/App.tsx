@@ -51,6 +51,8 @@ import InternoEmpreendimentos from "@/pages/interno/InternoEmpreendimentos";
 import InternoBlocos from "@/pages/interno/InternoBlocos";
 import InternoUnidades from "@/pages/interno/InternoUnidades";
 import InternoClientes from "@/pages/interno/InternoClientes";
+import InternoCategoriasChamados from "@/pages/interno/InternoCategoriasChamados";
+import InternoTiposVistoria from "@/pages/interno/InternoTiposVistoria";
 
 // Executive pages
 import ExecutivoDashboard from "@/pages/executivo/ExecutivoDashboard";
@@ -124,6 +126,8 @@ const App = () => (
                 <Route path="/interno/cadastros/contratos" element={<InternoContratos />} />
                 <Route path="/interno/cadastros/equipe" element={<InternoEquipe />} />
                 <Route path="/interno/cadastros/onboarding-cliente" element={<InternoOnboardingCliente />} />
+                <Route path="/interno/cadastros/categorias-chamados" element={<InternoCategoriasChamados />} />
+                <Route path="/interno/cadastros/tipos-vistoria" element={<InternoTiposVistoria />} />
                 <Route path="/interno/chamados" element={<InternoChamados />} />
                 <Route path="/interno/chamados/:id" element={<InternoChamadoDetail />} />
                 <Route path="/interno/garantia" element={<InternoGarantia />} />
