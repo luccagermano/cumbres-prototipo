@@ -485,6 +485,9 @@ export default function InternoContratos() {
           <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={(e) => { e.stopPropagation(); navigate(`/interno/cadastros/unidades?dev=${row.dev_id}`); }}>
             <Home className="h-3 w-3" /> Unidade
           </Button>
+          <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={(e) => { e.stopPropagation(); navigate("/interno/cadastros/clientes"); }}>
+            <Users className="h-3 w-3" /> Clientes
+          </Button>
           <Button variant="ghost" size="sm" className="h-7 text-xs gap-1" onClick={(e) => { e.stopPropagation(); navigate("/interno/financeiro"); }}>
             <DollarSign className="h-3 w-3" /> Financeiro
           </Button>
