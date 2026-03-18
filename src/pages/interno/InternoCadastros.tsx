@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import {
-  Building2, Layers, Home, Users, FileSignature, UserCog,
+  Building2, Layers, Home, Users, FileSignature, UserCog, Landmark,
   ArrowRight, AlertCircle, CheckCircle2, AlertTriangle, Info, Sparkles,
 } from "lucide-react";
 import { Link } from "react-router-dom";
