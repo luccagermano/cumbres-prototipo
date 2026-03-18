@@ -57,6 +57,7 @@ import ExecutivoAutomacao from "@/pages/executivo/ExecutivoAutomacao";
 import InternoContratos from "@/pages/interno/InternoContratos";
 import InternoEquipe from "@/pages/interno/InternoEquipe";
 import InternoOnboardingCliente from "@/pages/interno/InternoOnboardingCliente";
+import InternoOrganizacoes from "@/pages/interno/InternoOrganizacoes";
 
 // Docs
 import DocumentacaoPage from "@/pages/documentacao/DocumentacaoPage";
