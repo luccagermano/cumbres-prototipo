@@ -1,13 +1,12 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { GlobalAreaSwitcher } from "@/components/GlobalAreaSwitcher";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useOrg } from "@/contexts/OrgContext";
 import { cn } from "@/lib/utils";
 import {
   Home, Ticket, Shield, Calendar, FileText, DollarSign, LogOut, Menu, Database,
 } from "lucide-react";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 
 const sidebarItems = [
   { label: "Painel", path: "/interno", icon: Home },
@@ -22,41 +21,8 @@ const sidebarItems = [
 export default function InternalLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, memberships } = useAuth();
+  const { org, logoUrl, orgInitials } = useOrg();
   const [collapsed, setCollapsed] = useState(false);
-
-  const orgIds = [...new Set(memberships.filter(m => m.active).map(m => m.organization_id))];
-  const currentOrgId = orgIds[0] ?? null;
-
-  const { data: currentOrg } = useQuery({
-    queryKey: ["internal-layout-org", currentOrgId],
-    enabled: !!user && !!currentOrgId,
-    staleTime: 5 * 60 * 1000,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("organizations")
-        .select("id, name, slug, logo_path")
-        .eq("id", currentOrgId!)
-        .single();
-      return data;
-    },
-  });
-
-  const { data: logoUrl } = useQuery({
-    queryKey: ["org-logo-signed", currentOrg?.logo_path],
-    enabled: !!currentOrg?.logo_path,
-    staleTime: 30 * 60 * 1000,
-    queryFn: async () => {
-      const { data } = await supabase.storage
-        .from("organization-assets-private")
-        .createSignedUrl(currentOrg!.logo_path!, 3600);
-      return data?.signedUrl ?? null;
-    },
-  });
-
-  const orgInitials = currentOrg?.name
-    ? currentOrg.name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase()
-    : null;
 
   const isActive = (path: string) => {
     if (path === "/interno") return location.pathname === "/interno";
@@ -83,12 +49,12 @@ export default function InternalLayout() {
             <button onClick={() => setCollapsed(!collapsed)} className="p-1.5 rounded-lg hover:bg-muted transition-colors shrink-0">
               <Menu className="h-4 w-4 text-muted-foreground" />
             </button>
-            {!collapsed && currentOrg && (
+            {!collapsed && org && (
               <div className="flex items-center gap-2 min-w-0 flex-1">
                 {logoUrl ? (
                   <img
                     src={logoUrl}
-                    alt={currentOrg.name}
+                    alt={org.name}
                     className="h-6 w-6 rounded object-contain shrink-0"
                   />
                 ) : orgInitials ? (
@@ -97,11 +63,11 @@ export default function InternalLayout() {
                   </div>
                 ) : null}
                 <span className="font-display text-[13px] font-semibold text-foreground truncate">
-                  {currentOrg.name}
+                  {org.name}
                 </span>
               </div>
             )}
-            {!collapsed && !currentOrg && (
+            {!collapsed && !org && (
               <span className="ml-2 font-display text-[13px] font-semibold text-foreground truncate">Painel Interno</span>
             )}
           </div>
