@@ -525,10 +525,6 @@ export default function InternoClientes() {
           title="Nenhum perfil encontrado"
           description="Nenhum perfil de usuário foi retornado. Verifique se existem usuários cadastrados e se suas permissões de acesso estão configuradas corretamente."
         />
-          icon={Users}
-          title="Nenhum cliente vinculado"
-          description="Vincule clientes a unidades para que eles possam acessar o portal do cliente."
-        />
       ) : (
         <DataTable
           columns={columns}
