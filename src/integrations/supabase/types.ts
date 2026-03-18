@@ -600,27 +600,42 @@ export type Database = {
       inspection_types: {
         Row: {
           active: boolean
+          audience: string | null
+          code: string | null
           created_at: string
+          default_duration_minutes: number | null
           description: string | null
           id: string
           name: string
           organization_id: string
+          requires_term_signature: boolean | null
+          updated_at: string
         }
         Insert: {
           active?: boolean
+          audience?: string | null
+          code?: string | null
           created_at?: string
+          default_duration_minutes?: number | null
           description?: string | null
           id?: string
           name: string
           organization_id: string
+          requires_term_signature?: boolean | null
+          updated_at?: string
         }
         Update: {
           active?: boolean
+          audience?: string | null
+          code?: string | null
           created_at?: string
+          default_duration_minutes?: number | null
           description?: string | null
           id?: string
           name?: string
           organization_id?: string
+          requires_term_signature?: boolean | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -1338,6 +1353,50 @@ export type Database = {
           },
         ]
       }
+      ticket_categories: {
+        Row: {
+          active: boolean
+          audience: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          organization_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          audience?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          audience?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_categories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ticket_messages: {
         Row: {
           author_id: string
@@ -1380,6 +1439,57 @@ export type Database = {
           },
         ]
       }
+      ticket_subcategories: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          organization_id: string
+          sort_order: number
+          ticket_category_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          sort_order?: number
+          ticket_category_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          sort_order?: number
+          ticket_category_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_subcategories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_subcategories_ticket_category_id_fkey"
+            columns: ["ticket_category_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tickets: {
         Row: {
           assigned_to: string | null
@@ -1395,6 +1505,8 @@ export type Database = {
           priority: string
           public_status: string
           room_name: string | null
+          ticket_category_id: string | null
+          ticket_subcategory_id: string | null
           unit_id: string
           updated_at: string
           warranty_rule_id: string | null
@@ -1414,6 +1526,8 @@ export type Database = {
           priority: string
           public_status: string
           room_name?: string | null
+          ticket_category_id?: string | null
+          ticket_subcategory_id?: string | null
           unit_id: string
           updated_at?: string
           warranty_rule_id?: string | null
@@ -1433,6 +1547,8 @@ export type Database = {
           priority?: string
           public_status?: string
           room_name?: string | null
+          ticket_category_id?: string | null
+          ticket_subcategory_id?: string | null
           unit_id?: string
           updated_at?: string
           warranty_rule_id?: string | null
@@ -1458,6 +1574,20 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_ticket_category_id_fkey"
+            columns: ["ticket_category_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_ticket_subcategory_id_fkey"
+            columns: ["ticket_subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_subcategories"
             referencedColumns: ["id"]
           },
           {
