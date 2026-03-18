@@ -97,12 +97,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const hasRole = (role: string) => memberships.some((m) => m.role === role && m.active);
-  const isStaff = memberships.some((m) => STAFF_ROLES.includes(m.role) && m.active);
-  const isCustomer = hasRole("customer");
-  const isExecutive = hasRole("executive_viewer");
+  const isStaff = isPlatformAdmin || memberships.some((m) => STAFF_ROLES.includes(m.role) && m.active);
+  const isCustomer = isPlatformAdmin || hasRole("customer");
+  const isExecutive = isPlatformAdmin || hasRole("executive_viewer");
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, memberships, loading, hasRole, isStaff, isCustomer, isExecutive }}>
+    <AuthContext.Provider value={{ session, user, profile, memberships, loading, hasRole, isStaff, isCustomer, isExecutive, isPlatformAdmin }}>
       {children}
     </AuthContext.Provider>
   );
