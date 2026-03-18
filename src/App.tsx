@@ -126,6 +126,8 @@ const App = () => (
                 <Route path="/interno/cadastros/contratos" element={<InternoContratos />} />
                 <Route path="/interno/cadastros/equipe" element={<InternoEquipe />} />
                 <Route path="/interno/cadastros/onboarding-cliente" element={<InternoOnboardingCliente />} />
+                <Route path="/interno/cadastros/categorias-chamados" element={<InternoCategoriasChamados />} />
+                <Route path="/interno/cadastros/tipos-vistoria" element={<InternoTiposVistoria />} />
                 <Route path="/interno/chamados" element={<InternoChamados />} />
                 <Route path="/interno/chamados/:id" element={<InternoChamadoDetail />} />
                 <Route path="/interno/garantia" element={<InternoGarantia />} />
