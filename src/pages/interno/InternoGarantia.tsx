@@ -1,4 +1,5 @@
 import { PageHeader } from "@/components/ui/page-header";
+import { useInternalPermissions } from "@/hooks/useInternalPermissions";
 import { EmptyState } from "@/components/EmptyState";
 import { SearchBar } from "@/components/ui/search-bar";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -17,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 
 export default function InternoGarantia() {
   const { user } = useAuth();
+  const { canWrite, isReadOnly } = useInternalPermissions();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -95,7 +97,7 @@ export default function InternoGarantia() {
         title="Garantia"
         description="Regras e prazos de garantia por categoria."
         breadcrumb={["Painel Interno", "Garantia"]}
-        actions={
+        actions={canWrite ? (
           <Dialog open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) resetForm(); }}>
             <DialogTrigger asChild>
               <Button className="gap-2"><Plus className="h-4 w-4" /> Nova Regra</Button>
@@ -130,7 +132,9 @@ export default function InternoGarantia() {
               </div>
             </DialogContent>
           </Dialog>
-        }
+        ) : isReadOnly ? (
+          <StatusChip label="Somente consulta" variant="neutral" />
+        ) : undefined}
       />
 
       <div className="mb-6">
@@ -158,9 +162,11 @@ export default function InternoGarantia() {
                 </div>
                 <div className="flex items-center gap-2">
                   <StatusChip label={rule.active ? "Ativa" : "Inativa"} variant={rule.active ? "success" : "neutral"} size="sm" />
-                  <Button variant="ghost" size="sm" onClick={() => startEdit(rule)}>
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
+                  {canWrite && (
+                    <Button variant="ghost" size="sm" onClick={() => startEdit(rule)}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                 </div>
               </div>
               {rule.recommendation && (

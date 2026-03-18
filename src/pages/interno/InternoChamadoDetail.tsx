@@ -13,6 +13,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useInternalPermissions } from "@/hooks/useInternalPermissions";
 import { format, formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -37,6 +38,7 @@ const publicStatuses = [
 export default function InternoChamadoDetail() {
   const { id } = useParams();
   const { user } = useAuth();
+  const { canWrite } = useInternalPermissions();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [newMsg, setNewMsg] = useState("");
@@ -208,71 +210,91 @@ export default function InternoChamadoDetail() {
               })}
               {!messages?.length && <p className="text-sm text-muted-foreground">Nenhuma mensagem.</p>}
             </div>
-            <div className="flex gap-2 pt-4 border-t border-border/50">
-              <Textarea value={newMsg} onChange={(e) => setNewMsg(e.target.value)} placeholder="Responder..." className="flex-1" rows={2} maxLength={2000} />
-              <div className="flex flex-col gap-1 self-end">
-                <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground cursor-pointer">
-                  <input type="checkbox" checked={isInternal} onChange={(e) => setIsInternal(e.target.checked)} className="rounded" />
-                  Interno
-                </label>
-                <Button size="sm" onClick={() => sendMsg.mutate()} disabled={!newMsg.trim() || sendMsg.isPending}>
-                  {sendMsg.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                </Button>
+            {canWrite && (
+              <div className="flex gap-2 pt-4 border-t border-border/50">
+                <Textarea value={newMsg} onChange={(e) => setNewMsg(e.target.value)} placeholder="Responder..." className="flex-1" rows={2} maxLength={2000} />
+                <div className="flex flex-col gap-1 self-end">
+                  <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground cursor-pointer">
+                    <input type="checkbox" checked={isInternal} onChange={(e) => setIsInternal(e.target.checked)} className="rounded" />
+                    Interno
+                  </label>
+                  <Button size="sm" onClick={() => sendMsg.mutate()} disabled={!newMsg.trim() || sendMsg.isPending}>
+                    {sendMsg.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
           </GlassCard>
         </div>
 
         {/* Sidebar actions */}
         <div className="space-y-6">
           <GlassCard className="p-5">
-            <h4 className="text-sm font-semibold text-foreground mb-4">Gerenciamento</h4>
+            <h4 className="text-sm font-semibold text-foreground mb-4">
+              {canWrite ? "Gerenciamento" : "Status"}
+            </h4>
             <div className="space-y-4">
               <div>
                 <Label className="text-xs">Status Interno</Label>
-                <Select value={ticket.internal_status} onValueChange={(v) => updateTicket.mutate({ internal_status: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {internalStatuses.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                {canWrite ? (
+                  <Select value={ticket.internal_status} onValueChange={(v) => updateTicket.mutate({ internal_status: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {internalStatuses.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <p className="text-sm text-foreground mt-1">{internalStatuses.find(s => s.value === ticket.internal_status)?.label ?? ticket.internal_status}</p>
+                )}
               </div>
               <div>
                 <Label className="text-xs">Status Público</Label>
-                <Select value={ticket.public_status} onValueChange={(v) => updateTicket.mutate({ public_status: v, ...(v === "closed" ? { closed_at: new Date().toISOString() } : {}) })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {publicStatuses.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                {canWrite ? (
+                  <Select value={ticket.public_status} onValueChange={(v) => updateTicket.mutate({ public_status: v, ...(v === "closed" ? { closed_at: new Date().toISOString() } : {}) })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {publicStatuses.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <p className="text-sm text-foreground mt-1">{publicStatuses.find(s => s.value === ticket.public_status)?.label ?? ticket.public_status}</p>
+                )}
               </div>
               <div>
                 <Label className="text-xs">Prioridade</Label>
-                <Select value={ticket.priority} onValueChange={(v) => updateTicket.mutate({ priority: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Baixa</SelectItem>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="high">Alta</SelectItem>
-                    <SelectItem value="urgent">Urgente</SelectItem>
-                  </SelectContent>
-                </Select>
+                {canWrite ? (
+                  <Select value={ticket.priority} onValueChange={(v) => updateTicket.mutate({ priority: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Baixa</SelectItem>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="high">Alta</SelectItem>
+                      <SelectItem value="urgent">Urgente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <p className="text-sm text-foreground mt-1">{ticket.priority}</p>
+                )}
               </div>
-              <div>
-                <Label className="text-xs">Responsável</Label>
-                <Select value={ticket.assigned_to ?? ""} onValueChange={(v) => updateTicket.mutate({ assigned_to: v || null })}>
-                  <SelectTrigger><SelectValue placeholder="Selecionar..." /></SelectTrigger>
-                  <SelectContent>
-                    {staffMembers?.map((m) => (
-                      <SelectItem key={m.user_id} value={m.user_id}>{(m as any).profile?.full_name ?? m.user_id.slice(0, 8)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-xs">Previsão de Conclusão</Label>
-                <Input type="date" value={ticket.estimated_deadline ?? ""} onChange={(e) => updateTicket.mutate({ estimated_deadline: e.target.value || null })} />
-              </div>
+              {canWrite && (
+                <>
+                  <div>
+                    <Label className="text-xs">Responsável</Label>
+                    <Select value={ticket.assigned_to ?? ""} onValueChange={(v) => updateTicket.mutate({ assigned_to: v || null })}>
+                      <SelectTrigger><SelectValue placeholder="Selecionar..." /></SelectTrigger>
+                      <SelectContent>
+                        {staffMembers?.map((m) => (
+                          <SelectItem key={m.user_id} value={m.user_id}>{(m as any).profile?.full_name ?? m.user_id.slice(0, 8)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Previsão de Conclusão</Label>
+                    <Input type="date" value={ticket.estimated_deadline ?? ""} onChange={(e) => updateTicket.mutate({ estimated_deadline: e.target.value || null })} />
+                  </div>
+                </>
+              )}
             </div>
           </GlassCard>
 

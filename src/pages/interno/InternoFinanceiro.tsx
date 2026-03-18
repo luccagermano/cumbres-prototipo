@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useInternalPermissions } from "@/hooks/useInternalPermissions";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -58,6 +59,7 @@ const filterOptions = [
 
 export default function InternoFinanceiro() {
   const { memberships, isPlatformAdmin } = useAuth();
+  const { canWrite, isReadOnly } = useInternalPermissions();
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<string[]>(["all"]);
   const [showReceivableModal, setShowReceivableModal] = useState(false);
@@ -220,7 +222,7 @@ export default function InternoFinanceiro() {
         title="Financeiro"
         description="Gestão de parcelas e pagamentos."
         breadcrumb={["Painel Interno", "Financeiro"]}
-        actions={
+        actions={canWrite ? (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => markOverdueMutation.mutate()}>
               <AlertTriangle className="h-4 w-4 mr-1" /> Marcar Vencidas
@@ -229,7 +231,9 @@ export default function InternoFinanceiro() {
               <Plus className="h-4 w-4 mr-1" /> Nova Parcela
             </Button>
           </div>
-        }
+        ) : isReadOnly ? (
+          <StatusChip label="Somente consulta" variant="neutral" />
+        ) : undefined}
       />
 
       {/* KPI Row */}
@@ -293,7 +297,7 @@ export default function InternoFinanceiro() {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vencimento</th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Valor</th>
                   <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ações</th>
+                  {canWrite && <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ações</th>}
                 </tr>
               </thead>
               <tbody>
@@ -305,16 +309,18 @@ export default function InternoFinanceiro() {
                     <td className="px-4 py-3 text-sm text-foreground text-right font-medium">{BRL.format(Number(r.total_amount))}</td>
                     <td className="px-4 py-3 text-center"><StatusChip label={r.status === "pending" && new Date(r.due_date) < now ? "Vencida" : r.status === "paid" ? "Paga" : r.status === "overdue" ? "Vencida" : r.status === "cancelled" ? "Cancelada" : "Pendente"} variant={r.status === "paid" ? "success" : (r.status === "overdue" || (r.status === "pending" && new Date(r.due_date) < now)) ? "error" : r.status === "cancelled" ? "neutral" : "pending"} /></td>
                     <td className="px-4 py-3 text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingReceivable(r); setShowReceivableModal(true); }}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        {r.status !== "paid" && (
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedReceivable(r); setShowPaymentModal(true); }}>
-                            <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                      {canWrite && (
+                        <div className="flex items-center justify-center gap-1">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditingReceivable(r); setShowReceivableModal(true); }}>
+                            <Pencil className="h-3.5 w-3.5" />
                           </Button>
-                        )}
-                      </div>
+                          {r.status !== "paid" && (
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setSelectedReceivable(r); setShowPaymentModal(true); }}>
+                              <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
