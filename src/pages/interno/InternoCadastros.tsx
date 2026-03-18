@@ -155,7 +155,7 @@ export default function InternoCadastros() {
   });
 
   const anyLoading = loadDev || loadBlocks || loadUnits || loadClients || loadContracts || loadTeam || loadOrgs
-    || loadTicketCats || loadInspTypes || loadWarranty || loadServices || loadFaqCats;
+    || loadTicketCats || loadInspTypes || loadWarranty || loadServices || loadDocCats;
 
   // ── Derived Counts ──
   const devCount = developments?.length ?? 0;
