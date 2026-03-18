@@ -36,6 +36,7 @@ import {
   Users,
   DollarSign,
   ExternalLink,
+  AlertCircle,
 } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
