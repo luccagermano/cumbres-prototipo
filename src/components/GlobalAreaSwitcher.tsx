@@ -82,6 +82,7 @@ export function GlobalAreaSwitcher() {
               <Link
                 key={area.path}
                 to={area.path}
+                onClick={() => handleAreaClick(area.path)}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all",
                   isActive
