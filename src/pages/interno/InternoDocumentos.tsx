@@ -140,9 +140,12 @@ export default function InternoDocumentos() {
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <SearchBar placeholder="Buscar documento..." value={search} onChange={setSearch} className="max-w-sm" />
-        <Button onClick={() => setShowUpload(true)} className="gap-2 ml-auto">
-          <Plus className="h-4 w-4" /> Enviar Documento
-        </Button>
+        {canWrite && (
+          <Button onClick={() => setShowUpload(true)} className="gap-2 ml-auto">
+            <Plus className="h-4 w-4" /> Enviar Documento
+          </Button>
+        )}
+        {isReadOnly && <div className="ml-auto"><StatusChip label="Somente consulta" variant="neutral" /></div>}
       </div>
 
       <div className="mb-6">

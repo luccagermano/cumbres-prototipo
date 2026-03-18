@@ -228,53 +228,71 @@ export default function InternoChamadoDetail() {
         {/* Sidebar actions */}
         <div className="space-y-6">
           <GlassCard className="p-5">
-            <h4 className="text-sm font-semibold text-foreground mb-4">Gerenciamento</h4>
+            <h4 className="text-sm font-semibold text-foreground mb-4">
+              {canWrite ? "Gerenciamento" : "Status"}
+            </h4>
             <div className="space-y-4">
               <div>
                 <Label className="text-xs">Status Interno</Label>
-                <Select value={ticket.internal_status} onValueChange={(v) => updateTicket.mutate({ internal_status: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {internalStatuses.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                {canWrite ? (
+                  <Select value={ticket.internal_status} onValueChange={(v) => updateTicket.mutate({ internal_status: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {internalStatuses.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <p className="text-sm text-foreground mt-1">{internalStatuses.find(s => s.value === ticket.internal_status)?.label ?? ticket.internal_status}</p>
+                )}
               </div>
               <div>
                 <Label className="text-xs">Status Público</Label>
-                <Select value={ticket.public_status} onValueChange={(v) => updateTicket.mutate({ public_status: v, ...(v === "closed" ? { closed_at: new Date().toISOString() } : {}) })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {publicStatuses.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                {canWrite ? (
+                  <Select value={ticket.public_status} onValueChange={(v) => updateTicket.mutate({ public_status: v, ...(v === "closed" ? { closed_at: new Date().toISOString() } : {}) })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {publicStatuses.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <p className="text-sm text-foreground mt-1">{publicStatuses.find(s => s.value === ticket.public_status)?.label ?? ticket.public_status}</p>
+                )}
               </div>
               <div>
                 <Label className="text-xs">Prioridade</Label>
-                <Select value={ticket.priority} onValueChange={(v) => updateTicket.mutate({ priority: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Baixa</SelectItem>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="high">Alta</SelectItem>
-                    <SelectItem value="urgent">Urgente</SelectItem>
-                  </SelectContent>
-                </Select>
+                {canWrite ? (
+                  <Select value={ticket.priority} onValueChange={(v) => updateTicket.mutate({ priority: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Baixa</SelectItem>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="high">Alta</SelectItem>
+                      <SelectItem value="urgent">Urgente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <p className="text-sm text-foreground mt-1">{ticket.priority}</p>
+                )}
               </div>
-              <div>
-                <Label className="text-xs">Responsável</Label>
-                <Select value={ticket.assigned_to ?? ""} onValueChange={(v) => updateTicket.mutate({ assigned_to: v || null })}>
-                  <SelectTrigger><SelectValue placeholder="Selecionar..." /></SelectTrigger>
-                  <SelectContent>
-                    {staffMembers?.map((m) => (
-                      <SelectItem key={m.user_id} value={m.user_id}>{(m as any).profile?.full_name ?? m.user_id.slice(0, 8)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-xs">Previsão de Conclusão</Label>
-                <Input type="date" value={ticket.estimated_deadline ?? ""} onChange={(e) => updateTicket.mutate({ estimated_deadline: e.target.value || null })} />
-              </div>
+              {canWrite && (
+                <>
+                  <div>
+                    <Label className="text-xs">Responsável</Label>
+                    <Select value={ticket.assigned_to ?? ""} onValueChange={(v) => updateTicket.mutate({ assigned_to: v || null })}>
+                      <SelectTrigger><SelectValue placeholder="Selecionar..." /></SelectTrigger>
+                      <SelectContent>
+                        {staffMembers?.map((m) => (
+                          <SelectItem key={m.user_id} value={m.user_id}>{(m as any).profile?.full_name ?? m.user_id.slice(0, 8)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Previsão de Conclusão</Label>
+                    <Input type="date" value={ticket.estimated_deadline ?? ""} onChange={(e) => updateTicket.mutate({ estimated_deadline: e.target.value || null })} />
+                  </div>
+                </>
+              )}
             </div>
           </GlassCard>
 
