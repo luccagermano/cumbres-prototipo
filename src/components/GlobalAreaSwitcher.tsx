@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Globe, Layers, Users, Wrench, BarChart3, BookOpen, Building2, LogOut,
+  Globe, Layers, Users, Wrench, BarChart3, BookOpen, Building2, LogOut, Shield,
 } from "lucide-react";
 import { useMemo } from "react";
 
