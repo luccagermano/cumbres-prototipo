@@ -942,27 +942,36 @@ export type Database = {
       organizations: {
         Row: {
           active: boolean
+          brand_primary_color: string | null
+          brand_secondary_color: string | null
           created_at: string
           id: string
           legal_name: string | null
+          logo_path: string | null
           name: string
           slug: string
           updated_at: string
         }
         Insert: {
           active?: boolean
+          brand_primary_color?: string | null
+          brand_secondary_color?: string | null
           created_at?: string
           id?: string
           legal_name?: string | null
+          logo_path?: string | null
           name: string
           slug: string
           updated_at?: string
         }
         Update: {
           active?: boolean
+          brand_primary_color?: string | null
+          brand_secondary_color?: string | null
           created_at?: string
           id?: string
           legal_name?: string | null
+          logo_path?: string | null
           name?: string
           slug?: string
           updated_at?: string

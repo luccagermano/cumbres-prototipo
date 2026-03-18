@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import {
-  Building2, Layers, Home, Users, FileSignature, UserCog,
+  Building2, Layers, Home, Users, FileSignature, UserCog, Landmark,
   ArrowRight, AlertCircle, CheckCircle2, AlertTriangle, Info, Sparkles,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -98,7 +98,16 @@ export default function InternoCadastros() {
     },
   });
 
-  const anyLoading = loadDev || loadBlocks || loadUnits || loadClients || loadContracts || loadTeam;
+  const { data: orgs, isLoading: loadOrgs } = useQuery({
+    queryKey: ["cadastros-organizations"],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("organizations").select("id, active");
+      return data ?? [];
+    },
+  });
+
+  const anyLoading = loadDev || loadBlocks || loadUnits || loadClients || loadContracts || loadTeam || loadOrgs;
 
   // ── Derived Counts ──
   const devCount = developments?.length ?? 0;
@@ -107,6 +116,8 @@ export default function InternoCadastros() {
   const clientCount = unitMemberships ? new Set(unitMemberships.map(m => m.unit_id)).size : 0;
   const contractCount = contracts?.length ?? 0;
   const teamCount = orgMembers?.filter(m => m.role !== "customer")?.length ?? 0;
+  const orgCount = orgs?.length ?? 0;
+  const orgActiveCount = orgs?.filter(o => o.active).length ?? 0;
 
   // ── Readiness computations ──
   const devsWithBlocks = blocks ? new Set(blocks.map(b => b.development_id)).size : 0;
@@ -155,6 +166,21 @@ export default function InternoCadastros() {
 
   // ── Sections ─────────────────────────────────────────────
   const sections: Section[] = [
+    {
+      title: "Cadastros Base",
+      cards: [
+        {
+          title: "Organizações",
+          description: "Entidade raiz: organização › empreendimento › bloco › unidade",
+          icon: Landmark,
+          count: orgCount,
+          loading: loadOrgs,
+          emptyWarning: "Nenhuma organização cadastrada",
+          href: "/interno/cadastros/organizacoes",
+          ...getReadiness(orgCount, orgActiveCount > 0),
+        },
+      ],
+    },
     {
       title: "Cadastros Estruturais",
       cards: [
@@ -250,6 +276,7 @@ export default function InternoCadastros() {
 
   // ── KPIs ─────────────────────────────────────────────
   const kpis = [
+    { title: "Organizações", value: orgCount, icon: Landmark },
     { title: "Empreendimentos", value: devCount, icon: Building2 },
     { title: "Blocos", value: blockCount, icon: Layers },
     { title: "Unidades", value: unitCount, icon: Home },
@@ -286,7 +313,7 @@ export default function InternoCadastros() {
       />
 
       {/* KPI Row */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
         {kpis.map((kpi, i) => (
           <motion.div
             key={kpi.title}
@@ -367,7 +394,29 @@ export default function InternoCadastros() {
         </div>
       )}
 
-      {/* Setup guidance for empty state */}
+      {/* No org warning */}
+      {orgCount === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.28 }}
+          className="glass-card p-4 mb-8 border-l-4 border-amber-400/60"
+        >
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-foreground">Cadastre uma organização para continuar a configuração do sistema.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">A organização é a entidade raiz da hierarquia de dados.</p>
+            </div>
+            <Link to="/interno/cadastros/organizacoes">
+              <Button size="sm" variant="outline" className="gap-1 text-xs shrink-0">
+                Criar Organização <ArrowRight className="h-3 w-3" />
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
+      )}
+
       {devCount === 0 && (
         <motion.div
           initial={{ opacity: 0 }}
