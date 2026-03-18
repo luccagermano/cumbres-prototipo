@@ -198,7 +198,7 @@ export default function InternoRegrasGarantia() {
               </div>
             </DialogContent>
           </Dialog>
-        }
+        ) : undefined}
       />
 
       {/* KPIs */}
