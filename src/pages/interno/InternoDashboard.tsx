@@ -645,7 +645,7 @@ function FinanceSummaryWidget({ pending, overdue, paid, expanded }: { pending: R
           {expanded && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground flex items-center gap-1">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Recebidas
+                <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Recebidas
               </span>
               <span className="text-sm font-semibold text-foreground">{paid.length}</span>
             </div>
