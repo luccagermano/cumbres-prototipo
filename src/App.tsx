@@ -56,6 +56,7 @@ import ExecutivoDashboard from "@/pages/executivo/ExecutivoDashboard";
 import ExecutivoAutomacao from "@/pages/executivo/ExecutivoAutomacao";
 import InternoContratos from "@/pages/interno/InternoContratos";
 import InternoEquipe from "@/pages/interno/InternoEquipe";
+import InternoOnboardingCliente from "@/pages/interno/InternoOnboardingCliente";
 
 // Docs
 import DocumentacaoPage from "@/pages/documentacao/DocumentacaoPage";
@@ -118,6 +119,7 @@ const App = () => (
                 <Route path="/interno/cadastros/clientes" element={<InternoClientes />} />
                 <Route path="/interno/cadastros/contratos" element={<InternoContratos />} />
                 <Route path="/interno/cadastros/equipe" element={<InternoEquipe />} />
+                <Route path="/interno/cadastros/onboarding-cliente" element={<InternoOnboardingCliente />} />
                 <Route path="/interno/chamados" element={<InternoChamados />} />
                 <Route path="/interno/chamados/:id" element={<InternoChamadoDetail />} />
                 <Route path="/interno/garantia" element={<InternoGarantia />} />

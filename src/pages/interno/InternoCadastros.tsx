@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import {
   Building2, Layers, Home, Users, FileSignature, UserCog,
-  ArrowRight, AlertCircle, CheckCircle2, AlertTriangle, Info,
+  ArrowRight, AlertCircle, CheckCircle2, AlertTriangle, Info, Sparkles,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -296,6 +296,31 @@ export default function InternoCadastros() {
           </motion.div>
         ))}
       </div>
+
+      {/* Onboarding CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        className="mb-8"
+      >
+        <Link to="/interno/cadastros/onboarding-cliente" className="block">
+          <div className="glass-card p-4 flex items-center gap-4 hover:border-primary/30 transition-colors cursor-pointer group">
+            <div className="p-2.5 rounded-xl bg-primary/10">
+              <Sparkles className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                Onboarding de Cliente
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Assistente guiado para configurar empreendimento, unidade, cliente, vínculo e contrato em um único fluxo.
+              </p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+          </div>
+        </Link>
+      </motion.div>
 
       {/* Diagnostics Panel */}
       {diagnostics.length > 0 && (
