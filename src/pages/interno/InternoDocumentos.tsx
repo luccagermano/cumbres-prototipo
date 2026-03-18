@@ -124,7 +124,7 @@ export default function InternoDocumentos() {
       </div>
 
       <div className="mb-6">
-        <ChipFilter options={categories} value={catFilter} onChange={setCatFilter} />
+        <ChipFilter options={categoryOptions} selected={catFilter} onChange={setCatFilter} />
       </div>
 
       {isLoading ? (
