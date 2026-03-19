@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -13,7 +13,6 @@ import visionBg from "@/assets/site/vision-bg.jpg";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/* ── data ─────────────────────────────────────────── */
 const projects = [
   { name: "Parque das Águas", type: "Multirresidencial", year: "2024", img: project1 },
   { name: "Edifício Solaris", type: "Residencial Premium", year: "2023", img: project2 },
@@ -48,13 +47,29 @@ const steps = [
   { num: "07", label: "Pós-obra" },
 ];
 
-/* ── component ────────────────────────────────────── */
 export default function SiteHome() {
   const mainRef = useRef<HTMLDivElement>(null);
+  const [currentTime, setCurrentTime] = useState("");
 
   useEffect(() => {
-    // Lenis smooth scroll
-    const lenis = new Lenis({ duration: 1.2, easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(
+        now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", hour12: false })
+      );
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.4,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
     function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);
@@ -63,42 +78,71 @@ export default function SiteHome() {
     lenis.on("scroll", ScrollTrigger.update);
     gsap.ticker.lagSmoothing(0);
 
-    // GSAP reveal animations
     const ctx = gsap.context(() => {
-      // Hero text
-      gsap.from("[data-hero-text]", {
-        y: 80,
-        opacity: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        stagger: 0.15,
-        delay: 0.3,
+      // Hero brand reveal — dramatic clip from bottom
+      gsap.from("[data-hero-brand]", {
+        yPercent: 100,
+        duration: 1.4,
+        ease: "power4.out",
+        delay: 0.2,
       });
 
-      // Hero image
+      // Hero image — scale + fade
       gsap.from("[data-hero-img]", {
-        scale: 1.15,
+        scale: 1.2,
         opacity: 0,
-        duration: 1.6,
+        duration: 2,
         ease: "power2.out",
-        delay: 0.6,
+        delay: 0.5,
       });
 
-      // Scroll cue
+      // Hero bottom elements
+      gsap.from("[data-hero-meta]", {
+        y: 30,
+        opacity: 0,
+        duration: 1,
+        ease: "power3.out",
+        stagger: 0.12,
+        delay: 1.2,
+      });
+
+      // Scroll cue gentle pulse
+      gsap.to("[data-scroll-cue]", {
+        y: 6,
+        repeat: -1,
+        yoyo: true,
+        duration: 1.5,
+        ease: "sine.inOut",
+        delay: 2,
+      });
       gsap.from("[data-scroll-cue]", {
         opacity: 0,
-        y: 10,
-        duration: 0.8,
-        delay: 1.8,
+        duration: 1,
+        delay: 2,
       });
 
-      // Generic reveal for sections
+      // Section reveals — slower, bigger travel
       gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
         gsap.from(el, {
-          y: 60,
+          y: 80,
           opacity: 0,
-          duration: 1,
+          duration: 1.2,
           ease: "power3.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 88%",
+            toggleActions: "play none none none",
+          },
+        });
+      });
+
+      // Large text reveals — character-level feel via clip
+      gsap.utils.toArray<HTMLElement>("[data-reveal-text]").forEach((el) => {
+        gsap.from(el, {
+          clipPath: "inset(0 0 100% 0)",
+          y: 40,
+          duration: 1.4,
+          ease: "power4.out",
           scrollTrigger: {
             trigger: el,
             start: "top 85%",
@@ -107,32 +151,55 @@ export default function SiteHome() {
         });
       });
 
-      // Image reveals with clip
+      // Image reveals — clip from edges
       gsap.utils.toArray<HTMLElement>("[data-img-reveal]").forEach((el) => {
         gsap.from(el, {
-          clipPath: "inset(20% 0% 20% 0%)",
-          opacity: 0,
-          scale: 1.08,
-          duration: 1.2,
+          clipPath: "inset(15% 0% 15% 0%)",
+          scale: 1.1,
+          duration: 1.6,
           ease: "power2.out",
           scrollTrigger: {
             trigger: el,
-            start: "top 80%",
+            start: "top 82%",
             toggleActions: "play none none none",
           },
         });
       });
 
-      // Process steps stagger
+      // Process steps
       gsap.from("[data-step]", {
-        y: 40,
+        y: 50,
         opacity: 0,
-        duration: 0.7,
+        duration: 0.8,
         ease: "power3.out",
-        stagger: 0.1,
+        stagger: 0.08,
         scrollTrigger: {
           trigger: "[data-steps-container]",
-          start: "top 75%",
+          start: "top 78%",
+        },
+      });
+
+      // Parallax on hero image
+      gsap.to("[data-hero-img] img", {
+        yPercent: 15,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "[data-hero-section]",
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+
+      // Footer brand reveal
+      gsap.from("[data-footer-brand]", {
+        yPercent: 50,
+        opacity: 0,
+        duration: 1.4,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: "[data-footer-brand]",
+          start: "top 95%",
         },
       });
     }, mainRef);
@@ -147,26 +214,37 @@ export default function SiteHome() {
     <div ref={mainRef} className="site-home bg-white text-[#1a1a1a] overflow-x-hidden">
       {/* ─── HEADER ─── */}
       <header className="fixed top-0 left-0 right-0 z-50 mix-blend-difference pointer-events-none">
-        <div className="flex items-center justify-between px-6 md:px-12 py-5 pointer-events-auto">
-          <Link to="/site" className="font-display text-sm md:text-base font-bold tracking-[0.08em] uppercase text-white">
-            Construtora
-          </Link>
-          <nav className="hidden md:flex items-center gap-8">
-            {["Início", "Projetos", "Processo", "Estúdio", "Contato"].map((item) => (
-              <Link
-                key={item}
-                to={item === "Contato" ? "/site/contato" : item === "Projetos" ? "/empreendimentos" : "/site"}
-                className="text-[13px] text-white/80 hover:text-white transition-colors tracking-wide"
-              >
-                {item}
-              </Link>
-            ))}
-          </nav>
-          <div className="flex items-center gap-6">
-            <span className="text-[12px] text-white/60 hidden lg:inline tracking-wide">Brasil</span>
+        <div className="flex items-center justify-between px-8 md:px-16 lg:px-20 h-16 md:h-20 pointer-events-auto">
+          <div className="flex items-center gap-10 md:gap-16">
+            <Link
+              to="/site"
+              className="font-display text-[13px] md:text-[14px] font-bold tracking-[0.12em] uppercase text-white"
+            >
+              Construtora
+            </Link>
+            <nav className="hidden md:flex items-center gap-2">
+              {["Projetos", "Processo", "Estúdio"].map((item, i) => (
+                <span key={item} className="flex items-center">
+                  {i > 0 && <span className="text-white/30 mx-2 text-[12px]">,</span>}
+                  <Link
+                    to={item === "Projetos" ? "/empreendimentos" : "/site"}
+                    className="text-[13px] text-white/70 hover:text-white transition-colors duration-300"
+                  >
+                    {item}
+                  </Link>
+                </span>
+              ))}
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-8 md:gap-12">
+            <span className="text-[12px] text-white/40 hidden lg:inline tabular-nums tracking-wider">
+              {currentTime}
+            </span>
+            <span className="text-[12px] text-white/50 hidden lg:inline">São Paulo, BRA</span>
             <Link
               to="/site/contato"
-              className="text-[13px] text-white hover:text-white/70 transition-colors tracking-wide"
+              className="text-[13px] text-white/80 hover:text-white transition-colors duration-300"
             >
               Contato
             </Link>
@@ -175,147 +253,175 @@ export default function SiteHome() {
       </header>
 
       {/* ─── HERO ─── */}
-      <section className="relative min-h-screen flex flex-col justify-end pb-16 md:pb-24 bg-white">
-        {/* Large brand name */}
-        <div className="px-6 md:px-12 pt-32 md:pt-40 mb-12 md:mb-20">
-          <h1 data-hero-text className="font-display text-[clamp(3rem,10vw,9rem)] font-bold leading-[0.9] tracking-[-0.03em] text-[#1a1a1a] uppercase">
-            Construtora
-          </h1>
+      <section data-hero-section className="relative h-screen flex flex-col bg-white">
+        {/* Brand name — fills width, positioned top */}
+        <div className="px-8 md:px-16 lg:px-20 pt-28 md:pt-32 overflow-hidden">
+          <div data-hero-brand>
+            <h1 className="font-display text-[clamp(4.5rem,15vw,14rem)] font-bold leading-[0.85] tracking-[-0.04em] text-[#1a1a1a] uppercase select-none">
+              Construtora
+            </h1>
+          </div>
         </div>
 
-        {/* Hero image centered */}
-        <div className="px-6 md:px-[12%] mb-16 md:mb-24">
-          <div data-hero-img className="relative w-full max-w-[740px] mx-auto overflow-hidden">
+        {/* Hero image — large, centered, with breathing room */}
+        <div className="flex-1 flex items-center justify-center px-8 md:px-[15%] lg:px-[20%] py-8">
+          <div data-hero-img className="relative w-full max-w-[680px] overflow-hidden">
             <img
               src={heroImg}
               alt="Empreendimento premium com vegetação integrada à fachada"
-              className="w-full h-auto object-cover"
+              className="w-full h-auto object-cover will-change-transform"
               loading="eager"
             />
           </div>
         </div>
 
-        {/* Bottom row */}
-        <div className="flex items-end justify-between px-6 md:px-12">
-          <p data-hero-text className="text-sm md:text-base text-[#6d8f6f] max-w-xs leading-relaxed">
+        {/* Bottom metadata row */}
+        <div className="flex items-end justify-between px-8 md:px-16 lg:px-20 pb-8 md:pb-12">
+          <p data-hero-meta className="text-[13px] md:text-[14px] text-[#6d8f6f] leading-[1.6] max-w-[260px]">
             Guiados pela história,<br />
             centrados no contexto,<br />
             abraçando a cultura.
           </p>
-          <div data-scroll-cue className="text-[11px] text-[#a9ce99] tracking-widest uppercase">
+          <div data-scroll-cue className="text-[10px] text-[#a9ce99]/70 tracking-[0.25em] uppercase">
             [Rolar]
           </div>
         </div>
       </section>
 
       {/* ─── STUDIO ─── */}
-      <section className="py-32 md:py-48 px-6 md:px-12">
-        <div className="grid md:grid-cols-12 gap-12 md:gap-8">
-          {/* Left: number + image */}
-          <div className="md:col-span-4">
-            <span data-reveal className="text-[11px] tracking-widest text-[#a9ce99] uppercase mb-8 block">01 &nbsp; Estúdio</span>
-            <div data-img-reveal className="w-full max-w-[280px] overflow-hidden">
-              <img src={studioImg} alt="Detalhe arquitetônico em concreto" className="w-full h-auto object-cover" loading="lazy" />
+      <section className="py-48 md:py-64 lg:py-80 px-8 md:px-16 lg:px-20">
+        <div className="grid md:grid-cols-12 gap-16 md:gap-8">
+          {/* Left column */}
+          <div className="md:col-span-3">
+            <span data-reveal className="text-[10px] tracking-[0.25em] text-[#a9ce99] uppercase mb-12 block">
+              01 &mdash; Estúdio
+            </span>
+            <div data-img-reveal className="w-full max-w-[240px] overflow-hidden">
+              <img
+                src={studioImg}
+                alt="Detalhe arquitetônico em concreto aparente"
+                className="w-full h-auto object-cover"
+                loading="lazy"
+              />
             </div>
           </div>
 
-          {/* Right: text */}
-          <div className="md:col-span-7 md:col-start-6 flex flex-col justify-center">
-            <p data-reveal className="text-sm md:text-base text-[#6d8f6f] leading-relaxed max-w-md mb-16">
+          {/* Right column — large statement */}
+          <div className="md:col-span-8 md:col-start-5 flex flex-col justify-end">
+            <p data-reveal className="text-[13px] md:text-[14px] text-[#6d8f6f] leading-[1.7] max-w-lg mb-20 md:mb-28">
               Conectamos, criamos e construímos em territórios que carregam significado. Reconhecemos a história, a cultura e as conexões de cada lugar — e prestamos nosso respeito ao que veio antes e ao que virá depois.
             </p>
-            <h2 data-reveal className="font-display text-[clamp(2rem,5vw,4.5rem)] font-bold leading-[1.05] tracking-[-0.02em] text-[#1a1a1a]">
-              Somos um estúdio de Arquitetura &amp; Construção, desenvolvendo projetos residenciais premium em todo o Brasil.
+            <h2 data-reveal-text className="font-display text-[clamp(2.2rem,5.5vw,5.5rem)] font-bold leading-[1.02] tracking-[-0.03em] text-[#1a1a1a]">
+              Somos um estúdio de Arquitetura &amp;&nbsp;Construção, desenvolvendo projetos residenciais premium em todo o&nbsp;Brasil.
             </h2>
           </div>
         </div>
       </section>
 
       {/* ─── SELECTED WORKS ─── */}
-      <section className="pb-32 md:pb-48">
-        <div className="px-6 md:px-12 mb-20 md:mb-32">
-          <span data-reveal className="text-[11px] tracking-widest text-[#a9ce99] uppercase block mb-4">Projetos selecionados</span>
-          <h2 data-reveal className="font-display text-[clamp(2.5rem,6vw,6rem)] font-bold tracking-[-0.03em] text-[#1a1a1a]">
-            Obras<sup className="text-[0.4em] text-[#a9ce99] ml-1">({projects.length.toString().padStart(2, "0")})</sup>
-          </h2>
+      <section className="pb-48 md:pb-64 lg:pb-80">
+        {/* Section header */}
+        <div className="px-8 md:px-16 lg:px-20 mb-24 md:mb-40">
+          <div className="flex items-start justify-between">
+            <div>
+              <span data-reveal className="text-[10px] tracking-[0.25em] text-[#a9ce99] uppercase block mb-4">
+                Projetos selecionados
+              </span>
+            </div>
+            <span data-reveal className="text-[11px] text-[#a9ce99]/60 tracking-wider hidden md:block">
+              {projects.length.toString().padStart(2, "0")} — 25'
+            </span>
+          </div>
         </div>
 
-        <div className="space-y-24 md:space-y-40">
+        {/* Projects — each one full-width, editorial, dramatic */}
+        <div className="space-y-48 md:space-y-64">
           {projects.map((p, i) => (
-            <article key={p.name} className="group px-6 md:px-12">
-              <div className="grid md:grid-cols-12 gap-6 items-start">
-                {/* Project name */}
-                <div className={`md:col-span-5 flex flex-col justify-center ${i % 2 === 1 ? "md:order-2 md:col-start-8" : ""}`}>
-                  <div data-reveal>
-                    <span className="text-[11px] tracking-widest text-[#a9ce99] uppercase block mb-3">
-                      {(i + 1).toString().padStart(2, "0")}
-                    </span>
-                    <h3 className="font-display text-[clamp(2rem,4vw,4rem)] font-bold tracking-[-0.02em] text-[#1a1a1a] leading-[1.05] mb-4">
-                      <span className="inline-block relative">
-                        <span className="relative z-10">[</span>
-                        <span className="mx-3">{p.name}</span>
-                        <span className="relative z-10">]</span>
-                      </span>
-                    </h3>
-                    <div className="flex items-center gap-8 text-[13px] text-[#6d8f6f]">
-                      <span>{p.type}</span>
-                      <span>{p.year}</span>
-                    </div>
-                  </div>
+            <article key={p.name} className="group">
+              {/* Project title — oversized, centered */}
+              <div className="px-8 md:px-16 lg:px-20 mb-12 md:mb-16">
+                <div data-reveal-text className="flex items-center justify-center">
+                  <span className="font-display text-[clamp(3rem,8vw,9rem)] font-bold tracking-[-0.04em] text-[#1a1a1a] leading-[0.9] text-center">
+                    <span className="inline-block text-[#a9ce99]/40 font-light mr-2 md:mr-4">[</span>
+                    {p.name}
+                    <span className="inline-block text-[#a9ce99]/40 font-light ml-2 md:ml-4">]</span>
+                  </span>
                 </div>
+              </div>
 
-                {/* Project image */}
-                <div className={`md:col-span-6 ${i % 2 === 1 ? "md:order-1 md:col-start-1" : "md:col-start-7"}`}>
-                  <div data-img-reveal className="overflow-hidden cursor-pointer">
-                    <img
-                      src={p.img}
-                      alt={p.name}
-                      className="w-full h-auto object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                      loading="lazy"
-                    />
-                  </div>
+              {/* Project image — large, centered */}
+              <div className="px-8 md:px-[12%] lg:px-[16%]">
+                <div data-img-reveal className="overflow-hidden cursor-pointer">
+                  <img
+                    src={p.img}
+                    alt={p.name}
+                    className="w-full h-auto object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+                    loading="lazy"
+                  />
                 </div>
+              </div>
+
+              {/* Project metadata */}
+              <div className="flex items-center justify-between px-8 md:px-[12%] lg:px-[16%] mt-6 md:mt-8">
+                <span className="text-[12px] text-[#6d8f6f] tracking-wide">{p.type}</span>
+                <span className="text-[12px] text-[#6d8f6f]/60 tracking-wider">{p.year}</span>
               </div>
             </article>
           ))}
         </div>
 
-        <div className="px-6 md:px-12 mt-20 md:mt-32">
+        {/* View all */}
+        <div className="px-8 md:px-16 lg:px-20 mt-32 md:mt-48">
           <Link
             to="/empreendimentos"
             data-reveal
-            className="inline-flex items-center gap-3 text-[13px] font-medium text-[#276233] hover:text-[#348846] transition-colors tracking-wide group/link"
+            className="inline-flex items-center gap-4 text-[13px] font-medium text-[#276233] hover:text-[#348846] transition-colors duration-300 tracking-wide group/link"
           >
             Ver todos os projetos
-            <span className="inline-block transition-transform group-hover/link:translate-x-1">→</span>
+            <span className="inline-block transition-transform duration-500 group-hover/link:translate-x-2">→</span>
           </Link>
         </div>
       </section>
 
       {/* ─── VISION ─── */}
       <section className="relative">
-        {/* Full-bleed image background */}
-        <div className="relative min-h-screen">
+        <div className="relative min-h-[120vh]">
           <div
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover bg-center bg-fixed"
             style={{ backgroundImage: `url(${visionBg})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/75" />
 
-          <div className="relative z-10 px-6 md:px-12 py-32 md:py-48">
-            <span data-reveal className="text-[11px] tracking-widest text-[#a9ce99] uppercase block mb-16">Visão</span>
+          <div className="relative z-10 px-8 md:px-16 lg:px-20 py-48 md:py-64">
+            {/* Section label */}
+            <div className="flex items-center justify-between mb-24 md:mb-40">
+              <span data-reveal className="text-[10px] tracking-[0.25em] text-[#a9ce99] uppercase">Visão</span>
+              <span data-reveal className="text-[10px] tracking-[0.25em] text-[#a9ce99]/40 uppercase hidden md:block">Vision</span>
+            </div>
 
-            <div className="space-y-24 md:space-y-32 max-w-5xl">
+            {/* Horizontal scrolling words — mimicking the reference */}
+            <div data-reveal className="mb-32 md:mb-48 overflow-hidden">
+              <div className="flex items-center gap-12 md:gap-24 whitespace-nowrap">
+                <span className="font-display text-[clamp(3rem,7vw,7rem)] font-bold text-white/20 tracking-[-0.03em]">Integridade</span>
+                <span className="font-display text-[clamp(3rem,7vw,7rem)] font-bold text-white tracking-[-0.03em]">Inovação</span>
+                <span className="font-display text-[clamp(3rem,7vw,7rem)] font-bold text-white/20 tracking-[-0.03em]">Experiência ampliada</span>
+              </div>
+            </div>
+
+            {/* Principles — editorial layout */}
+            <div className="space-y-32 md:space-y-48 max-w-6xl">
               {principles.map((p) => (
-                <div key={p.num} data-reveal className="grid md:grid-cols-12 gap-8">
+                <div key={p.num} data-reveal className="grid md:grid-cols-12 gap-6 md:gap-8">
                   <div className="md:col-span-1">
-                    <span className="text-[11px] tracking-widest text-[#a9ce99]">{p.num}</span>
+                    <span className="text-[10px] tracking-[0.25em] text-[#a9ce99]">{p.num}</span>
                   </div>
                   <div className="md:col-span-4">
-                    <h3 className="font-display text-2xl md:text-3xl font-bold text-white leading-tight mb-4">{p.title}</h3>
+                    <h3 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-[1.05] tracking-[-0.02em]">
+                      {p.title}
+                    </h3>
                   </div>
-                  <div className="md:col-span-6 md:col-start-7">
-                    <p className="text-[15px] text-white/75 leading-relaxed">{p.body}</p>
+                  <div className="md:col-span-5 md:col-start-8">
+                    <p className="text-[14px] md:text-[15px] text-white/65 leading-[1.8]">{p.body}</p>
                   </div>
                 </div>
               ))}
@@ -325,28 +431,32 @@ export default function SiteHome() {
       </section>
 
       {/* ─── METHOD ─── */}
-      <section className="py-32 md:py-48 px-6 md:px-12 bg-white">
-        <div className="max-w-5xl">
-          <span data-reveal className="text-[11px] tracking-widest text-[#a9ce99] uppercase block mb-6">Método</span>
-          <h2 data-reveal className="font-display text-[clamp(2rem,4vw,3.5rem)] font-bold tracking-[-0.02em] text-[#1a1a1a] mb-20 md:mb-28 max-w-2xl leading-[1.1]">
+      <section className="py-48 md:py-64 lg:py-80 px-8 md:px-16 lg:px-20 bg-white">
+        <div className="max-w-6xl">
+          <span data-reveal className="text-[10px] tracking-[0.25em] text-[#a9ce99] uppercase block mb-8">
+            Método
+          </span>
+          <h2 data-reveal-text className="font-display text-[clamp(2.5rem,5vw,4.5rem)] font-bold tracking-[-0.03em] text-[#1a1a1a] mb-28 md:mb-40 max-w-3xl leading-[1.05]">
             Um processo que valoriza cada etapa, do primeiro traço à vivência plena.
           </h2>
         </div>
 
-        <div data-steps-container className="border-t border-[#e8e8e8]">
+        <div data-steps-container className="border-t border-[#e0e0e0] max-w-5xl">
           {steps.map((s) => (
             <div
               key={s.num}
               data-step
-              className="flex items-center justify-between py-6 md:py-8 border-b border-[#e8e8e8] group cursor-default"
+              className="flex items-center justify-between py-8 md:py-10 border-b border-[#e0e0e0] group cursor-default transition-colors duration-500 hover:border-[#276233]/20"
             >
-              <div className="flex items-center gap-6 md:gap-12">
-                <span className="text-[12px] text-[#a9ce99] tracking-widest font-medium w-6">{s.num}</span>
-                <span className="font-display text-xl md:text-2xl font-semibold text-[#1a1a1a] group-hover:text-[#276233] transition-colors duration-300">
+              <div className="flex items-baseline gap-8 md:gap-16">
+                <span className="text-[11px] text-[#a9ce99] tracking-[0.2em] font-medium w-8 tabular-nums">
+                  {s.num}
+                </span>
+                <span className="font-display text-2xl md:text-3xl lg:text-4xl font-semibold text-[#1a1a1a] group-hover:text-[#276233] transition-colors duration-500 tracking-[-0.01em]">
                   {s.label}
                 </span>
               </div>
-              <span className="text-[#a9ce99] opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm">
+              <span className="text-[#276233] opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-[-4px] group-hover:translate-x-0 text-sm">
                 →
               </span>
             </div>
@@ -355,18 +465,18 @@ export default function SiteHome() {
       </section>
 
       {/* ─── CONTACT CTA ─── */}
-      <section className="py-32 md:py-48 px-6 md:px-12 bg-[#f9fbf7]">
-        <div className="max-w-4xl">
-          <p data-reveal className="text-sm text-[#a9ce99] mb-6 tracking-wide">
+      <section className="py-48 md:py-64 lg:py-80 px-8 md:px-16 lg:px-20 bg-[#fafcf8]">
+        <div className="max-w-5xl">
+          <p data-reveal className="text-[11px] text-[#a9ce99] mb-8 tracking-[0.2em] uppercase">
             Fale sobre o seu projeto
           </p>
-          <h2 data-reveal className="font-display text-[clamp(2.5rem,5vw,5rem)] font-bold tracking-[-0.02em] text-[#1a1a1a] leading-[1.05] mb-8">
+          <h2 data-reveal-text className="font-display text-[clamp(3rem,7vw,7rem)] font-bold tracking-[-0.03em] text-[#1a1a1a] leading-[0.95] mb-12">
             Vamos conversar
           </h2>
           <Link
             to="/site/contato"
             data-reveal
-            className="inline-block font-display text-lg md:text-xl font-semibold text-[#276233] border-b-2 border-[#276233] pb-1 hover:text-[#348846] hover:border-[#348846] transition-colors"
+            className="inline-block font-display text-xl md:text-2xl font-semibold text-[#276233] border-b-2 border-[#276233] pb-2 hover:text-[#348846] hover:border-[#348846] transition-colors duration-500"
           >
             Entre em contato
           </Link>
@@ -374,28 +484,31 @@ export default function SiteHome() {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="bg-[#1a1a1a] text-white pt-24 md:pt-32 pb-8">
-        <div className="px-6 md:px-12">
-          <div className="grid md:grid-cols-12 gap-12 md:gap-8 mb-24 md:mb-32">
+      <footer className="bg-[#111111] text-white">
+        <div className="px-8 md:px-16 lg:px-20 pt-32 md:pt-48 pb-8">
+          {/* Top section */}
+          <div className="grid md:grid-cols-12 gap-16 md:gap-8 mb-32 md:mb-48">
             {/* CTA */}
             <div className="md:col-span-5">
-              <p className="text-sm text-white/40 mb-4">Fale sobre o seu projeto</p>
+              <p className="text-[11px] text-white/30 mb-6 tracking-[0.2em] uppercase">
+                Fale sobre o seu projeto
+              </p>
               <Link
                 to="/site/contato"
-                className="font-display text-2xl md:text-3xl font-bold text-white border-b border-white pb-1 hover:text-[#a9ce99] hover:border-[#a9ce99] transition-colors"
+                className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-[1.05] tracking-[-0.02em] border-b border-white/30 pb-2 hover:text-[#a9ce99] hover:border-[#a9ce99] transition-colors duration-500 inline-block"
               >
                 Entre em contato
               </Link>
             </div>
 
             {/* Nav */}
-            <div className="md:col-span-3 md:col-start-7">
-              <nav className="flex flex-col gap-3">
+            <div className="md:col-span-2 md:col-start-8">
+              <nav className="flex flex-col gap-4">
                 {["Início", "Projetos", "Estúdio", "Processo", "Contato"].map((item) => (
                   <Link
                     key={item}
                     to={item === "Contato" ? "/site/contato" : item === "Projetos" ? "/empreendimentos" : "/site"}
-                    className="text-sm text-white/60 hover:text-white transition-colors"
+                    className="text-[13px] text-white/40 hover:text-white transition-colors duration-300"
                   >
                     {item}
                   </Link>
@@ -403,45 +516,53 @@ export default function SiteHome() {
               </nav>
             </div>
 
-            {/* Info */}
-            <div className="md:col-span-3">
-              <div className="space-y-4 text-sm text-white/60">
+            {/* Contact info */}
+            <div className="md:col-span-3 md:col-start-10">
+              <div className="space-y-6 text-[13px] text-white/40">
                 <div>
-                  <span className="text-[11px] text-white/30 uppercase tracking-wider block mb-1">L</span>
+                  <span className="text-[10px] text-white/20 uppercase tracking-[0.2em] block mb-2">L</span>
                   Rua das Palmeiras, 200<br />
                   São Paulo<br />
                   Brasil, 01234-000
                 </div>
                 <div>
-                  <span className="text-[11px] text-white/30 uppercase tracking-wider block mb-1">T</span>
+                  <span className="text-[10px] text-white/20 uppercase tracking-[0.2em] block mb-2">T</span>
                   +55 11 3456 7890
                 </div>
                 <div>
-                  <span className="text-[11px] text-white/30 uppercase tracking-wider block mb-1">E</span>
+                  <span className="text-[10px] text-white/20 uppercase tracking-[0.2em] block mb-2">E</span>
                   contato@construtora.com.br
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Bottom row */}
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-t border-white/10 pt-6">
-            <span className="text-[11px] text-white/30">
-              © {new Date().getFullYear()} Construtora. Todos os direitos reservados.
-            </span>
-            <div className="flex items-center gap-6 text-[11px] text-white/30">
-              <a href="#" className="hover:text-white/60 transition-colors">Política de privacidade</a>
-              <a href="#" className="hover:text-white/60 transition-colors">Termos de uso</a>
-              <a href="#" className="hover:text-white/60 transition-colors">Instagram</a>
-              <a href="#" className="hover:text-white/60 transition-colors">LinkedIn</a>
+          {/* Newsletter row */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 border-t border-white/8 pt-8 mb-12">
+            <span className="text-[12px] text-white/30">Assine nossa newsletter</span>
+            <div className="flex items-center gap-4">
+              <a href="#" className="text-[12px] text-white/30 hover:text-white/60 transition-colors duration-300">Instagram</a>
+              <span className="text-white/10">,</span>
+              <a href="#" className="text-[12px] text-white/30 hover:text-white/60 transition-colors duration-300">LinkedIn</a>
             </div>
           </div>
 
-          {/* Large brand */}
-          <div className="mt-16 md:mt-20 overflow-hidden">
-            <h2 className="font-display text-[clamp(4rem,14vw,12rem)] font-bold tracking-[-0.03em] text-white/10 uppercase leading-none whitespace-nowrap select-none">
+          {/* Large brand watermark */}
+          <div data-footer-brand className="overflow-hidden mt-8">
+            <h2 className="font-display text-[clamp(5rem,18vw,16rem)] font-bold tracking-[-0.04em] text-white/[0.06] uppercase leading-[0.85] whitespace-nowrap select-none">
               Construtora
             </h2>
+          </div>
+
+          {/* Bottom legal */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mt-6 pt-6 border-t border-white/5">
+            <span className="text-[10px] text-white/20">
+              © {new Date().getFullYear()} Construtora. Todos os direitos reservados.
+            </span>
+            <div className="flex items-center gap-6 text-[10px] text-white/20">
+              <a href="#" className="hover:text-white/40 transition-colors duration-300">Política de privacidade</a>
+              <a href="#" className="hover:text-white/40 transition-colors duration-300">Termos de uso</a>
+            </div>
           </div>
         </div>
       </footer>
